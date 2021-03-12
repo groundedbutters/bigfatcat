@@ -16,7 +16,7 @@ https://github.com/groundedbutters/nanisore
 
 ## 人生
 
-https://github.com/groundedbutters/bigfatcat/blob/master/my%20resume/zixuan_ruan.md
+https://groundedbutters.github.io/bigfatcat/my%20resume/zixuan_ruan
 
 ## 小说与散文
 
