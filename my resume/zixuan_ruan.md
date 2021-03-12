@@ -1,23 +1,27 @@
-# 阮子轩
+gantt
+    dateFormat  YYYY-MM-DD
+    title Adding GANTT diagram functionality to mermaid
 
-**教育**
----
+    section A section
+    Completed task            :done,    des1, 2014-01-06,2014-01-08
+    Active task               :active,  des2, 2014-01-09, 3d
+    Future task               :         des3, after des2, 5d
+    Future task2               :         des4, after des3, 5d
 
-**工作**
----
+    section Critical tasks
+    Completed task in the critical line :crit, done, 2014-01-06,24h
+    Implement parser and jison          :crit, done, after des1, 2d
+    Create tests for parser             :crit, active, 3d
+    Future task in critical line        :crit, 5d
+    Create tests for renderer           :2d
+    Add to mermaid                      :1d
 
-**恋爱**
----
+    section Documentation
+    Describe gantt syntax               :active, a1, after des1, 3d
+    Add gantt diagram to demo page      :after a1  , 20h
+    Add another diagram to demo page    :doc1, after a1  , 48h
 
-**朋友**
----
-
-**行踪遗迹**
----
-1996 - 2015 南京 <br>
-2015 - 2016 鹿特丹 <br>
-2018 - 2018 波士顿 <br>
-2016 - 2019 阿姆斯特丹 <br>
-2019 - 2020 纽约 <br>
-2020 - 2020 深圳 <br>
-2020 - 2021 北京 <br>
+    section Last section
+    Describe gantt syntax               :after doc1, 3d
+    Add gantt diagram to demo page      : 20h
+    Add another diagram to demo page    : 48h
