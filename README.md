@@ -14,6 +14,10 @@ _@zixuan_ruan 20210312 西二旗_
 
 https://github.com/groundedbutters/nanisore
 
+## 人生
+
+https://github.com/groundedbutters/bigfatcat/blob/master/my%20resume/zixuan_ruan.md
+
 ## 小说与散文
 
 * [x] [处女](https://mindfucking.gitbook.io/daguguguji/parti-xiao-shuo-yu-san-wen/chu-nv)
