@@ -1,12 +1,10 @@
 # 关于本文集
 
-缘起是想自己做一本特师文集，供奉起来，方便时时拜读学习的同时，也能承前启后，让特师的宝贵文化遗产传承下去，造福子孙后代。
+上班摸鱼的产物。目前的想法是存放随笔、日记和一些有纪念意义的杂物（照片，作品，日记等）。
 
-另外发现目前网路上散落流传的 pdf 和 txt 文件有不少问题，比如错别字、标点，需要勘定校对。此次梳理，会争取做到集各版之所长，并逐字逐句查缺补漏、勘误，包括错误标点符号，以期打造一个最佳版本。纯文字版完成之后，还打算在此文字版基础上出一个经过美编排版设计的印刷版。
+欢迎能发现此页面的朋友添砖加瓦。
 
-欢迎各位野生郭冬临 fork、star，共同编辑校对，为严肃文学添砖加瓦。
-
-_@naoyeye 20181109 酒仙桥_
+_@zixuan_ruan 20210312 西二旗_
 
 ## 在线阅读
 
@@ -14,11 +12,9 @@ _@naoyeye 20181109 酒仙桥_
 
 ## 本项目源代码
 
-https://github.com/MindFxck/daguguguji
+https://github.com/groundedbutters/nanisore
 
-## 进度
-
-I 小说与散文
+## 小说与散文
 
 * [x] [处女](https://mindfucking.gitbook.io/daguguguji/parti-xiao-shuo-yu-san-wen/chu-nv)
 * [x] [陈大壮](https://mindfucking.gitbook.io/daguguguji/parti-xiao-shuo-yu-san-wen/chen-da-zhuang)
@@ -56,7 +52,7 @@ I 小说与散文
 * [x] [关于去拉萨的说两句](https://mindfucking.gitbook.io/daguguguji/parti-xiao-shuo-yu-san-wen/la-sa-yi-shi)
 * [x] [黄浦江深夜致电某领导，黄浦江有话要讲！](https://mindfucking.gitbook.io/daguguguji/parti-xiao-shuo-yu-san-wen/huang-pu-jiang-shen-ye-zhi-dian-mou-ling-dao-huang-pu-jiang-you-hua-yao-jiang)
 
-II 诗歌
+## 诗歌
 
 * [x] [七月](https://mindfucking.gitbook.io/daguguguji/partii-shi-ge/qi-yue)
 * [x] [一段时期的平原生活](https://mindfucking.gitbook.io/daguguguji/partii-shi-ge/yi-duan-shi-qi-de-ping-yuan-sheng-huo)
@@ -84,7 +80,7 @@ II 诗歌
 * [x] [夜晚](https://mindfucking.gitbook.io/daguguguji/part-ii-shi-ge/ye-wan)
 * [x] [永恒](https://mindfucking.gitbook.io/daguguguji/part-ii-shi-ge/yong-heng)
 
-III 段子与微评
+## 段子与微评
 
 * [x] [几个长镜头素材](https://mindfucking.gitbook.io/daguguguji/part-iii-duan-zi-yu-wei-ping/ji-ge-chang-jing-tou-su-cai)
 * [x] [吃与境界](https://mindfucking.gitbook.io/daguguguji/part-iii-duan-zi-yu-wei-ping/chi-yu-jing-jie)
@@ -149,7 +145,7 @@ III 段子与微评
 * [x] [北京出租司机](https://mindfucking.gitbook.io/daguguguji/part-iii-duan-zi-yu-wei-ping/bei-jing-chu-zu-si-ji)
 * [x] [中产阶级](https://mindfucking.gitbook.io/daguguguji/part-iii-duan-zi-yu-wei-ping/zhong-chan-jie-ji)
 
-IV 野生郭东林仿写
+## 野生郭东林仿写
 
 * [x] [寿司机器人 \(微信朋友圈首发原创\) —— 举狗老师](https://mindfucking.gitbook.io/daguguguji/part-iv-ye-sheng-guo-dong-lin-fang-xie/shou-si-ji-qi-ren)
 <!-- * [x] [动物园的故事外一篇 —— dearbear](https://mindfucking.gitbook.io/daguguguji/part-iv-ye-sheng-guo-dong-lin-fang-xie/the-story-of-zoo-by-dearbear) -->
@@ -160,10 +156,10 @@ V 知乎网严肃文学评论家文评集锦
 * [x] [荒谬与陌生：嘲笑中产的剧作家 —— 知乎网匿名用户](https://mindfucking.gitbook.io/daguguguji/partv-zhi-hu-wang-yan-su-wen-xue-ping-lun-jia-wen-ping-ji-jin/huang-miu-yu-mo-sheng.md)
 * [ ] 反叛标准，跳脱无关：后现代主义文学家 —— 知乎网友土耳其耳朵
 
-IV 后记
+## 后记
 * [x] [后记](https://mindfucking.gitbook.io/daguguguji/part-iv-hou-ji/hou-ji)
 
-VII 补录
+## 补录
 
 * [x] [胜利了一刚](https://mindfucking.gitbook.io/daguguguji/part-vii-bu-lu/sheng-li-le-yi-gang)
 * [x] [抑郁症之苦《给心爱的人》](https://mindfucking.gitbook.io/daguguguji/part-vii-bu-lu/yi-yu-zheng-zhi-ku-gei-xin-ai-de-ren)
@@ -205,25 +201,14 @@ VII 补录
 * [ ] 畜生开会
 * [ ] 我今天就说句大实话
 
-VII 拾遗
+## 拾遗
 
 * [特师拾遗](https://mindfucking.gitbook.io/daguguguji/part-vii-shi-yi/te-shi-shi-yi)
 
-VIII 音乐
+## 音乐
 
 * [特师文章中提及的音乐合集](https://mindfucking.gitbook.io/daguguguji/part-viii-yinyue/he-ji)
 
-
-## 原始文字参考
-
-本文集的文字内容会基于以下内容整理：
-
-* [特师文集.pdf](https://github.com/MindFxck/daguguguji/blob/master//特师文集.pdf)
-* [book.txt](https://github.com/MindFxck/daguguguji/blob/master/book.txt)_（特师文集.pdf的txt自动转换版）_
-* [佛搂蜜的诗](https://hongyangchun.wordpress.com/category/佛搂蜜的诗/)
-* [人间动物园](http://lidamao.com)
-* [张大锤](https://www.jianshu.com/u/6a4cf8d99999)
-* [人间动物园.pdf](https://github.com/MindFxck/daguguguji/blob/master/人间动物园.pdf)
 
 ## 一些命令
 
