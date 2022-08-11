@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Text Mining I</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Thomas Brambor" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="custom_Xaringan.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Text Mining I
+### Thomas Brambor
+### 2020/03/30
+
+---
+
+
+
+
+
+
+
+class: inverse, bottom, right
+background-image: url(images/text-mining-icon.png)
+background-size: 50%
+background-position: 25% 30%
+
+# Mining Text as Data
+
+-- 
+
+&lt;img src="images/nytimes_jobless_claims.png" width="20%" /&gt;
+
+
+---
+
+# Text as the new frontier of ...
+
+**Data**  
+- Lots of it (literally petabytes) on the web, not to mention archives.
+
+--
+
+**Methods**:
+- **Unstructured data** needs to be harvested and modeled.
+- Quantitative 'text-as-data' approaches as strategies to **learn more about social** scientific phenomena of interest.
+
+--
+
+**Social Science**  
+- Politicians give speeches, thinkers write articles, nations sign treaties, users connect on Facebook  etc.
+
+---
+
+# Roadmap for Text Analysis and Visualization (2 lectures) 
+
+1. Getting text and structuring it.
+2. bag of words vs. ngrams
+3. introduce popular packages: `tm`, `quanteda`, `tidytext`
+4. sentiment analysis, identifying important words, topic modeling
+
+**Our focus**: visualizing the results of some simple text mining approaches, including word clouds, dendrograms, frequency analyses, sentiments, topics etc.
+
+---
+
+# Text Mining
+
+**Text mining**: the process of distilling **analytical insights from text**.
+
+Basic idea: go from unorganized to organized state.
+
+--
+
+&lt;img src="images/google_search_prediction.png" width="70%" /&gt;
+
+---
+
+background-image: url(images/semantic_vs_bagofwords.png)
+background-size: 90%
+background-position: 50% 70%
+
+# Semantic Parsing vs. Bag of Words
+
+
+---
+
+# Semantic Parsing vs. Bag of Words
+
+Two basic approaches to text mining:
+
+- **semantic parsing**: grammar is important; care of word type and order → creates a lot of features 
+
+- **bag of words**: just care about the **individual words or sets of words**, no matter the type and order → we are going to focus on these types
+
+--
+
+&lt;img src="images/text_parsing_example_google.png" width="100%" /&gt;
+
+.center[.small[Example of sentence parsing via [Google Cloud NLP API](https://cloud.google.com/natural-language/).]]
+
+
+---
+
+background-image: url(images/getcape_wearcape_fly.png)
+background-size: 70%
+background-position: 95% 95%
+
+# What we won't cover here
+
+Supervised and unsupervised machine learning on text, including most clustering techniques, classification, and prediction.
+
+Complex tokenization.
+
+Languages other than English.
+
+The underlying statistical ideas of text mining.
+
+---
+
+background-image: url(images/data_analysis_funny_cartoon.gif)
+background-size: 90%
+background-position: 50% 98%
+
+# **4 principles** of quantitative text analysis
+
+1. All quantitative models of language are wrong — but some are useful.  
+
+--
+2. Quantitative methods for text amplify resources and augment humans. 
+
+--
+3. There is no globally best method for automated text analysis.  
+
+--
+4. Validate, Validate, Validate.  
+.right[.small[&lt;small&gt;   Source: Grimmer and Stewart (2013)&lt;/small&gt;]]
+
+
+
+
+---
+
+class: inverse, center, bottom
+background-image: url(images/alphabet_beads.jpg)
+background-size: 100%
+background-position: 100% 100%
+
+
+# Getting text and structuring it
+
+---
+
+# Sources for text
+
+- There are lots of sources of (large-scale) text collection that can serve as the basis for research and analysis:
+
+- existing corpora: e.g. [Google Books Ngrams](http://storage.googleapis.com/books/ngrams/books/datasetsv2.html), [Cobuild English corpus](http://www.collins.co.uk/category/English+Language+Teaching/COBUILD+Reference) (4.5 billion words), [Wikipedia Comporable Corpora](http://linguatools.org/tools/corpora/wikipedia-comparable-corpora/) (41 million Wikipedia articles in 253 languages), [Gutenberg Project](http://www.gutenberg.org/) (25,000 free books)
+
+- electronic sources: Twitter, Facebook, political speeches, reviews on websites; web scraping for data acquisition, NYTimes, Google News, Yahoo Finance etc.
+
+- undigitized text: OCR methods can help to digitize text and make it accessible (see for example [Archive.org](archive.org))
+
+---
+
+# From text to inference
+
+&lt;img src="images/from_text_to_inference.png" width="100%" /&gt;
+
+&lt;small&gt;&lt;small&gt;Arthur Spirling, EITM EUROPE, An Introduction to Text-as-Data. June 2016
+&lt;/small&gt;&lt;/small&gt;
+
+---
+
+background-image: url(images/robot-reading.jpg)
+background-size: 30%
+background-position: 95% 5%
+
+# From Text to Numeric Data
+
+&lt;br&gt; 
+1. **collect raw text** in machine readable /   
+electronic form.  
+Decide what constitutes a _document_.
+2. **strip away ‘superfluous’ material**:  
+HTML tags, capitalization, punctuation,   
+stop words etc.
+3. cut document up into useful **elementary pieces**: _tokenization_.
+4. add descriptive **annotations** that preserve context: _tagging_.
+5. **map tokens back** to common form: _lemmatization_, _stemming_.
+6. operate / model / **visualize**.
+
+---
+
+# Useful packages
+
+[**tm** package](http://tm.r-forge.r-project.org/)  
+Powerful text mining package with lots of functionalities to get text into R (from PDFs etc.) and work with it. The standard.
+
+[**quanteda** package](http://docs.quanteda.io/)
+A more modern contender built for efficiency and speed. Lots of tools and great documentation of its functionality with examples.
+
+[**tidytext** package](https://www.tidytextmining.com/)
+A tidy approach to text mining. Great effort though not all functionality is implemented yet.
+
+
+
+```r
+library(tm)       # Framework for text mining.
+library(quanteda) # Another great text mining package
+library(tidytext) # Text as Tidy Data (good for use with ggplot2)
+```
+
+---
+
+class: inverse, center, bottom
+background-image: url(images/SOTU_logo.jpg)
+background-size: 100%
+background-position: 0% 30%
+
+# Analysing all State of the Union Addresses 1790 - 2020
+
+---
+
+class: inverse
+background-image: url(images/sotu_trump.jpg)
+background-size: 100%
+background-position: 100% 120%
+
+## Who watched the last State of Union Address?
+
+---
+
+# Web scraping all State of the Union Addresses
+
+Often the text we want is online, but not yet in a single data file or the right format.
+
+Web scraping is often a good way to get such text
+
+**Example**: State of the Union Addresses from 1790 - 2020
+
+---
+
+# Source of the Text
+
+We will use the texts published in this site:
+
+http://stateoftheunion.onetwothree.net/texts/index.html
+
+&lt;img src="images/sotu_website_main.png" width="33.5%" /&gt;
+&lt;img src="images/sotu_website_trump.png" width="49%" /&gt;
+
+---
+
+# Get the URLs we want to scrape
+
+
+```r
+library(rvest)     # Excellent package for web scraping
+library(stringr)   # Good for working with strings
+
+# Load the page
+main.page &lt;- read_html(
+  "http://stateoftheunion.onetwothree.net/texts/index.html")
+
+# Get Link URLs
+urls &lt;- main.page %&gt;% 
+  # get the relevant links
+  html_nodes("#text &gt; ul &gt; li &gt; a") %&gt;%  
+  # extract the URLs
+  html_attr("href") %&gt;%
+  # back to absolute urls
+  paste("http://stateoftheunion.onetwothree.net/texts/", 
+        . , sep="") 
+```
+
+---
+
+# Get each HTML file
+
+
+```r
+# Loop over each row in `sotu`
+sotu.df &lt;- data.frame(urls = urls, pres_name = NA, date = NA, 
+                      text = NA,  stringsAsFactors = FALSE)
+
+for(i in 1:dim(sotu.df)[1]) {
+  file &lt;- read_html(urls[i])
+  sotu.df[i,"pres_name"] &lt;- file %&gt;% # load the current page
+    html_nodes("h2") %&gt;% # isolate the text 
+    html_text() # get the text
+    trimws() # trim white space
+  # ... 
+```
+
+---
+
+# Save each document as a text file
+
+
+```r
+# NOTE: Still part of the same loop; full loop in subsequent slide
+
+# Save each SOU as a text file
+  # Create the text file
+  filename &lt;- paste0("data/SOTU/texts/", 1000+i, 
+                     sotu.df$pres_name[i], "-", 
+                     sotu.df$year[i], ".txt")
+  sink(file = filename) %&gt;% # open file to write 
+  cat(sotu.df[i,"text"])  # write the file
+  sink() # close the file
+  
+# Reorder columns, save data frame
+sotu.df &lt;- sotu.df[,c("pres_name","year","date")]
+
+library(readr)
+write_csv(export, "data/SOTU/sotu.df.csv")
+```
+
+
+
+---
+
+# Get other meta data: _president's party_
+
+
+
+
+
+```r
+# Read in Data part
+sotu.df &lt;- read_csv("data/SOTU/sotu.df.csv")
+
+# Add party info
+party &lt;- read.csv("data/SOTU/presidents_party.csv")
+party &lt;- party[,c("Presidency","President","Took.office",
+                  "Left.office","Party")]
+
+# Correct some names to match
+party$President &lt;- gsub("James K. Polk", "James Polk", party$President)
+party$President &lt;- gsub("William Howard Taft", "William H. Taft", party$President)
+party$President &lt;- gsub("Warren G. Harding", "Warren Harding", party$President)
+party$President &lt;- gsub("Gerald Ford", "Gerald R. Ford", party$President)
+party$President &lt;- gsub("George H. W. Bush", "George H.W. Bush", party$President)
+party$President &lt;- gsub("Bill Clinton", "William J. Clinton", party$President)
+party$President &lt;- gsub("Barack Obama", "Barack Obama", party$President)
+
+sotu.df$party &lt;- party[match(tolower(sotu.df$pres_name),
+                             tolower(party$President)),"Party"]
+
+# Add Donald Trump
+sotu.df[sotu.df$pres_name == "Donald J. Trump", "party"] &lt;- "Republican"
+```
+
+---
+
+# Make corpus with meta data
+
+# Create a Corpus
+
+`Tidytext` is nice but it still does not have the full functionality of text analysis packages like `tm()` or `quanteda()`.
+
+
+```r
+# Convert to Corpus object (in the tm() package)
+library(tm)
+# Create Corpus
+sotu &lt;- VCorpus(DirSource("data/SOTU/texts/"))
+
+NLP::meta(sotu) &lt;- sotu.df[1:length(sotu),]
+
+# Add data frame to Corpus
+# Index of the metadata for a document in the corpus in   
+# meta(sotu, type="local", tag="author") &lt;- sotu.df$pres_name
+# meta(sotu, type="local", tag="year")   &lt;- sotu.df$year
+# meta(sotu, type="local", tag="party")  &lt;- sotu.df$party
+```
+
+
+
+Note: We will stick with the **tm** package here, but feel free to use whichever you find more convenient. 
+---
+
+# Corpus object
+
+
+```r
+# Print out sotu corpus
+sotu
+```
+
+```
+## &lt;&lt;VCorpus&gt;&gt;
+## Metadata:  corpus specific: 0, document level (indexed): 0
+## Content:  documents: 234
+```
+
+```r
+# Print data on the 15th SOU
+sotu[[15]]$content
+```
+
+```
+## [1] "  To The Senate and House of Representatives of the United States: In calling you together, fellow citizens, at an earlier day than was contemplated by the act of the last session of Congress, I have not been insensible to the personal inconveniences necessarily resulting from an unexpected change in your arrangements, but matters of great public concernment have rendered this call necessary, and the interests you feel in these will supersede in your minds all private considerations. Congress witnessed at their late session the extraordinary agitation produced in the public mind by the suspension of our right of deposit at the port of New Orleans, no assignment of another place having been made according to treaty. They were sensible that the continuance of that privation would be more injurious to our nation than any consequences which could flow from any mode of redress, but reposing just confidence in the good faith of the Government whose officer had committed the wrong, friendly and reasonable representations were resorted to, and the right of deposit was restored. Previous, however, to this period we had not been unaware of the danger to which our peace would be perpetually exposed whilst so important a key to the commerce of the Western country remained under foreign power. Difficulties, too, were presenting themselves as to the navigation of other streams which, arising within our territories, pass through those adjacent. Propositions had therefore been authorized for obtaining on fair conditions the sovereignty of New Orleans and of other possessions in that quarter interesting to our quiet to such extent as was deemed practicable, and the provisional appropriation of $2 millions to be applied and accounted for by the President of the United States, intended as part of the price, was considered as conveying the sanction of Congress to the acquisition proposed. The enlightened Government of France saw with just discernment the importance to both nations of such liberal arrangements as might best and permanently promote the peace, friendship, and interests of both, and the property and sovereignty of all Louisiana which had been restored to them have on certain conditions been transferred to the United States by instruments bearing date the 30th of April last. When these shall have received the constitutional sanction of the Senate, they will without delay be communicated to the Representatives also for the exercise of their functions as to those conditions which are within the powers vested by the Constitution in Congress. Whilst the property and sovereignty of the Mississippi and its waters secure an independent outlet for the produce of the Western States and an uncontrolled navigation through their whole course, free from collision with other powers and the dangers to our peace from that source, the fertility of the country, its climate and extent, promise in due season important aids to our Treasury, an ample provision for our posterity, and a wide spread for the blessings of freedom and equal laws. With the wisdom of Congress it will rest to take those ulterior measures which may be necessary for the immediate occupation and temporary government of the country; for its incorporation into our Union; for rendering the change of government a blessing to our newly adopted brethren; for securing to them the rights of conscience and of property; for confirming to the Indian inhabitants their occupancy and self-government, establishing friendly and commercial relations with them, and for ascertaining the geography of the country acquired. Such materials, for your information, relative to its affairs in general as the short space of time has permitted me to collect will be laid before you when the subject shall be in a state for your consideration. Another important acquisition of territory has also been made since the last session of Congress. The friendly tribe of Kaskaskia Indians, with which we have never had a difference, reduced by the wars and wants of savage life to a few individuals unable to defend themselves against the neighboring tribes, has transferred its country to the United States, reserving only for its members what is sufficient to maintain them in an agricultural way. The considerations stipulated are that we shall extend to them our patronage and protection and give them certain annual aids in money, in implements of agriculture, and other articles of their choice. This country, among the most fertile within our limits, extending along the Mississippi from the mouth of the Illinois to and up to the Ohio, though not so necessary as a barrier since the acquisition of the other bank, may yet be well worthy of being laid open to immediate settlement, as its inhabitants may descend with rapidity in support of the lower country should future circumstances expose that to foreign enterprise. As the stipulations in this treaty involve matters with the competence of both Houses only, it will be laid before Congress as soon as the Senate shall have advised its ratification. With many of the other Indian tribes improvements in agriculture and household manufacture are advancing, and with all our peace and friendship are established on grounds much firmer than heretofore. The measure adopted of establishing trading houses among them and of furnishing them necessaries in exchange for their commodities at such moderate prices as leave no gain, but cover us from loss, has the most conciliatory and useful effect on them, and is that which will best secure their peace and good will. The small vessels authorized by Congress with a view to the Mediterranean service have been sent into that sea, and will be able more effectually to confine the Tripoline cruisers within their harbors and supersede the necessity of convoy to our commerce in that quarter. They will sensibly lessen the expenses of that service the ensuing year. A further knowledge of the ground in the northeastern and northwestern angles of the United States has evinced that the boundaries established by the treaty of Paris between the British territories and ours in those parts were too imperfectly described to be susceptible of execution. It has therefore been thought worthy of attention for preserving and cherishing the harmony and useful intercourse subsisting between the two nations to remove by timely arrangements what unfavorable incidents might otherwise render a ground of future misunderstanding. A convention has therefore been entered into which provides for a practicable demarcation of those limits to the satisfaction of both parties. An account of the receipts and expenditures of the year ending the 30th of September last, with the estimates for the service of the ensuing year, will be laid before you by the Secretary of the Treasury so soon as the receipts of the last quarter shall be returned from the more distant States. It is already ascertained that the amount paid into the Treasury for that year has been between $11 millions and $12 millions, and that the revenue accrued during the same term exceeds the sum counted on as sufficient for our current expenses and to extinguish the public debt within the period heretofore proposed. The amount of debt paid for the same year is about $3.1 millions exclusive of interest, and making, with the payment of the preceding year, a discharge of more than $8.5 millions of the principal of that debt, besides the accruing interest; and there remain in the Treasury nearly $6 millions. Of these, $880 thousands have been reserved for payment of the first installment due under the British convention of January 8th, 1802, and $2 millions are what have been before mentioned as placed by Congress under the power and accountability of the President toward the price of New Orleans and other territories acquired, which, remaining untouched, are still applicable to that object and go in diminution of the sum to be funded for it. Should the acquisition of Louisiana be constitutionally confirmed and carried into effect, a sum of nearly $13 millions will then be added to our public debt, most of which is payable after fifteen years, before which term the present existing debts will all be discharged by the established operation of the sinking fund. When we contemplate the ordinary annual augmentation of impost from increasing population and wealth, the augmentation of the same revenue by its extension to the new acquisition, and the economies which may still be introduced into our public expenditures, I can not but hope that Congress in reviewing their resources will find means to meet the intermediate interest of this additional debt without recurring to new taxes, and applying to this object only the ordinary progression of our revenue. Its extraordinary increase in times of foreign war will be the proper and sufficient fund for any measures of safety or precaution which that state of things may render necessary in our neutral position. Remittances for the installments of our foreign debt having been found practicable without loss, it has not been thought expedient to use the power given by a former act of Congress of continuing them by reloans, and of redeeming instead thereof equal sums of domestic debt, although no difficulty was found in obtaining that accommodation. The sum of $50 thousands appropriated by Congress for providing gun boats remains unexpended. The favorable and peaceable turn of affairs on the Mississippi rendered an immediate execution of that law unnecessary, and time was desirable in order that the institution of that branch of our force might begin on models the most approved by experience. The same issue of events dispensed with a resort to the appropriation of $1.5 millions, contemplated for purposes which were effected by happier means. We have seen with sincere concern the flames of war lighted up again in Europe, and nations with which we have the most friendly and useful relations engaged in mutual destruction. While we regret the miseries in which we see others involved, let us bow with gratitude to that kind Providence which, inspiring with wisdom and moderation our late legislative councils while placed under the urgency of the greatest wrongs guarded us from hastily entering into the sanguinary contest and left us only to look on and pity its ravages. These will be heaviest on those immediately engaged. Yet the nations pursuing peace will not be exempt from all evil. In the course of this conflict let it be our endeavor, as it is our interest and desire, to cultivate the friendship of the belligerent nations by every act of justice and of innocent kindness; to receive their armed vessels with hospitality from the distresses of the sea, but to administer the means of annoyance to none; to establish in our harbors such a police as may maintain law and order; to restrain our citizens from embarking individually in a war in which their country takes no part; to punish severely those persons, citizens or alien, who shall usurp the cover of our flag for vessels not entitled to it, infecting thereby with suspicion those of real Americans and committing us into controversies for the redress of wrongs not our own; to exact from every nation the observance toward our vessels and citizens of those principles and practices which all civilized people acknowledge; to merit the character of a just nation, and maintain that of an independent one, preferring every consequence to insult and habitual wrong. Congress will consider whether the existing laws enable us efficaciously to maintain this course with our citizens in all places and with others while within the limits of our jurisdiction, and will give them the new modifications necessary for these objects. Some contraventions of right have already taken place, both within our jurisdictional limits and on the high seas. The friendly disposition of the Governments from whose agents they have proceeded, as well as their wisdom and regard for justice, leave us in reasonable expectation that they will be rectified and prevented in future, and that no act will be countenanced by them which threatens to disturb our friendly intercourse. Separated by a wide ocean from the nations of Europe and from the political interests which entangle them together, with productions and wants which render our commerce and friendship useful to them and theirs to us, it can not be the interest of any to assail us, nor ours to disturb them. We should be most unwise, indeed, were we to cast away the singular blessings of the position in which nature has placed us, the opportunity she has endowed us with of pursuing, at a distance from foreign contentions, the paths of industry, peace, and happiness, of cultivating general friendship, and of bringing collisions of interest to the umpirage of reason rather than of force. How desirable, then, must it be in a Government like ours to see its citizens adopt individually the views, the interests, and the conduct which their country should pursue, divesting themselves of those passions and partialities which tend to lessen useful friendships and to embarrass and embroil us in the calamitous scenes of Europe. Confident, fellow citizens, that you will duly estimate the importance of neutral dispositions toward the observance of neutral conduct, that you will be sensible how much it is our duty to look on the bloody arena spread before us with commiseration indeed, but with no other wish than to see it closed, I am persuaded you will cordially cherish these dispositions in all discussions among yourselves and in all communications with your constituents; and I anticipate with satisfaction the measures of wisdom which the great interests now committed to you will give you an opportunity of providing, and myself that of approving and carrying into execution with the fidelity I owe to my country. TH. JEFFERSON "
+```
+
+
+
+---
+
+# Corpus object
+
+
+```r
+# Print the content of the 15th tweet in SOU corpus, i.e the text
+sotu[[15]]$content
+```
+
+
+```
+##  [1] "To The Senate and House of Representatives of the"     
+##  [2] "United States: In calling you together, fellow"        
+##  [3] "citizens, at an earlier day than was contemplated by"  
+##  [4] "the act of the last session of Congress, I have not"   
+##  [5] "been insensible to the personal inconveniences"        
+##  [6] "necessarily resulting from an unexpected change in"    
+##  [7] "your arrangements, but matters of great public"        
+##  [8] "concernment have rendered this call necessary, and the"
+##  [9] "interests you feel in these will supersede in your"    
+## [10] "minds all private considerations. Congress witnessed"
+```
+
+---
+
+# Make a Corpus from a data frame
+
+&lt;!--- Jayz (Author1), 2Pac (Author2) ---&gt;
+
+```r
+# Make example data frame
+line = rep(1:3,2)
+doc_id = c(rep(1,3),rep(2,3))
+Author1 = c("Jealousy’s a weak emotion.",
+            "We change people through conversation, 
+              not through censorship.",
+            "I'm a hustler, baby; I sell water to a well!")
+Author2 = c("They Have Money For War But Can't Feed The Poor.",
+            "Fear is stronger than love",
+            "I didn't choose the thug life, 
+              the thug life chose me.")
+  
+example_text &lt;- data.frame(doc_id, text = c(Author1, Author2),
+                           line, stringsAsFactors = FALSE)
+```
+
+--
+
+&lt;img src="images/tupac_jayz.jpeg" width="50%" /&gt;
+
+
+---
+
+# Make a Corpus from a data frame
+
+
+
+```r
+# Create a DataframeSource from df_source
+# data frame source interprets each row of the 
+# data frame x as a document.
+df_source &lt;- DataframeSource(example_text)
+
+# Convert df_source to a corpus: df_corpus
+## Note: there are two types (VCopus vs PCorpus)
+df_corpus &lt;- VCorpus(df_source)
+
+# Examine df_corpus
+df_corpus
+```
+
+```
+## &lt;&lt;VCorpus&gt;&gt;
+## Metadata:  corpus specific: 0, document level (indexed): 1
+## Content:  documents: 6
+```
+
+
+
+
+
+---
+
+# Cleaning and preprocessing text
+
+The `tm` packages contains a number of **pre-processing functions**. 
+
+Five functions built in; can use any others as well (including self-created functions).
+
+
+```r
+getTransformations()
+```
+
+```
+## [1] "removeNumbers"     "removePunctuation" "removeWords"      
+## [4] "stemDocument"      "stripWhitespace"
+```
+
+---
+
+# Cleaning and preprocessing text
+
+&lt;img src="images/preprocessing_functions.png" width="100%" /&gt;
+
+
+---
+
+# Example: Cleaning text
+
+
+```r
+# Create the object: text
+text &lt;- "&lt;b&gt;She&lt;/b&gt; woke up at       6 A.M. It\'s so early! 
+She was only 10% awake and began eating breakfast in 
+front of her computer (not healthy!)."
+
+# All lowercase
+tolower(text)
+```
+
+
+```
+## [1] "&lt;b&gt;she&lt;/b&gt; woke up at 6 a.m. it's so early!  she was only 10% awake and"
+## [2] "began eating breakfast in front of her computer (not healthy!)."
+```
+
+
+```r
+# Remove punctuation
+removePunctuation(text)
+```
+
+
+```
+## [1] "bSheb woke up at 6 AM Its so early She was only 10 awake and began"
+## [2] "eating breakfast in front of her computer not healthy"
+```
+
+---
+
+# Example: Cleaning text
+
+
+```r
+# Remove numbers
+removeNumbers(text)
+```
+
+```
+## [1] "&lt;b&gt;She&lt;/b&gt; woke up at A.M. It's so early!  She was only % awake and"
+## [2] "began eating breakfast in front of her computer (not healthy!)."
+```
+
+
+```r
+# Remove whitespace
+stripWhitespace(text)
+```
+
+```
+## [1] "&lt;b&gt;She&lt;/b&gt; woke up at 6 A.M. It's so early! She was only 10% awake and"
+## [2] "began eating breakfast in front of her computer (not healthy!)."
+```
+
+---
+
+# Using the **qdap** package
+
+Additional useful functions are available in the `qdap` package:
+  - `bracketX()`: Remove all text within brackets (e.g. "It's (so) cool" becomes "It's cool")
+  - `replace_number()`: Replace numbers with their word equivalents (e.g. "2" becomes "two")
+  - `replace_abbreviation()`: Replace abbreviations with their full text equivalents (e.g. "Sr" becomes "Senior")
+  - `replace_contraction()`: Convert contractions back to their base words (e.g. "shouldn't" becomes "should not")
+  - `replace_symbol()` Replace common symbols with their word equivalents (e.g. "$" becomes "dollar")
+
+---
+
+# Using the **qdap** and **qdapRegex** packages
+
+
+```r
+# Remove text within brackets
+bracketX(text)
+```
+
+```
+## [1] "She woke up at 6 A.M. It's so early! She was only 10% awake and began"
+## [2] "eating breakfast in front of her computer ."
+```
+
+
+```r
+# Replace numbers with words
+replace_number(text)
+```
+
+```
+## [1] "&lt;b&gt;She&lt;/b&gt; woke up at six A.M. It's so early! She was only ten% awake"
+## [2] "and began eating breakfast in front of her computer (not healthy!)."
+```
+
+
+```r
+# Replace abbreviations
+replace_abbreviation(text)
+```
+
+```
+## [1] "&lt;b&gt;She&lt;/b&gt; woke up at 6 AM It's so early! She was only 10% awake and"
+## [2] "began eating breakfast in front of her computer (not healthy!)."
+```
+
+---
+
+# Using the **qdap** and **qdapRegex** packages
+
+
+
+```r
+# Replace contractions
+replace_contraction(text)
+```
+
+```
+## [1] "&lt;b&gt;She&lt;/b&gt; woke up at 6 A.M. it is so early! She was only 10% awake and"
+## [2] "began eating breakfast in front of her computer (not healthy!)."
+```
+
+
+```r
+# Replace symbols with words
+replace_symbol(text)
+```
+
+```
+## [1] "&lt;b&gt;She&lt;/b&gt; woke up at 6 A.M. It's so early! She was only 10 percent"
+## [2] "awake and began eating breakfast in front of her computer (not"     
+## [3] "healthy!)."
+```
+
+---
+
+background-image: url(images/stopwords.jpg)
+background-size: 40%
+background-position: 100% 100%
+
+# Removing stop words
+
+**Stop words** are common English stop words which are usually filtered out before or after processing text. 
+
+They include "I", "she'll", "the", etc. In the `tm` package, there are 174 stop words on this common list.
+
+
+```r
+# List standard English stop words
+stopwords("en")[1:5]
+```
+
+```
+## [1] "i"      "me"     "my"     "myself" "we"
+```
+
+---
+
+# Removing stop words
+
+
+```r
+# Print text without standard stop words
+removeWords(text, stopwords("en"))
+```
+
+```
+## [1] "&lt;b&gt;&lt;/b&gt; woke 6 .m.  early!  10% awake began eating breakfast front"
+## [2] "computer ( healthy!)."
+```
+
+
+```r
+# Print text without standard stop words
+removeWords(text, stopwords("en"))
+```
+
+```
+## [1] "&lt;b&gt;She&lt;/b&gt; woke 6 A.M. It's early!  She 10% awake began eating"
+## [2] "breakfast front computer ( healthy!)."
+```
+
+---
+
+# Removing stop words
+
+
+```r
+# Add "breakfast" and "lunch" to the list: new_stops
+new_stops &lt;- c("breakfast", "lunch", stopwords("en"))
+
+# Remove stop words from text
+removeWords(text, new_stops)
+```
+
+```
+## [1] "&lt;b&gt;&lt;/b&gt; woke 6 .m.  early!  10% awake began eating front computer ("
+## [2] "healthy!)."
+```
+
+In general, it is helpful to consider **domain specific stopwords**.
+
+---
+
+# Word stemming and stem completion
+
+&lt;img src="images/stemming.png" width="100%" /&gt;
+
+---
+
+# Word stemming and stem completion
+
+
+```r
+library(SnowballC)
+# Create complicate
+complicate &lt;- c("complicated", "complication", "complicatedly")
+
+# Perform word stemming: stem_doc
+stem_doc &lt;- stemDocument(complicate)
+
+# Create the completion dictionary: comp_dict
+comp_dict &lt;- "complicate"
+
+# Perform stem completion: complete_text 
+complete_text &lt;- stemCompletion(stem_doc, comp_dict)
+
+# Print complete_text
+complete_text
+```
+
+```
+##      complic      complic      complic 
+## "complicate" "complicate" "complicate"
+```
+
+---
+
+# **Word stemming** and stem completion on a sentence
+
+
+```r
+text_data &lt;- "In a complicated haste, Tom rushed to fix a new 
+complication, too complicatedly."
+# Remove punctuation: rm_punc
+rm_punc &lt;- removePunctuation(text_data)
+# Create character vector: n_char_vec
+n_char_vec &lt;- unlist(strsplit(rm_punc, split = ' '))
+# Perform word stemming: stem_doc
+stem_doc &lt;- stemDocument(n_char_vec)
+# Print stem_doc
+stem_doc
+```
+
+```
+##  [1] "In"      "a"       "complic" "hast"    "Tom"     "rush"    "to"     
+##  [8] "fix"     "a"       "new"     "complic" "too"     "complic"
+```
+
+---
+
+# Word stemming and **stem completion** on a sentence
+
+
+```r
+# Re-complete stemmed document: complete_doc
+complete_doc &lt;- stemCompletion(stem_doc, comp_dict)
+
+# Print complete_doc
+complete_doc
+```
+
+```
+##           In            a      complic         hast          Tom         rush 
+##           ""           "" "complicate"           ""           ""           "" 
+##           to          fix            a          new      complic          too 
+##           ""           ""           ""           "" "complicate"           "" 
+##      complic 
+## "complicate"
+```
+
+---
+
+# Apply preprocessing steps to a corpus
+
+- The `tm` package provides a special function `tm_map()` to apply cleaning functions to a corpus.
+
+- Since we apply these functions potentially to many corpora, we can create a custom `clean_corpus()` function which takes one argument, `corpus`, and applies a series of cleaning functions to it in order, then returns the final result.
+
+- The five function in the `tm` package do not need `content_transformer()`, but base R and `qdap` functions do.
+
+---
+
+# Apply preprocessing steps to a corpus
+
+
+```r
+# You can add your own functions as well - careful!
+removeNumPunct &lt;- function(x){gsub("[^[:alpha:][:space:]]*", "", x)}
+
+clean_corpus &lt;- function(corpus){
+# corpus &lt;- tm_map(corpus, removePunctuation)
+  corpus &lt;- tm_map(corpus, content_transformer(tolower))
+  corpus &lt;- tm_map(corpus, content_transformer(replace_symbol))
+  corpus &lt;- tm_map(corpus, removeWords, c(stopwords("en")))  
+    # We could add more stop words as above
+  corpus &lt;- tm_map(corpus, removeNumbers)
+  corpus &lt;- tm_map(corpus, content_transformer(removeNumPunct))
+  corpus &lt;- tm_map(corpus, stripWhitespace)
+  return(corpus)
+}
+
+# Apply your customized function to the SOTU: sotu_clean
+sotu_clean &lt;- clean_corpus(sotu)
+```
+
+---
+
+background-image: url(images/caution.png)
+background-size: 20%
+background-position: 95% 5%
+
+
+# Note of caution
+
+**Order matters** in this cleaning process:
+  - e.g. removing `$` through `removeNumPunct`  
+  first will leave no symbols to be transformed   
+  by `replace_symbol`
+
+**Validate** that your cleaning process works on your data.
+
+---
+
+# Apply preprocessing steps to a corpus
+
+
+```r
+# Print out a cleaned up SOTU
+sotu_clean[[15]][1]
+```
+
+```
+## [1] "senate house representatives united states calling together fellow"    
+## [2] "citizens earlier day contemplated act last session congress insensible"
+## [3] "personal inconveniences necessarily resulting unexpected change"
+```
+
+
+```r
+# And compare with orginal text 
+sotu[[15]][1]
+```
+
+```
+## [1] "To The Senate and House of Representatives of the United States: In"
+## [2] "calling you together, fellow citizens, at an earlier day than was"  
+## [3] "contemplated by the act of the last session of Congress, I have not"
+```
+
+
+---
+
+# Stemming a corpus
+
+
+```r
+library(SnowballC)    
+# Stem all words
+sotu_stemmed &lt;- tm_map(sotu_clean, stemDocument)
+
+# Show one example
+sotu_stemmed[[15]]$content
+```
+
+
+```
+## [1] "senat hous repres unit state call togeth fellow citizen earlier day"   
+## [2] "contempl act last session congress insens person inconveni necessarili"
+## [3] "result unexpect chang arrang matter great public concern render call"
+```
+
+
+---
+
+# Completing the stems to full words for a corpus
+
+
+```r
+# Complete with clean corpus as dictionary
+# sotu_compl &lt;- tm_map(sotu_stemmed, 
+#                  stemCompletion(sotu_stemmed, 
+#                  dictionary = sotu_clean))  -&gt; shows error
+
+# Note: Function tm::stemCompletion() shows an error. 
+# Instead, here is a small loop around the stem completion function:
+
+# Stem completion
+stemCompletion2 &lt;- function(x, dictionary) {
+   x &lt;- unlist(strsplit(as.character(x), " "))
+    # # Oddly, stemCompletion completes an empty string to
+	  # a word in dictionary. Remove empty string to avoid issue.
+   x &lt;- x[x != ""]
+   x &lt;- stemCompletion(x, dictionary=dictionary)
+   x &lt;- paste(x, sep="", collapse=" ")
+   PlainTextDocument(stripWhitespace(x))
+}
+```
+
+---
+
+# Completing the stems to full words for a corpus
+
+
+```r
+# one speech only
+sotu_comp &lt;- lapply( sotu_clean[100], stemCompletion2, 
+                     dictionary=sotu_clean)
+```
+
+
+```r
+# Print sotu_comp content
+sotu_comp[[1]]$content
+```
+
+
+```
+## [1] "congress united states assemble discharge duties assumed"             
+## [2] "representatives free generous people meeting marked interesting"      
+## [3] "impressive incident expiration present session congress first century"
+```
+
+
+
+
+---
+
+# Completing the stems to full words for a corpus
+
+Completing all stemmed words turns out to be computing intensive (~38 min on my laptop), though the command could be improved.
+
+
+```r
+load("data/SOTU/sotu_comp_all.RData")
+sotu_comp_all &lt;- as.VCorpus(sotu_comp_all)
+```
+
+
+
+
+
+---
+
+# Change to a data format 
+
+Term Document Matrix (TDM) vs. Document Term Matrix (DTM)
+
+&lt;img src="images/tdm_dtm.png" width="100%" /&gt;
+
+
+---
+
+# Make a Document-Term-Matrix
+
+
+```r
+# Create the dtm from the corpus: sotu_comp_all
+sotu_dtm &lt;- DocumentTermMatrix(sotu_comp_all)  
+
+# Print out sotu_dtm data
+sotu_dtm
+```
+
+```
+## &lt;&lt;DocumentTermMatrix (documents: 234, terms: 13906)&gt;&gt;
+## Non-/sparse entries: 274327/2979677
+## Sparsity           : 92%
+## Maximal term length: 29
+## Weighting          : term frequency (tf)
+```
+
+---
+
+# Make a Document-Term-Matrix
+
+
+```r
+# Convert sotu_dtm to a matrix: sotu_m
+sotu_m &lt;- as.matrix(sotu_dtm)
+
+# Print the dimensions of sotu_m
+dim(sotu_m)
+```
+
+```
+## [1]   234 13906
+```
+
+```r
+# Review a portion of the matrix
+sotu_m[1:3, 1014:1016]
+```
+
+```
+##                                     Terms
+## Docs                                 bayou beach beachhead
+##   George Washington_1790_Independent     0     0         0
+##   George Washington_1790_Independent     0     0         0
+##   George Washington_1791_Independent     0     0         0
+```
+
+---
+
+# Make a term document matrix (TDM)
+
+
+```r
+# Create a TDM from clean_corp: sotu_tdm
+sotu_tdm &lt;- TermDocumentMatrix(sotu_comp_all)
+
+# Print sotu_tdm data
+sotu_tdm
+```
+
+```
+## &lt;&lt;TermDocumentMatrix (terms: 13906, documents: 234)&gt;&gt;
+## Non-/sparse entries: 274327/2979677
+## Sparsity           : 92%
+## Maximal term length: 29
+## Weighting          : term frequency (tf)
+```
+
+---
+
+# Make a term document matrix (TDM)
+
+
+```r
+# Convert sotu_tdm to a matrix: sotu_m
+sotu_m &lt;- as.matrix(sotu_tdm)
+
+# Print the dimensions of the matrix
+dim(sotu_m)
+```
+
+```
+## [1] 13906   234
+```
+
+```r
+# Review a portion of the matrix
+sotu_m[1727:1729,1:3]
+```
+
+```
+##           Docs
+## Terms      George Washington_1790_Independent
+##   carnage                                   0
+##   carnot                                    0
+##   carolina                                  1
+##           Docs
+## Terms      George Washington_1790_Independent
+##   carnage                                   0
+##   carnot                                    0
+##   carolina                                  0
+##           Docs
+## Terms      George Washington_1791_Independent
+##   carnage                                   0
+##   carnot                                    0
+##   carolina                                  0
+```
+
+---
+
+class: inverse, center, middle
+
+# Visualizing text data
+
+---
+
+background-image: url(images/cover_text_mining_with_r.png)
+background-size: 40%
+background-position: 85% 50%
+
+
+# **Tidytext** package
+
+.pull-left[
+
+`tm` and `qdap` both include several plotting functions.
+
+If we want to continue using `ggplot2` for most of our plots, we need to **convert from corpus/TDM/DTM to a tidy dataframe object**.
+
+The `tidytext` package helps us with the transformation
+
+
+]
+
+.pull-right[
+
+]
+
+---
+
+# Tidying Objects
+
+
+```r
+sotu_td &lt;- tidy(sotu_tdm)
+head(sotu_td)
+```
+
+```
+## # A tibble: 6 x 3
+##   term           document                           count
+##   &lt;chr&gt;          &lt;chr&gt;                              &lt;dbl&gt;
+## 1 abroad         George Washington_1790_Independent     1
+## 2 access         George Washington_1790_Independent     1
+## 3 accord         George Washington_1790_Independent     1
+## 4 add            George Washington_1790_Independent     1
+## 5 adequacy       George Washington_1790_Independent     1
+## 6 administration George Washington_1790_Independent     1
+```
+
+
+---
+
+# Tidying Objects
+
+
+```r
+# Get meta data
+meta &lt;- as_data_frame(str_split_fixed(sotu_td$document, "_", n=3))
+colnames(meta) &lt;- c("president", "year", "party")
+  
+# Merge on
+sotu_td &lt;- as_data_frame(cbind(sotu_td, meta))
+
+# Show
+sotu_td  # note: only the non-zero values are included
+```
+
+```
+## # A tibble: 274,327 x 6
+##    term         document                    count president      year  party    
+##    &lt;chr&gt;        &lt;chr&gt;                       &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt; &lt;chr&gt;    
+##  1 abroad       George Washington_1790_Ind…     1 George Washin… 1790  Independ…
+##  2 access       George Washington_1790_Ind…     1 George Washin… 1790  Independ…
+##  3 accord       George Washington_1790_Ind…     1 George Washin… 1790  Independ…
+##  4 add          George Washington_1790_Ind…     1 George Washin… 1790  Independ…
+##  5 adequacy     George Washington_1790_Ind…     1 George Washin… 1790  Independ…
+##  6 administrat… George Washington_1790_Ind…     1 George Washin… 1790  Independ…
+##  7 admit        George Washington_1790_Ind…     1 George Washin… 1790  Independ…
+##  8 adopt        George Washington_1790_Ind…     1 George Washin… 1790  Independ…
+##  9 advance      George Washington_1790_Ind…     1 George Washin… 1790  Independ…
+## 10 affair       George Washington_1790_Ind…     3 George Washin… 1790  Independ…
+## # … with 274,317 more rows
+```
+
+---
+
+# Frequent Terms
+
+
+```r
+sotu_td %&gt;%     group_by(term) %&gt;%
+                summarise(n = sum(count)) %&gt;%
+                top_n(n = 15, wt = n)  %&gt;%
+                ungroup() %&gt;%
+                mutate(term = reorder(term, n)) %&gt;%
+ggplot(aes(term, n)) + 
+  geom_bar(stat = "identity") + 
+  geom_text(aes(label=term, x=term, y=300), hjust = 0, color="white") +
+  geom_text(aes(label=n, x=term, y=n-100), hjust = 1, color="white") +
+  xlab(NULL) +  coord_flip() + theme_fivethirtyeight() +
+  theme(axis.title.y=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank()) +
+  ggtitle("Most frequent terms in the State of the Union")
+```
+
+---
+
+# Frequent Terms
+
+![](week08_lecture_files/figure-html/unnamed-chunk-77-1.png)&lt;!-- --&gt;
+
+---
+
+# Measuring Word Importance 
+
+- **Term Frequency (TF)**: How often does a word appear in a document. Often normalized in some way with respect to the document length, 
+- **Document Frequency (DF)**: Number of documents in the collection that contain a term _t_. Idea is that rare terms are more informative than frequent terms.
+- **Inverse Document Frequency (IDF)** =  log(total number of documents in a collection / document frequency)
+
+---
+
+# Measuring Word Importance 
+
+**Term Frequency TF**:
+.small[
+- The word with the **highest term frequency** is _states_ making up 2.9 to 3.2% of the words in three presidential addresses (Franklin Pierce, Andrew Johnson, George Washington). 
+- The **highest count overall** is _year_ in Harry S. Truman's much longer 1946 address.  
+  ]
+  
+--
+
+**Document Frequency DF**: 
+.small[
+  - _nation_ and _states_ appear **in all 234 SOTU addresses**. _can_, _congress_, _countries_, _government_, _time_, and _united_ in 230.  
+- Ronald Reagan (1982) was the only SOTU **without mentioning the _United States_**
+]
+
+--
+
+**Inverse Document Frequency IDF**: 
+.small[
+  - **Rare words** occuring several times in few documents, are _Obamacare_ in Trumps 2017 address (5x), or _Chickamaugas_ in Washington's 1792 address.  
+]
+
+--
+
+So which one of these is the **best summary of the data**?
+
+
+
+---
+
+# TF-IDF 
+
+- The TF-IDF combines the _term frequency (TF)_ and the _inverse document frequency (IDF)_ into a single numerical value. 
+- Decreases the weight for commonly used words and increases the weight for words that are not used very much in a collection of documents.
+- Several formulas, but here is one:
+
+&lt;img src="images/TD_IDF.png" width="70%" /&gt;
+
+
+---
+
+# TF-IDF 
+
+&lt;img src="images/TD_IDF_graph.jpg" width="85%" /&gt;
+
+---
+
+# Calculating Frequencies
+
+
+```r
+# Bind the TF,DF, and IDF frequency
+# of a tidy text dataset to the dataset
+sotu_tf_idf &lt;-  sotu_td %&gt;%
+                bind_tf_idf(term, document, count) %&gt;%  
+                arrange(desc(tf_idf)) 
+sotu_tf_idf
+```
+
+---
+
+# Calculating Frequencies
+
+
+```
+## # A tibble: 10 x 6
+##    term      year  count      tf   idf tf_idf
+##    &lt;chr&gt;     &lt;chr&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+##  1 vietnam   1966     32 0.0125   2.40 0.0299
+##  2 soviet    1980     32 0.0187   1.55 0.0290
+##  3 hussein   2003     19 0.00674  3.65 0.0246
+##  4 saddam    2003     19 0.00674  3.65 0.0246
+##  5 hitler    1942      9 0.00548  4.35 0.0238
+##  6 gentlemen 1800      8 0.0127   1.81 0.0230
+##  7 terrorist 2002     20 0.00973  2.11 0.0206
+##  8 gold      1895    107 0.0150   1.24 0.0187
+##  9 communist 1953     42 0.00889  2.08 0.0185
+## 10 gentlemen 1799      7 0.0100   1.81 0.0182
+```
+
+---
+
+# Most Frequent Terms by President
+
+
+```r
+sotu_tf_idf %&gt;% group_by(president) %&gt;%
+                top_n(n = 1, wt = tf_idf)  %&gt;%
+                filter(year&gt;1970) %&gt;%
+ggplot(aes(x = reorder(term, desc(year)), y = tf_idf)) +
+  geom_bar(stat = "identity") + 
+  geom_text(aes(label=president, x=term, y=0.005), color="white") +
+  xlab(NULL) +  coord_flip() + theme_fivethirtyeight()
+```
+
+---
+
+# Most Frequent Terms by President
+
+
+```r
+sotu_tf_idf %&gt;% group_by(president) %&gt;%
+                top_n(n = 1, wt = tf_idf)  %&gt;%
+                filter(year&gt;1960) %&gt;%
+ggplot(aes(x = reorder(term, desc(year)), y = tf_idf)) +
+  geom_bar(stat = "identity") + 
+  geom_text(aes(label=president, x=term, y=0.005), color="white") +
+  xlab(NULL) +  coord_flip() + theme_fivethirtyeight()
+```
+
+![](week08_lecture_files/figure-html/unnamed-chunk-84-1.png)&lt;!-- --&gt;
+
+---
+
+# Top Words in Selected Speeches
+
+
+```r
+sotu_tf_idf %&gt;% 
+  filter(!(term %in% c("tonight","dont"))) %&gt;%
+  filter(president== "Donald J. Trump" &amp; year==2020 | 
+        (president=="Barack Obama" &amp; year==2012)) %&gt;% 
+  group_by(president) %&gt;% 
+  top_n(n = 10, wt = tf_idf) %&gt;%
+  arrange(tf_idf) %&gt;% 
+  mutate(term = factor(term, term)) %&gt;%
+ggplot(aes(x = reorder(term, desc(-tf_idf)), y = tf_idf)) +
+  geom_bar(stat = "identity") + coord_flip() +
+  facet_wrap(~ document, scales="free_y") + 
+  xlab(NULL) + ylab("Most important words (TF-IDF)") + 
+  theme_fivethirtyeight()
+```
+
+---
+
+# Top Words in Selected Speeches
+
+![](week08_lecture_files/figure-html/unnamed-chunk-86-1.png)&lt;!-- --&gt;
+
+---
+
+# Words over time
+
+
+```r
+sotu_td %&gt;% mutate(year = as.numeric(year)) %&gt;%
+  group_by(year) %&gt;%
+  mutate(year_total = sum(count)) %&gt;%  # Get counts by year 
+  filter(term %in% c("god", "america", "union", "war", "world", 
+                     "constitution", "freedom")) %&gt;%
+ggplot(aes(year, count / year_total)) +
+  geom_point() +  geom_smooth() +
+  facet_wrap(~ term, scales = "free_y") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_x_continuous(breaks = c(1800,1850,1900,1950,2000)) +
+  ylab("% frequency of word in state of union address") + 
+  xlab(NULL)
+```
+
+---
+
+# Words over time
+
+![](week08_lecture_files/figure-html/unnamed-chunk-88-1.png)&lt;!-- --&gt;
+
+---
+
+# Summary: Word Frequency
+
+- have discussed three indicators to get a word frequency: TF, DF, and TF-IDF
+- there are many more sophisticated ways to calculate what words are describing a document AND which documents are best matches for a word/phrase (think search engines)
+- for more info see: 
+    - Manning, C. D., Raghavan, P., &amp; Schütze, H. (2008). Introduction to Information Retrieval (1 edition). Cambridge University Press. Free at  http://nlp.stanford.edu/IR-book/
+
+---
+
+# Word Clouds
+
+We can also generate a **word cloud** as an effective alternative to providing a quick visual overview of the frequency of words in a corpus.
+
+**Drawback**: only "guestimate" information for the reader, so more a visual cue than actual information.
+
+---
+
+# Simple Word Cloud
+
+![](week08_lecture_files/figure-html/unnamed-chunk-89-1.png)&lt;!-- --&gt;
+
+
+---
+
+# Simple Word Cloud
+
+
+```r
+## need term_frequency for the package
+term_frequency_DT &lt;- sotu_tf_idf %&gt;% filter(president=="Donald J. Trump") %&gt;% filter(year==2020)
+
+# Load wordcloud package
+library(wordcloud)
+
+# Set seed - to make your word cloud reproducible 
+set.seed(2103)
+
+# Create a wordcloud for the values in word_freqs
+wordcloud(term_frequency_DT$term, term_frequency_DT$tf, 
+         max.words = 100, colors = "red")
+```
+
+
+---
+
+# Simple Word Cloud - TF-IDF
+
+![](week08_lecture_files/figure-html/unnamed-chunk-91-1.png)&lt;!-- --&gt;
+
+---
+
+# Simple Word Cloud - TF-IDF - remove terms
+
+
+```r
+# Drop the names and some words from the list
+library(babynames)
+term_frequency_DT2 &lt;- term_frequency_DT %&gt;% 
+  filter(!term %in% tolower(babynames$name)) %&gt;%
+  filter(!term %in% c('tonight'))
+
+set.seed(1)
+# Create a wordcloud for the values in word_freqs
+wordcloud(term_frequency_DT2$term, term_frequency_DT2$tf_idf, 
+        max.words = 100, colors = "blue")
+```
+
+---
+
+# Simple Word Cloud - TF-IDF - remove terms
+
+![](week08_lecture_files/figure-html/unnamed-chunk-93-1.png)&lt;!-- --&gt;
+
+---
+
+# Change Word cloud colors
+
+
+```r
+# List the available colors
+# display.brewer.all()
+
+# Create purple_orange
+purple_orange &lt;- brewer.pal(10, "PuOr")
+# Drop 2 faintest colors
+purple_orange &lt;- purple_orange[-(1:2)]
+
+# Create a wordcloud with purple_orange palette
+wordcloud(term_frequency_DT2$term, term_frequency_DT2$tf_idf, 
+      max.words = 100, colors = purple_orange)
+```
+
+---
+
+# Change Word cloud colors
+
+![](week08_lecture_files/figure-html/unnamed-chunk-95-1.png)&lt;!-- --&gt;
+
+---
+
+# Comparing different sets of text
+
+To visualize **common words across multiple documents**, we can use `commonality.cloud()`.
+
+The command allows us to plot a cloud of words shared across documents
+
+---
+
+# Visualize common words
+
+
+```r
+# Let's limit it to Trump (2020) vs. Obama (2012)
+tdm_sel &lt;- sotu_tdm[,c(226,234)]
+
+# Convert the Term-Document-Matrix
+all_m &lt;- as.matrix(tdm_sel)
+
+# Print a commonality cloud: Obama vs. Trump
+commonality.cloud(all_m, colors = purple_orange, max.words = 100)
+```
+
+---
+
+# Visualize common words
+
+![](week08_lecture_files/figure-html/unnamed-chunk-97-1.png)&lt;!-- --&gt;
+
+---
+
+# Visualize dissimilar words
+
+
+```r
+# Create comparison cloud
+comparison.cloud(all_m, colors = c("orange", "blue"), 
+                 scale=c(0.1,2), title.size= 1, 
+                 max.words = 100)
+```
+
+---
+
+# Visualize dissimilar words
+
+![](week08_lecture_files/figure-html/unnamed-chunk-99-1.png)&lt;!-- --&gt;
+
+---
+
+# Pyramid Plot
+
+![](week08_lecture_files/figure-html/unnamed-chunk-100-1.png)&lt;!-- --&gt;
+
+---
+
+# Pyramid Plot
+
+
+```r
+library(plotrix)
+
+# Data Prep -&gt; see the notes 
+
+# Create the pyramid plot
+p &lt;- pyramid.plot(top25_df$x, top25_df$y, 
+                  labels = top25_df$labels, 
+             gap = 10, 
+             top.labels = c("Obama", " ", "Trump"), 
+             main = "Words in Common", 
+             laxlab = NULL, 
+             raxlab = NULL, 
+             unit = NULL, 
+             labelcex=0.5)
+```
+
+---
+
+# Pyramid Plot - in ggplot
+
+
+
+
+```r
+ggplot(top25, aes(x = reorder(terms, Frequency), 
+                  y = Frequency, fill = President)) +
+  geom_bar(data = filter(top25, President == "Trump"), stat = "identity") +  
+  geom_bar(data = filter(top25, President == "Obama"), stat = "identity") + 
+  scale_fill_brewer(palette = "Set1", direction=-1) + coord_flip() + 
+  scale_y_continuous(breaks = seq(-50, 50, 25)) + ylab("") +
+  theme_fivethirtyeight() 
+```
+
+![](week08_lecture_files/figure-html/unnamed-chunk-103-1.png)&lt;!-- --&gt;
+
+---
+
+class: bottom, center
+background-image: url(images/text_similarity_literature.png)
+background-size: 65%
+background-position: 80% 10%
+background-color: #d3d3d3
+
+# Identifying and Visualizing Text Similarity
+
+
+---
+
+# Simple Word Clustering
+
+Thus far, we have worked with a **single word _tokenization_**, that is we split our documents up into single words and compared frequency measures
+
+We also **compared documents** (or presidents in our example) based on the **frequency of the words** they used
+
+We now turn to considering **relationships between words and documents** by considering the **distance** between them
+
+---
+
+# Calculating Distance
+
+Based on our document-term matrix, we can **calculate a measure of similarity between texts**; the term-document matrix allows to calculate distance between words.
+
+Since each row of the document-term matrix is a sequence of a text’s word frequencies, it is possible to put mathematical notions of similarity (or distance) between sequences of numbers in service of calculating the similarity (or distance) between any two texts.
+
+&lt;small&gt;See here for more info on [measuring similarity and hierarchical cluster analysis](http://www.econ.upf.edu/~michael/stanford/maeb7.pdf)&lt;/small&gt; 
+
+---
+
+# Dendrogram - Clear Days Example
+
+
+```r
+# Make (# of) clear daysdataframe
+clear &lt;- data.frame(city=c("Las Vegas","Seattle",
+                           "Denver","Austin"),
+                    cleardays=c(210,58,115,115))
+clear 
+```
+
+```
+##        city cleardays
+## 1 Las Vegas       210
+## 2   Seattle        58
+## 3    Denver       115
+## 4    Austin       115
+```
+
+---
+
+# Dendrogram - Clear Days Example
+
+
+```r
+# Create dist_clear
+dist_clear &lt;- dist(clear[, 2])
+
+# View the distance matrix
+dist_clear
+```
+
+```
+##     1   2   3
+## 2 152        
+## 3  95  57    
+## 4  95  57   0
+```
+
+---
+
+## Dendrogram - Clear Days Example
+
+
+```r
+require(stats)
+# Create hc
+hc &lt;- hclust(dist_clear)
+# Plot hc
+plot(hc, labels = clear$city)
+```
+
+![](week08_lecture_files/figure-html/unnamed-chunk-106-1.png)&lt;!-- --&gt;
+
+---
+
+# Cluster dendrogram of Words
+
+
+```r
+# Print the dimensions of sotu_tdm
+dim(sotu_tdm)
+```
+
+```
+## [1] 13906   234
+```
+
+```r
+# Create tdm1 by removing sparse words
+tdm1 &lt;- removeSparseTerms(sotu_tdm, sparse = 0.05)
+# Print tdm1
+tdm1
+```
+
+```
+## &lt;&lt;TermDocumentMatrix (terms: 39, documents: 234)&gt;&gt;
+## Non-/sparse entries: 8900/226
+## Sparsity           : 2%
+## Maximal term length: 14
+## Weighting          : term frequency (tf)
+```
+
+---
+
+# Cluster dendrogram of Words
+
+
+```r
+# Create tdm_m
+tdm_m &lt;- as.matrix(tdm1)
+
+# Create tdm_df
+tdm_df &lt;- as.data.frame(tdm_m)
+
+# Create words_dist
+words_dist &lt;- dist(tdm_df)
+
+# Create hc
+hc &lt;- hclust(words_dist)
+
+# Plot the dendrogram
+plot(hc)
+```
+
+---
+
+# Cluster dendrogram of Words
+
+![](week08_lecture_files/figure-html/unnamed-chunk-109-1.png)&lt;!-- --&gt;
+
+---
+
+# Cluster dendrogram of Presidential SOTU Texts
+
+
+
+
+```r
+# Start with Document-Term Matrix
+sotu_dtm
+```
+
+```
+## &lt;&lt;DocumentTermMatrix (documents: 35, terms: 13906)&gt;&gt;
+## Non-/sparse entries: 38450/448260
+## Sparsity           : 92%
+## Maximal term length: 29
+## Weighting          : term frequency (tf)
+```
+
+---
+
+# Cluster dendrogram of Presidential SOTU Texts
+
+
+```r
+require(tm)
+# Create data for dendrogram
+dtm1 &lt;- removeSparseTerms(sotu_dtm, sparse = 0.01) 
+   # Remove most sparse terms
+dtm_m &lt;- as.matrix(dtm1) # Create tdm_m
+dtm_df &lt;- as.data.frame(dtm_m) # Create tdm_df
+texts_dist &lt;- dist(dtm_df) # Create texts_dist
+hc &lt;- hclust(texts_dist) # Create hc
+
+# Plot the dendrogram
+plot(hc)
+```
+
+---
+
+# Cluster dendrogram of Presidential SOTU Texts
+
+![](week08_lecture_files/figure-html/unnamed-chunk-113-1.png)&lt;!-- --&gt;
+
+---
+
+# Making dendrogram pretty
+
+The `dendextend` package can help your audience by **coloring branches and outlining clusters**. 
+
+`dendextend` is designed to operate on dendrogram objects, so you'll have to change the hierarchical cluster from `hclust` using `as.dendrogram()`.
+
+---
+
+## Making dendrogram pretty
+
+
+```r
+require(dendextend)
+# Create hc
+hc &lt;- hclust(texts_dist)
+# Create hcd
+hcd &lt;- as.dendrogram(hc)
+# Get Republican Presidents
+dem &lt;- grep("Obama|Clinton", labels(hcd), value=TRUE)
+rep &lt;- grep("Reagan|Bush|Trump", labels(hcd), value=TRUE)
+# Change the branch color to red for "reps" and blue for "dems"
+hcd &lt;- branches_attr_by_labels(hcd, dem, "blue")
+hcd &lt;- branches_attr_by_labels(hcd, rep, "red")
+# Plot hcd
+plot(hcd, main = "Will the real Obama please stand up")
+```
+
+---
+
+## Making dendrogram pretty
+
+![](week08_lecture_files/figure-html/unnamed-chunk-115-1.png)&lt;!-- --&gt;
+
+---
+
+# Using word association
+
+Another way to think about word relationships is with the `findAssocs()` function in the tm package. 
+
+For any given word, `findAssocs()` **calculates its correlation with every other word in a TDM or DTM**. 
+
+Scores range from 0 to 1. A score of **1** means that two **words always appear together**, while a score of **0** means that they **never appear together**.
+
+---
+
+## Using word association
+
+
+```r
+# Create associations
+associations &lt;- findAssocs(sotu_tdm, c("war"), 0.2)
+# View 
+associations$war[1:10]
+```
+
+```
+##    nazifascist   unliquidated    substandard    expenditure         liquid 
+##           0.71           0.71           0.70           0.69           0.69 
+##   reconversion        wartime            aaa advantagesvast   aftermathwar 
+##           0.69           0.69           0.68           0.68           0.68
+```
+
+```r
+# Select the Top 15 liberty associations
+associations$war &lt;- associations$war[1:15]
+# Create associations_df
+associations_df &lt;- list_vect2df(associations)[, 2:3]
+```
+
+---
+
+## Using word association
+
+
+```r
+# Plot the associations_df values 
+ggplot(associations_df, aes(y = associations_df[, 1])) + 
+  geom_point(aes(x = associations_df[, 2]), 
+             data = associations_df, size = 3) + 
+  xlab("Word Association") + ylab(NULL) + 
+  ggtitle("Word Assocation with `War'") + theme_fivethirtyeight()
+```
+
+&lt;img src="week08_lecture_files/figure-html/unnamed-chunk-117-1.png" width="70%" /&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

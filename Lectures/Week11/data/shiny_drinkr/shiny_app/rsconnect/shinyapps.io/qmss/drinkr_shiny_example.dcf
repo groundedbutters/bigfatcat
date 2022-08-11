@@ -1,0 +1,10 @@
+name: drinkr_shiny_example
+title: drinkr_shiny_example
+account: qmss
+server: shinyapps.io
+appId: 176207
+bundleId: 807950
+url: https://qmss.shinyapps.io/drinkr_shiny_example/
+when: 1493391991.85203
+asMultiple: FALSE
+asStatic: FALSE

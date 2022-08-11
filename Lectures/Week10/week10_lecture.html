@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Visualizing Networks</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Thomas Brambor" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets/htmlwidgets.js"></script>
+    <link href="libs/vis/vis.css" rel="stylesheet" />
+    <script src="libs/vis/vis.min.js"></script>
+    <script src="libs/visNetwork-binding/visNetwork.js"></script>
+    <script src="libs/kePrint/kePrint.js"></script>
+    <script src="libs/pymjs/pym.v1.js"></script>
+    <script src="libs/widgetframe-binding/widgetframe.js"></script>
+    <script src="libs/jquery/jquery.min.js"></script>
+    <script src="libs/threejs/three.min.js"></script>
+    <script src="libs/threejs/Detector.js"></script>
+    <script src="libs/threejs/Projector.js"></script>
+    <script src="libs/threejs/CanvasRenderer.js"></script>
+    <script src="libs/threejs/TrackballControls.js"></script>
+    <script src="libs/threejs/StateOrbitControls.js"></script>
+    <script src="libs/scatterplotThree-binding/scatterplotThree.js"></script>
+    <link href="libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+    <script src="libs/crosstalk/js/crosstalk.min.js"></script>
+    <script src="libs/d3/d3.min.js"></script>
+    <script src="libs/sankey/sankey.js"></script>
+    <script src="libs/sankeyNetwork-binding/sankeyNetwork.js"></script>
+    <link rel="stylesheet" href="custom_Xaringan.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Visualizing Networks
+### Thomas Brambor
+### 2020/04/12
+
+---
+
+
+
+
+
+
+
+&lt;!-- Title picture from http://twittercensus.se/graph2014/ --&gt;
+
+# Roadmap
+
+&lt;!--- 
+Visualizing networks
+    - Part 1: Static Visualizations
+    - Part 2: Interactive Visualizations
+- Tutorial: Network Visualization of Hillary Clinton's Emails
+--&gt;
+
+<div id="htmlwidget-6b856a011f8951072698" style="width:648px;height:540px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6b856a011f8951072698">{"x":{"nodes":{"id":["Static","Interactive","InputFormats","igraph","network","ggnet2","Florence","ggraph","Twitter","ggnetwork","networkD3","Clinton","threejs","visNetwork"],"label":["Static","Interactive","InputFormats","igraph","network","ggnet2","Florence","ggraph","Twitter","ggnetwork","networkD3","Clinton","threejs","visNetwork"],"x":[0.200287833558554,-0.254180821156421,0.392258406686384,0.446705069118247,-0.0425263682748244,0.184530795589908,0.183960671519435,0.662964137474125,1,0.226542685431161,-0.685094958352346,-1,-0.451305826081796,-0.217677349616779],"y":[0.0773141687158971,0.560110099733147,-0.232324253395047,0.316577958378317,-0.156032672710776,-0.544104510699995,-1,0.0522427321801782,0.0456136760902397,0.467646699691183,0.653812500781138,0.766328516016608,0.873300006138059,1]},"edges":{"from":["Static","Static","Static","Static","Static","Static","Static","Interactive","Interactive","Interactive","ggnet2","ggraph","networkD3"],"to":["Interactive","InputFormats","igraph","network","ggnet2","ggraph","ggnetwork","networkD3","threejs","visNetwork","Florence","Twitter","Clinton"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","physics":true},"manipulation":{"enabled":false},"edges":{"smooth":false,"arrows":"to"},"physics":{"stabilization":false}},"groups":null,"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","igraphlayout":{"type":"full"}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+background-image: url(images/myth_of_criminal_immigrant_nytimes.png)
+background-size: 80%
+background-position: 50% 95%
+
+# Final project - Make a clear point
+
+
+---
+
+class: inverse, bottom, center
+background-image: url(images/facebook_world.jpg)
+background-size: 100%
+background-position: 100% 30%
+
+&lt;!-- Source: Paul Butler (Facebook), U.S.: Map visualizing friendships in Facebook around the globe, 2010.
+--&gt;
+
+# Visualizing Networks
+
+---
+
+class: middle
+
+&gt; .Large[The focus of social network analysis is **between, not within people**.]
+
+--
+
+.pull-left[
+
+Whereas traditional social-science research methods such as surveys focus on individuals and their attributes (e.g., gender, age, income), **network scientists focus on the connections that bind individuals together**, not exclusively on their internal qualities or abilities.
+
+  _Ben Shneiderman_
+
+]
+
+.pull-right[
+
+&lt;img src="images/shneiderman.jpg" width="100%" /&gt;
+
+
+]
+
+&lt;!--
+Source: Shneiderman, Ben; Hansen, Derek; Smith, Marc A. (2010): Analyzing Social Media Networks with NodeXL: Insights from a Connected World. San Francisco, CA: Morgan Kaufmann.
+--&gt;
+
+---
+
+background-image: url(images/networks_terminology.png)
+background-size: 90%
+background-position: 90% 30%
+
+# Terminology
+
+---
+
+background-image: url(images/Erdoes_links.png)
+background-size: 70%
+background-position: 95% 5%
+
+# Links
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+The mathematician Paul Erdös published around 1,500 papers. The graph displays the collaboration network of Erdös. The **nodes are mathematicians**, and **links** connect pairs who have **jointly authored a paper with Erdös**. 
+
+A mathematician’s **Erdös number** is the distance from him or her to Erdös in this graph - the **path of connectivity**.
+
+
+---
+
+# Trump's Personal Network
+
+http://trump.kimalbrecht.com/network/
+
+&lt;img src="images/trump_network.png" width="100%" /&gt;
+
+---
+
+# Resources
+
+This lecture will only allow a brief glimpse on how to visualize networks.
+
+I recommend the resources I added to the syllabus and to the links on the following slides for going further:
+
+.small[
+* [Network visualization with R](http://kateto.net/network-visualization) by Katherine Ognyanova (Rutgers University) - is a full workshop on how to work with and visualize networks in R, including [GitHub code](https://github.com/kateto/R-Network-Visualization-Workshop#network-visualization-with-r).
+* [ggnet2: network visualization with ggplot2](https://briatte.github.io/ggnet/) - a visualization function to plot network objects as ggplot2 objects.
+* James Curley's slides on [Interactive and Dynamic Network Visualization in R](http://curleylab.psych.columbia.edu/netviz/)
+* A [comprehensive(!) curated list of network visualization info](https://github.com/briatte/awesome-network-analysis)  
+* [R graph gallery](https://www.r-graph-gallery.com/network/) is an excellent resource, including many worked examples and code. 
+]
+
+---
+
+background-image: url(images/nytimes_pharma.png)
+background-size: 75%
+background-position: 50% 100%
+
+# Pharma targets influential doctors
+
+
+&lt;!-- Source: http://www.nytimes.com/interactive/2013/05/16/business/PHARMA.html --&gt;
+
+---
+
+background-image: url(images/networks_viz_goals.png)
+background-size: 70%
+background-position: 40% 95%
+
+
+# Network visualization goals
+ 
+---
+
+# Input formats for network charts
+
+There are several ways to import data for a network:
+
+ - **Adjacency Matrix**  
+ - **Incidence Matrix**  
+ - **Edge List**  
+ - **Literal List of Connections**  
+
+---
+
+# Input formats: adjacency matrix
+
+An **adjacency matrix** is a square matrix, in which individuals in rows and columns are the same. 
+
+Example: a correlation matrix 
+
+.pull-left[
+
+&lt;table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; A &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; B &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; C &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; D &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; E &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; E &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+]
+
+.pull-right[
+
+![](week10_lecture_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+]
+
+---
+
+# Input formats: incidence matrix
+
+An **incidence matrix** does not necessarily have the same individuals in row and column. By default, it is directed from rows to columns. This can be useful to check the relationship between one population and another.
+
+.pull-left[
+
+&lt;table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; a &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; b &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; c &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; d &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; e &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+]
+
+.pull-right[
+
+![](week10_lecture_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+]
+
+---
+
+# Input formats: edge list
+
+An **edge list** is a simply a data frame listing all the connections. It can be **undirected** ...
+
+
+.pull-left[
+
+&lt;table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; source &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; target &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; F &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; F &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; E &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+]
+
+.pull-right[
+
+![](week10_lecture_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+
+]
+
+
+---
+
+# Input formats: edge list
+
+An **edge list** is a simply a data.frame listing all the connections. It can undirected or **directed**.
+
+
+.pull-left[
+
+&lt;table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; source &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; target &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; F &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; F &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; E &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+]
+
+.pull-right[
+
+![](week10_lecture_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+]
+
+---
+
+# Input formats: Literal List of connections
+
+The last option is to provide a vector with all the connections listed.
+
+Type `help(graph_from_literal)` for more information.
+
+
+```r
+network = graph_from_literal( A-B-C-D, E-A-E-A, D-C-A, D-A-D-C )
+plot(network)
+```
+
+![](week10_lecture_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+
+
+---
+
+
+class: inverse, bottom, center
+&lt;!--background-image: url(images/florence_skyline.jpg)--&gt;
+background-image: url(images/lorenzo_medici.jpeg)
+background-size: 100%
+background-position: 100% 0%
+
+# Network of Families in Florence
+
+---
+
+# Example: Network of Families in Florence
+
+An example on &lt;a href="https://books.google.com/books?id=CAm2DpIqRUIC&amp;lpg=PR21&amp;dq=Wasserman%20SS%2C%20Faust%20K%20(1994).%20Social%20Network%20Analysis%3A%20Methods%20and%20Applications.%20Structural%20Analysis%20in%20the%20Social%20Sciences.%20Cambridge%20University%20Press%2C%20Cambridge.&amp;lr&amp;pg=PA61#v=onepage&amp;q&amp;f=false"&gt;powerful families in Florence, Italy&lt;/a&gt; during the Renaissance. 
+
+
+```r
+library(network)
+data(flo)
+flo
+```
+
+```
+##              Acciaiuoli Albizzi Barbadori Bischeri Castellani Ginori Guadagni
+## Acciaiuoli            0       0         0        0          0      0        0
+## Albizzi               0       0         0        0          0      1        1
+## Barbadori             0       0         0        0          1      0        0
+## Bischeri              0       0         0        0          0      0        1
+## Castellani            0       0         1        0          0      0        0
+## Ginori                0       1         0        0          0      0        0
+## Guadagni              0       1         0        1          0      0        0
+## Lamberteschi          0       0         0        0          0      0        1
+## Medici                1       1         1        0          0      0        0
+## Pazzi                 0       0         0        0          0      0        0
+## Peruzzi               0       0         0        1          1      0        0
+## Pucci                 0       0         0        0          0      0        0
+## Ridolfi               0       0         0        0          0      0        0
+## Salviati              0       0         0        0          0      0        0
+## Strozzi               0       0         0        1          1      0        0
+## Tornabuoni            0       0         0        0          0      0        1
+##              Lamberteschi Medici Pazzi Peruzzi Pucci Ridolfi Salviati Strozzi
+## Acciaiuoli              0      1     0       0     0       0        0       0
+## Albizzi                 0      1     0       0     0       0        0       0
+## Barbadori               0      1     0       0     0       0        0       0
+## Bischeri                0      0     0       1     0       0        0       1
+## Castellani              0      0     0       1     0       0        0       1
+## Ginori                  0      0     0       0     0       0        0       0
+## Guadagni                1      0     0       0     0       0        0       0
+## Lamberteschi            0      0     0       0     0       0        0       0
+## Medici                  0      0     0       0     0       1        1       0
+## Pazzi                   0      0     0       0     0       0        1       0
+## Peruzzi                 0      0     0       0     0       0        0       1
+## Pucci                   0      0     0       0     0       0        0       0
+## Ridolfi                 0      1     0       0     0       0        0       1
+## Salviati                0      1     1       0     0       0        0       0
+## Strozzi                 0      0     0       1     0       1        0       0
+## Tornabuoni              0      1     0       0     0       1        0       0
+##              Tornabuoni
+## Acciaiuoli            0
+## Albizzi               0
+## Barbadori             0
+## Bischeri              0
+## Castellani            0
+## Ginori                0
+## Guadagni              1
+## Lamberteschi          0
+## Medici                1
+## Pazzi                 0
+## Peruzzi               0
+## Pucci                 0
+## Ridolfi               1
+## Salviati              0
+## Strozzi               0
+## Tornabuoni            0
+```
+
+---
+
+background-image: url(images/painting_medici.jpg)
+background-size: 100%
+background-position: 100% 140%
+
+&lt;!-- Note: Middle is 
+Giovanni de' Medici (1475–1523), Pope Leo X. One of the three Medici’s to be elected to the papal office, Leo is the Pope who supported Raphael’s work in the Vatican and St Peters. 
+--&gt; 
+
+# Florence: Making a network data object
+
+
+```r
+nflo &lt;- network(flo, directed = FALSE)
+class(nflo)
+```
+
+```
+## [1] "network"
+```
+
+---
+
+# Florence: Quick info on a network data object
+
+See the vignette of the [`network`](https://cran.r-project.org/web/packages/network/vignettes/networkVignette.pdf) package for more details.
+
+
+```r
+network.size(nflo)
+```
+
+```
+## [1] 16
+```
+
+```r
+network.edgecount(nflo)
+```
+
+```
+## [1] 20
+```
+
+```r
+network.density(nflo)
+```
+
+```
+## [1] 0.1666667
+```
+
+---
+
+# Florence: Network Attributes
+
+The advantage of `network` objects over simple matrix or list based data representations is the _ability to store meta-information_ regarding vertices, edges, or the network as a whole.
+
+
+```r
+summary(nflo)
+```
+
+```
+## Network attributes:
+##   vertices = 16
+##   directed = FALSE
+##   hyper = FALSE
+##   loops = FALSE
+##   multiple = FALSE
+##   bipartite = FALSE
+##  total edges = 20 
+##    missing edges = 0 
+##    non-missing edges = 20 
+##  density = 0.1666667 
+## 
+## Vertex attributes:
+##   vertex.names:
+##    character valued attribute
+##    16 valid vertex names
+## 
+## No edge attributes
+## 
+## Network edgelist matrix:
+##       [,1] [,2]
+##  [1,]    9    1
+##  [2,]    6    2
+##  [3,]    7    2
+##  [4,]    9    2
+##  [5,]    5    3
+##  [6,]    9    3
+##  [7,]    7    4
+##  [8,]   11    4
+##  [9,]   15    4
+## [10,]   11    5
+## [11,]   15    5
+## [12,]    8    7
+## [13,]   16    7
+## [14,]   13    9
+## [15,]   14    9
+## [16,]   16    9
+## [17,]   14   10
+## [18,]   15   11
+## [19,]   15   13
+## [20,]   16   13
+```
+
+---
+
+# Fortify() the data for ggplot
+
+
+```r
+library(ggnetwork)
+set.seed(2105)
+flo_df &lt;- ggnetwork(flo, 
+                    layout = "fruchtermanreingold", 
+                    cell.jitter = 0.75)
+flo_df
+```
+
+```
+##              x           y vertex.names       xend        yend
+## 1   0.00000000 0.000000000        Pazzi 0.18372102 0.056367168
+## 2   0.08570488 0.680921498   Castellani 0.13015881 0.440157803
+## 3   0.08570488 0.680921498   Castellani 0.25883477 0.718420968
+## 4   0.08570488 0.680921498   Castellani 0.24165646 0.855251351
+## 5   0.13469802 0.415573344    Barbadori 0.38529464 0.258660724
+## 6   0.13469802 0.415573344    Barbadori 0.09024409 0.656337040
+## 7   0.20762142 0.063700015     Salviati 0.02390040 0.007332847
+## 8   0.20762142 0.063700015     Salviati 0.38802715 0.228530163
+## 9   0.25832468 0.873883859      Peruzzi 0.49696879 0.793303005
+## 10  0.25832468 0.873883859      Peruzzi 0.10237311 0.699554006
+## 11  0.25832468 0.873883859      Peruzzi 0.27917179 0.748375289
+## 12  0.28326820 0.723713183      Strozzi 0.33743306 0.501710907
+## 13  0.28326820 0.723713183      Strozzi 0.11013831 0.686213714
+## 14  0.28326820 0.723713183      Strozzi 0.49645618 0.779026548
+## 15  0.28326820 0.723713183      Strozzi 0.26242108 0.849221752
+## 16  0.34335882 0.477423351      Ridolfi 0.28919396 0.699425627
+## 17  0.34335882 0.477423351      Ridolfi 0.39992076 0.269516351
+## 18  0.34335882 0.477423351      Ridolfi 0.53870357 0.419414709
+## 19  0.40648358 0.245393138       Medici 0.15588696 0.402305759
+## 20  0.40648358 0.245393138       Medici 0.49806813 0.024172566
+## 21  0.40648358 0.245393138       Medici 0.70968502 0.278798312
+## 22  0.40648358 0.245393138       Medici 0.34992164 0.453300138
+## 23  0.40648358 0.245393138       Medici 0.54558744 0.394043865
+## 24  0.40648358 0.245393138       Medici 0.22607786 0.080562991
+## 25  0.50763094 0.001073806   Acciaiuoli 0.41604639 0.222294378
+## 26  0.52065494 0.785305112     Bischeri 0.30746695 0.729991747
+## 27  0.52065494 0.785305112     Bischeri 0.73310481 0.579165116
+## 28  0.52065494 0.785305112     Bischeri 0.28201083 0.865885965
+## 29  0.56266922 0.412297985   Tornabuoni 0.42356536 0.263647258
+## 30  0.56266922 0.412297985   Tornabuoni 0.73146225 0.546217528
+## 31  0.56266922 0.412297985   Tornabuoni 0.36732447 0.470306628
+## 32  0.73453465 0.281536118      Albizzi 0.74957631 0.536799191
+## 33  0.73453465 0.281536118      Albizzi 0.43133322 0.248130943
+## 34  0.73453465 0.281536118      Albizzi 0.92182679 0.167131177
+## 35  0.75104692 0.561755900     Guadagni 0.58225388 0.427836358
+## 36  0.75104692 0.561755900     Guadagni 0.73600526 0.306492827
+## 37  0.75104692 0.561755900     Guadagni 0.53859704 0.767895896
+## 38  0.75104692 0.561755900     Guadagni 0.97506570 0.578028573
+## 39  0.94316144 0.154099187       Ginori 0.75586930 0.268504128
+## 41  1.00000000 0.579839795 Lamberteschi 0.77598122 0.563567122
+## 110 0.50763094 0.001073806   Acciaiuoli 0.50763094 0.001073806
+## 210 0.73453465 0.281536118      Albizzi 0.73453465 0.281536118
+## 310 0.13469802 0.415573344    Barbadori 0.13469802 0.415573344
+## 42  0.52065494 0.785305112     Bischeri 0.52065494 0.785305112
+## 51  0.08570488 0.680921498   Castellani 0.08570488 0.680921498
+## 61  0.94316144 0.154099187       Ginori 0.94316144 0.154099187
+## 71  0.75104692 0.561755900     Guadagni 0.75104692 0.561755900
+## 81  1.00000000 0.579839795 Lamberteschi 1.00000000 0.579839795
+## 91  0.40648358 0.245393138       Medici 0.40648358 0.245393138
+## 101 0.00000000 0.000000000        Pazzi 0.00000000 0.000000000
+## 111 0.25832468 0.873883859      Peruzzi 0.25832468 0.873883859
+## 121 0.95715302 1.000000000        Pucci 0.95715302 1.000000000
+## 131 0.34335882 0.477423351      Ridolfi 0.34335882 0.477423351
+## 141 0.20762142 0.063700015     Salviati 0.20762142 0.063700015
+## 151 0.28326820 0.723713183      Strozzi 0.28326820 0.723713183
+## 161 0.56266922 0.412297985   Tornabuoni 0.56266922 0.412297985
+```
+
+---
+
+# Plot network in ggplot
+
+
+
+
+```r
+ggplot(flo_df, aes(x, y, xend = xend, yend = yend)) +
+  geom_edges(alpha = 0.5) +
+  geom_nodes(size = 15, color = "white") +
+  geom_nodes(data=subset(flo_df, vertex.names=="Medici"), 
+             size = 20, color = "red") +
+  geom_nodetext(aes(label = vertex.names), fontface = "bold") +
+  theme_blank()
+```
+
+&lt;img src="week10_lecture_files/figure-html/unnamed-chunk-19-1.png" width="80%" /&gt;
+
+---
+
+class: center, inverse
+
+# Florence: Marriage vs. Business
+
+
+
+
+
+&lt;br&gt;&lt;br&gt;
+&lt;img src="images/Marie_de_Medici_marriage.jpg" width="43.5%" /&gt;
+&lt;img src="images/cosimo_medici_medal.jpg" width="49%" /&gt;
+
+
+
+---
+
+# What can we learn from this?
+
+&lt;img src="images/florence_marriage.png" width="50%" /&gt;&lt;img src="images/florence_business.png" width="50%" /&gt;
+
+---
+
+# Florence: Business vs. Marriage
+
+&lt;img src="images/example_medici.png" width="50%" /&gt;
+
+Medici had among the most ties, both marital and business. The Strozzi family was well-connected maritally, but not in business.
+
+Good visuals: 
+  * nodes colored informatively
+  * clean layout avoids crossovers
+  * network is small
+
+---
+
+background-image: url(images/networks_viz_aesthetics.png)
+background-size: 80%
+background-position: 42% 100%
+
+# Network Aesthetics
+
+---
+
+# Are network visualizations the right tool?
+
+What are the **main patterns and ideas** you want to communicate to your audience?
+
+Are network graphs the **right way** to represent your data?
+
+Are **static** networks sufficient? If not, what should be **interactive**?
+
+---
+
+# I have a hammer...
+
+&lt;img src="images/isis_twitter.png" width="100%" /&gt;
+
+&lt;!-- From https://www.kaggle.com/adhok93/d/kzaman/how-isis-uses-twitter/text-analysis-using-the-tweets/code --&gt;
+
+---
+
+# Visualizing networks is pretty (hard)
+
+&lt;img src="images/network_layouts.png" width="100%" /&gt;
+&lt;!-- Example from http://www.hiveplot.net/ --&gt;
+
+---
+
+# Visualizing networks is pretty (hard)
+
+
+
+All available `igraph` layouts on the same network data
+
+&lt;img src="images/igraph_layouts.gif" width="60%" /&gt;
+
+---
+
+background-image: url(images/big_data_hairball.png)
+background-size: 60%
+background-position: 100% 100%
+
+## Visualizing [large] networks is pretty (hard)
+
+Large networks often resemble a **hairball** and make it difficult to transmit meaningful information to the viewer.
+
+---
+
+background-image: url(images/big_data_hairball.png)
+background-size: 20%
+background-position: 100% 3%
+
+## Visualizing [large] networks is pretty (hard)
+
+**Interpreting hairballs is difficult** because:
+  - their **form is determined by layout algorithms**, which typically cannot be adjusted to address a user's specific questions.
+  - many **layout algorithms are stochastic** and can produce many different layouts of the same network
+  - layouts of the same network created by **different algorithms cannot be easily compared**
+  - the layout is brittle — it can be disproportionately **affected by very small changes** in a network
+  - layouts of **different networks** created by the same algorithm **cannot be easily compared**
+
+---
+
+background-image: url(images/nature_genome.png)
+background-size: 54%
+background-position: 100% 50%
+
+
+# Visualizing networks is pretty (hard)
+
+.pull-left[
+
+From [Nature](doi.org/10.1038/nature04209). In figure description: 
+
+_The apparent **banding pattern of the yellow nodes is an artefact of the graph layout algorithm** (Supplementary Data). Importantly, the layout algorithm was not informed by type of supporting evidence and therefore does not explain the evident separation of blue and red edges._
+
+&lt;!-- Towards a proteome-scale map of the human protein–protein interaction network. 2005. Nature 437, 1173-1178. doi:10.1038/nature04209 --&gt;
+
+
+]
+
+.pull-right[
+
+]
+
+
+---
+
+class: bottom, center, inverse
+background-image: url(images/network_visualization_example.png)
+background-size: 100%
+background-position: 100% 100%
+
+
+# Part I: Static Network Visualizations
+
+---
+
+background-image: url(images/boxes.png)
+background-size: 25%
+background-position: 95% 5%
+
+
+# Lots of packages
+
+There are many packages that offer static  
+network visualizations. Here are a few:
+
+.small[
+
+- [igraph](http://igraph.org/): Collection of network analysis tools.  `igraph` can be programmed in R, Python and C/C++  
+- [statnet](http://www.statnet.org/): a suite of software packages for network analysis with the focus on statistical modeling of network data.  
+- [ggnet](https://briatte.github.io/ggnet/): visualization function to plot network objects as ggplot2 objects.  
+- [ggnetwork](https://cran.r-project.org/web/packages/ggnetwork/vignettes/ggnetwork.html): Similar to ggnet. Will ‘flatten’ the network object to a data frame.  
+- [ggraph](https://github.com/thomasp85/ggraph): `ggraph` is an extension of `ggplot2` aimed at supporting relational data structures such as networks, graphs, and trees.  
+- [tidygraph](https://github.com/thomasp85/tidygraph) While network data itself is not tidy, it can be envisioned as two tidy tables, one for node data and one for edge data. `tidygraph` provides a way to switch between the two tables and provides `dplyr` verbs for manipulating them.
+]
+
+They have different strengths and weaknesses. Look at examples and choose what fits best for your needs.
+
+---
+
+# Example: [Game of Thrones](http://www.maa.org/sites/default/files/pdf/Mathhorizons/NetworkofThrones%20%281%29.pdf)
+
+&lt;img src="images/game_of_thrones_network.png" width="85%" /&gt;
+
+---
+
+# Static plots
+
+We will come back to the excellent **igraph** package later.
+
+First, since we are already familiar with the ggplot grammar of graphics method and syntax let's work with **three ggplot2 inspired network packages**:
+  - **ggnet2**  
+  - **ggnetwork**  
+  - **ggraph**  
+  
+---
+
+# Packages: **ggnet2** and **ggnetwork**
+
+`ggnet2` introduces geoms to plot networks with ggplot2. `ggnetwork` allows to pass network objects directly to ggplot2. 
+
+https://github.com/briatte/ggnet
+
+vignettes:  
+  - https://github.com/briatte/ggnetwork  
+  - https://briatte.github.io/ggnet/
+    
+author: François Briatte
+
+---
+
+# Example: Florentine Family ties
+
+&lt;img src="week10_lecture_files/figure-html/unnamed-chunk-31-1.png" width="100%" /&gt;
+
+---
+
+# Edge and Node Labeling
+
+![](week10_lecture_files/figure-html/unnamed-chunk-32-1.png)&lt;!-- --&gt;
+
+---
+
+# Edge Size and Color
+
+![](week10_lecture_files/figure-html/unnamed-chunk-33-1.png)&lt;!-- --&gt;
+
+---
+
+# **ggraph**
+
+`ggraph` is an extension of ggplot2 aimed at supporting relational data structures such as networks, graphs, and trees. It builds upon the foundation of ggplot2 but comes with its **own set of geoms, facets**, etc., as well as adding the concept of layouts to the grammar.
+
+Method is slightly **different from ggnet**, **ggnetwork** - it **does not flatten network objects to a dataframe** but keeps their network object structure.
+
+https://github.com/thomasp85/ggraph
+
+vignettes: explaining the [layout](http://www.data-imaginist.com/2017/ggraph-introduction-layouts/), [nodes](http://www.data-imaginist.com/2017/ggraph-introduction-nodes/), and [edges](http://www.data-imaginist.com/2017/ggraph-introduction-edges/)
+    
+author: Thomas Lin Pedersen
+
+---
+
+# **ggraph**
+
+&lt;!-- from package vignette --&gt;
+
+
+```r
+# devtools::install_github('thomasp85/ggraph')
+library(ggraph)
+library(igraph)
+
+# Create graph of highschool friendships
+graph &lt;- graph_from_data_frame(highschool)
+V(graph)$Popularity &lt;- degree(graph, mode = 'in')
+
+# plot using ggraph
+ggraph(graph, layout = 'kk') + 
+    geom_edge_fan(aes(alpha = ..index..), 
+                  show.legend = FALSE) + 
+    geom_node_point(aes(size = Popularity)) + 
+    theme_graph(foreground = 'steelblue', 
+                fg_text_colour = 'white')
+```
+
+---
+
+# **ggraph**
+
+&lt;img src="images/ggraph_highschool.png" width="100%" /&gt;
+
+---
+
+class: top, center
+background-image: url(images/ggnet_small_multiples.png)
+background-size: 100%
+background-position: 100% 100%
+
+# Small multiples with **ggnet**
+
+
+
+
+
+---
+
+class: inverse, bottom, center
+background-image: url(images/infectious_disease.gif)
+background-size: 100%
+background-position: 100% 100%
+
+# Part II: Interactive Network Visualization
+
+
+&lt;!-- Example from Thomas Lin Pedersen
+https://gist.github.com/thomasp85/eee48b065ff454e390e1
+--&gt;
+
+---
+
+# Making networks interactive
+
+There are several packages that allow you to add interactivity to network plots.
+
+.small[
+- [networkD3 (d3.js)](http://www.htmlwidgets.org/showcase_networkD3.html): `networkD3` is an htmlwidget that provides tools for creating D3 JavaScript network graphs from R.  
+- [threejs](http://bwlewis.github.io/rthreejs/) and [presentation](https://www.rstudio.com/resources/videos/interactive-network-visualization-with-threejs-and-r/): The `threejs` package provides interactive 3D scatterplots and globe plots using three.js and the htmlwidgets package for R.  
+- [visNetwork (vis.js)](http://datastorm-open.github.io/visNetwork/) and [here](http://www.htmlwidgets.org/showcase_visNetwork.html): `visNetwork` is an R package for network visualization, using the vis.js javascript library.  
+- [plot.ly (d3.js)](https://plot.ly/r/network-graphs): Interactive networks using the plot.ly library.  
+- [ndtv (statnet/NetworkDynamic)](https://github.com/statnet/ndtv): The R package ndtv renders dynamic network data from [networkDynamic objects](https://cran.r-project.org/web/packages/networkDynamic/index.html networkDynamic) as movies, interactive HTML5 animations, or other static representations of changing relational structures and attributes.
+]
+
+---
+
+# **networkD3**
+
+D3.js force network graphs via a htmlwidget
+
+http://christophergandrud.github.io/networkD3/
+
+authors: Christopher Gandrud, JJ Allaire, &amp; Kent Russell
+
+<div id="htmlwidget-ae77454ab8c58fa8f624" style="width:100%;height:350px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ae77454ab8c58fa8f624">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-37.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# **networkD3** - simpleNetwork()
+
+.pull-left[
+
+<div id="htmlwidget-f2e6823ab8831ca1eba2" style="width:100%;height:350px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f2e6823ab8831ca1eba2">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-38.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+]
+
+.pull-right[
+.small[
+    
+    library(networkD3)
+    
+    src &lt;- c("A", "I", "A", "B",
+             "B", "E", "C", "C", 
+             "D", "C", "B")
+    
+    target &lt;- c("B", "C", "F", "J",
+                "H", "F", "G", "H", 
+                "I", "I", "I")
+    
+    networkData &lt;- data.frame(src, target)
+    
+    # Plot
+    p1 &lt;- simpleNetwork(networkData, 
+                  nodeColour = "red", 
+                  zoom=T,
+                  fontSize = 16)
+    p1
+]
+
+]
+
+
+
+---
+
+# **networkD3**: Characters of Les Misérables
+
+<div id="htmlwidget-bac9d5d28e7c14b9698e" style="width:100%;height:360px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-bac9d5d28e7c14b9698e">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-39.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# **networkD3**: Characters of Les Misérables
+
+
+```r
+library(networkD3)
+data(MisNodes)
+data(MisLinks)
+
+head(MisNodes, 4)
+```
+
+```
+##              name group size
+## 1          Myriel     1   15
+## 2        Napoleon     1   20
+## 3 Mlle.Baptistine     1   23
+## 4    Mme.Magloire     1   30
+```
+
+```r
+head(MisLinks, 4)
+```
+
+```
+##   source target value
+## 1      1      0     1
+## 2      2      0     8
+## 3      3      0    10
+## 4      3      2     6
+```
+
+---
+
+# **networkD3**: Characters of Les Misérables
+
+A force directed network graph.
+
+
+```r
+# Create graph
+forceNetwork(Links = MisLinks, 
+             Nodes = MisNodes, 
+             Source = "source",
+             Target = "target", 
+             Value = "value", 
+             NodeID = "name",
+             Group = "group", 
+             opacity = 0.4, zoom = TRUE)
+```
+
+---
+
+class: inverse, bottom, center
+background-image: url(images/hillary_clinton_email_wordcloud.png)
+background-size: 45%
+background-position: 50% 10%
+
+
+# Tutorial - Hillary's Emails
+
+&lt;!-- Example from [Bob Rudis](https://rud.is/projects/clinton_emails_01.html) --&gt;
+
+---
+
+# Clinton Emails
+
+In this tutorial, we will use a **fairly large directional network database** -- the "damn emails" (Bernie Sanders) of Hillary Clinton.
+
+
+The [WSJ makes all the emails accessible](http://graphics.wsj.com/hillary-clinton-email-documents/) and its [API](http://graphics.wsj.com/hillary-clinton-email-documents/api/search.php) make its possible to download them all.
+
+Please find the required R code for the example in our course GitHub folder under  `Data/Clinton_Emails/`.
+
+The example relies in good part on [Bob Rudis](https://rud.is/) [example on networkD3](https://github.com/hrbrmstr).
+
+---
+
+# threejs
+
+Great htmlwidget graphjs from threejs package for 3D visualizations
+
+http://bwlewis.github.io/rthreejs/graphjs.html
+
+author: Bryan Lewis
+
+---
+
+# threejs
+
+<div id="VIoVLZnfep" style="width:648px;height:360px;" class="scatterplotThree html-widget"></div>
+<script type="application/json" data-for="VIoVLZnfep">{"x":{"NROW":77,"height":null,"width":null,"axis":false,"numticks":[6,6,6],"xticklabs":null,"yticklabs":null,"zticklabs":null,"color":[["#00B3A3","#00B3A3","#00B3A3","#00B3A3","#00B3A3","#00B3A3","#00B3A3","#00B3A3","#00B3A3","#00B3A3","#777788","#777788","#00008A","#777788","#777788","#777788","#00008A","#00008A","#00008A","#00008A","#00008A","#00008A","#00008A","#00008A","#48D0CB","#48D0CB","#1A80B3","#48D0CB","#ED7942","#777788","#00008A","#777788","#777788","#777788","#777788","#777788","#777788","#777788","#777788","#48D0CB","#191970","#48D0CB","#48D0CB","#1A80B3","#ED7942","#ED7942","#8A5A2B","#8A5A2B","#8A2252","#1A80B3","#1A80B3","#1A80B3","#1A80B3","#1A80B3","#1A80B3","#8A2252","#1A80B3","#8A2252","#8A2252","#8A2252","#8A2252","#8A2252","#8A2252","#8A2252","#8A2252","#8A2252","#8A2252","#7EBFED","#48D0CB","#48D0CB","#48D0CB","#48D0CB","#1A80B3","#6B8D23","#6B8D23","#48D0CB","#8A2252"]],"size":1,"stroke":"black","flipy":true,"grid":false,"renderer":"auto","signif":8,"bg":"white","cexsymbols":1,"xlim":[-1,1],"ylim":[-1,1],"zlim":[-1,1],"axisscale":[1,1,1],"pch":["@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@","@"],"elementId":"VIoVLZnfep","from":[[0,0,0,2,0,0,0,0,0,0,10,3,2,0,11,11,11,11,16,16,17,16,17,18,16,17,18,19,16,17,18,19,20,16,17,18,19,20,21,16,17,18,19,20,21,22,12,11,23,11,24,23,11,24,11,16,25,11,23,25,24,26,11,27,23,27,11,23,30,11,23,27,11,11,27,11,29,11,34,29,34,35,11,29,34,35,36,11,29,34,35,36,37,11,29,25,25,24,25,41,25,24,11,26,27,28,11,28,46,47,25,27,11,26,11,49,24,49,26,11,51,39,51,51,49,26,51,49,39,54,26,11,16,25,41,48,49,55,55,41,48,55,48,27,57,11,58,55,48,57,48,58,59,48,58,60,59,57,55,55,58,59,48,57,41,61,60,59,48,62,57,58,61,60,55,55,62,48,63,58,61,60,59,57,11,63,64,48,62,58,61,60,59,57,55,64,58,59,62,65,48,63,61,60,57,25,11,24,27,48,41,25,68,11,24,27,48,41,25,69,68,11,24,27,41,58,27,69,68,70,11,48,41,25,26,27,11,48,48,73,69,68,25,48,41,70,71,64,65,66,63,62,48,58]],"to":[[1,2,3,3,4,5,6,7,8,9,11,11,11,11,12,13,14,15,17,18,18,19,19,19,20,20,20,20,21,21,21,21,21,22,22,22,22,22,22,23,23,23,23,23,23,23,23,23,24,24,25,25,25,26,26,26,26,27,27,27,27,27,28,28,29,29,29,30,31,31,31,31,32,33,33,34,34,35,35,35,36,36,36,36,37,37,37,37,37,38,38,38,38,38,38,39,40,41,41,42,42,42,43,43,43,44,44,45,47,48,48,48,48,49,49,50,50,51,51,51,52,52,53,54,54,54,55,55,55,55,55,55,55,55,55,55,56,56,57,57,57,58,58,58,58,58,59,59,59,59,60,60,60,61,61,61,61,61,61,62,62,62,62,62,62,62,62,63,63,63,63,63,63,63,63,64,64,64,64,64,64,64,64,64,64,65,65,65,65,65,65,65,65,65,65,66,66,66,66,66,66,66,66,66,67,68,68,68,68,68,68,69,69,69,69,69,69,69,70,70,70,70,70,70,70,70,71,71,71,71,71,71,71,71,72,72,72,73,74,74,75,75,75,75,75,75,75,76,76,76,76,76,76,76]],"lwd":1,"linealpha":1,"center":true,"main":[""],"labels":["Myriel","Napoleon","Mlle.Baptistine","Mme.Magloire","CountessdeLo","Geborand","Champtercier","Cravatte","Count","OldMan","Labarre","Valjean","Marguerite","Mme.deR","Isabeau","Gervais","Tholomyes","Listolier","Fameuil","Blacheville","Favourite","Dahlia","Zephine","Fantine","Mme.Thenardier","Thenardier","Cosette","Javert","Fauchelevent","Bamatabois","Perpetue","Simplice","Scaufflaire","Woman1","Judge","Champmathieu","Brevet","Chenildieu","Cochepaille","Pontmercy","Boulatruelle","Eponine","Anzelma","Woman2","MotherInnocent","Gribier","Jondrette","Mme.Burgon","Gavroche","Gillenormand","Magnon","Mlle.Gillenormand","Mme.Pontmercy","Mlle.Vaubois","Lt.Gillenormand","Marius","BaronessT","Mabeuf","Enjolras","Combeferre","Prouvaire","Feuilly","Courfeyrac","Bahorel","Bossuet","Joly","Grantaire","MotherPlutarch","Gueulemer","Babet","Claquesous","Montparnasse","Toussaint","Child1","Child2","Brujon","Mme.Hucheloup"],"options":true,"alpha":[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],"vertices":[[0.58923045,-0.61548453,-0.12700255,0.9100791,-0.94886047,-0.17526771,0.32218063,-0.37552805,-0.12904659,0.29853,-0.48279169,-0.12255467,0.97315027,-0.69970981,-0.16329473,0.79344524,-0.87177388,0.12529487,0.96452138,-0.55206219,-0.084975341,0.95184143,-0.75259309,0.10378228,0.77949047,-1,-0.11886872,1,-0.83905226,-0.1986764,-0.32554736,-0.63076874,-0.51659745,-0.17711942,-0.16956621,-0.2733909,0.1329072,-0.11608467,-0.59578568,-0.22026663,-0.54854899,-0.6724471,-0.24489923,-0.70671107,-0.30784807,-0.23875829,-0.65022822,-0.070873464,0.025160728,0.3962443,-0.71694468,0.13684496,0.42572837,-0.94134605,0.16384772,0.47413354,-0.97135559,0.23872208,0.3488952,-0.91365429,0.17465361,0.34021278,-1,0.22950924,0.42590586,-0.84768859,0.20277152,0.50943282,-0.88246244,0.0041134804,0.17122295,-0.65587851,-0.43542566,0.061088921,-0.40944822,-0.44675884,0.16088818,-0.30742118,-0.239499,0.18187364,-0.47656643,-0.26637223,-0.00071476624,-0.2691257,-0.56189268,-0.44004829,-0.34821247,0.0013357051,-0.21739674,-0.39705769,0.24247348,0.023611069,-0.86804252,0.013742438,-0.033486603,-0.58874905,-0.14501574,-0.46956382,0.16378258,-0.31621304,-0.35974683,-0.081124225,0.10122623,-0.46470525,-0.18555555,0.091101121,-0.43277147,-0.30079546,-0.0045616486,-0.44174046,-0.19957808,0.056453439,-0.41357397,-0.35476497,0.005781831,-0.49731337,-0.33742,-0.5605195,0.59631173,-0.4887573,-0.93450429,0.10507308,-0.33447544,-0.57156879,0.17864305,-0.16684131,-0.73915029,0.092650513,-0.40917739,-0.26539676,-0.10963093,-0.5538436,-0.48075343,-0.59561014,-0.286613,-0.85527313,-0.77381252,-0.45432735,-0.34872587,1,1,-0.38488427,0.73042391,0.67029392,-0.39687531,0.30563623,0.14209517,-0.4258631,0.218691,-0.57586298,-0.63341113,0.10060772,-0.80557358,-0.31713673,0.43083141,-0.57468008,-0.52830443,0.80693377,-0.73821534,-0.29234556,0.85321714,-0.83350443,-0.41389038,0.44145674,-0.6372099,-0.39913764,0.38303406,-0.2675593,-0.63592341,0.46242615,-0.65739995,-0.60094108,0.50050103,0.032990699,-0.3980313,0.2986043,-0.015556293,-0.47717766,0.52400685,0.11945372,-0.50548439,0.50617938,0.20130237,-0.49470584,0.55654406,0.056946478,-0.49097336,0.45124957,0.049097071,-0.39349098,0.50480127,0.07755504,-0.35732029,0.384707,0.030341329,-0.4034767,0.58073318,0.061661719,-0.4278658,0.52478835,0.22013703,-1,0.76582036,0.1415256,-0.40219045,0.075434769,-0.12188235,-0.45542957,0.017059388,-0.11714699,-0.46548704,0.0017837932,-0.19699303,-0.41918037,0.02761779,-0.032923907,-0.019439035,0.063078986,-0.27945118,-0.35626589,0.37857112,0.68691812,-0.47963441,0.40577719,0.67287851,-0.55167487,0.079920036,-0.020441869,-0.32010886,0.5240883,0.22738749]],"xticklab":["-1.00","-0.60","-0.20","0.20","0.60","1.00"],"yticklab":["-1.00","-0.60","-0.20","0.20","0.60","1.00"],"zticklab":["1.00","0.60","0.20","-0.20","-0.60","-1.00"],"xtick":[0,0.2,0.4,0.6,0.8,1],"ytick":[0,0.2,0.4,0.6,0.8,1],"ztick":[0,0.2,0.4,0.6,0.8,1],"axislength":[1,1,1]},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Sankey Diagram in **networdD3**
+
+
+
+
+```r
+energy &lt;- jsonlite::fromJSON("data/energy.json")
+# Plot
+sankeyNetwork(Links = energy$links, Nodes = energy$nodes, 
+            Source = 'source',
+            Target = 'target', Value = 'value', NodeID = 'name',
+            units = 'TWh', fontSize = 12, nodeWidth = 30)
+```
+
+<div id="htmlwidget-ba342ecd3fefe5c63098" style="width:648px;height:360px;" class="sankeyNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ba342ecd3fefe5c63098">{"x":{"links":{"source":[0,1,1,1,1,6,7,8,10,9,11,11,11,15,15,15,15,15,15,15,15,15,15,15,23,25,5,5,5,5,5,27,17,17,28,29,2,2,2,2,2,2,2,2,34,24,35,36,38,37,39,39,40,40,41,42,43,43,4,4,4,26,26,26,44,45,46,47],"target":[1,2,3,4,5,2,4,9,9,4,12,13,14,16,14,17,12,18,19,13,3,20,21,22,24,24,13,3,26,19,12,15,28,3,18,15,12,30,18,31,32,19,33,20,1,5,26,37,37,2,4,1,14,13,15,14,42,41,19,26,12,15,3,11,15,1,15,15],"value":[124.729,0.597,26.862,280.322,81.144,35,35,11.606,63.965,75.571,10.639,22.505,46.184,104.453,113.726,27.14,342.165,37.797,4.412,40.858,56.691,7.863,90.008,93.494,40.719,82.233,0.129,1.401,151.891,2.096,48.58,7.013,20.897,6.242,20.897,6.995,121.066,128.69,135.835,14.458,206.267,3.64,33.218,4.413,4.375,122.952,839.978,504.287,107.703,611.99,56.587,77.81,193.026,70.672,59.901,19.263,19.263,59.901,0.882,400.12,46.477,525.531,787.129,79.329,9.452,182.01,19.013,289.366]},"nodes":{"name":["Agricultural 'waste'","Bio-conversion","Liquid","Losses","Solid","Gas","Biofuel imports","Biomass imports","Coal imports","Coal","Coal reserves","District heating","Industry","Heating and cooling - commercial","Heating and cooling - homes","Electricity grid","Over generation / exports","H2 conversion","Road transport","Agriculture","Rail transport","Lighting & appliances - commercial","Lighting & appliances - homes","Gas imports","Ngas","Gas reserves","Thermal generation","Geothermal","H2","Hydro","International shipping","Domestic aviation","International aviation","National navigation","Marine algae","Nuclear","Oil imports","Oil","Oil reserves","Other waste","Pumped heat","Solar PV","Solar Thermal","Solar","Tidal","UK land based bioenergy","Wave","Wind"],"group":["Agricultural 'waste'","Bio-conversion","Liquid","Losses","Solid","Gas","Biofuel imports","Biomass imports","Coal imports","Coal","Coal reserves","District heating","Industry","Heating and cooling - commercial","Heating and cooling - homes","Electricity grid","Over generation / exports","H2 conversion","Road transport","Agriculture","Rail transport","Lighting & appliances - commercial","Lighting & appliances - homes","Gas imports","Ngas","Gas reserves","Thermal generation","Geothermal","H2","Hydro","International shipping","Domestic aviation","International aviation","National navigation","Marine algae","Nuclear","Oil imports","Oil","Oil reserves","Other waste","Pumped heat","Solar PV","Solar Thermal","Solar","Tidal","UK land based bioenergy","Wave","Wind"]},"options":{"NodeID":"name","NodeGroup":"name","LinkGroup":null,"colourScale":"d3.scaleOrdinal(d3.schemeCategory20);","fontSize":12,"fontFamily":null,"nodeWidth":30,"nodePadding":10,"units":"TWh","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":32,"sinksRight":true}},"evals":[],"jsHooks":[]}</script>
+
+```r
+# Colour links
+energy$links$energy_type &lt;- sub(' .*', '',
+                               energy$nodes[energy$links$source + 1, 'name'])
+
+sankeyNetwork(Links = energy$links, Nodes = energy$nodes, Source = 'source',
+             Target = 'target', Value = 'value', NodeID = 'name',
+             LinkGroup = 'energy_type', NodeGroup = NULL)
+```
+
+<div id="htmlwidget-9a2df5e2f239b677b115" style="width:648px;height:360px;" class="sankeyNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9a2df5e2f239b677b115">{"x":{"links":{"source":[0,1,1,1,1,6,7,8,10,9,11,11,11,15,15,15,15,15,15,15,15,15,15,15,23,25,5,5,5,5,5,27,17,17,28,29,2,2,2,2,2,2,2,2,34,24,35,36,38,37,39,39,40,40,41,42,43,43,4,4,4,26,26,26,44,45,46,47],"target":[1,2,3,4,5,2,4,9,9,4,12,13,14,16,14,17,12,18,19,13,3,20,21,22,24,24,13,3,26,19,12,15,28,3,18,15,12,30,18,31,32,19,33,20,1,5,26,37,37,2,4,1,14,13,15,14,42,41,19,26,12,15,3,11,15,1,15,15],"value":[124.729,0.597,26.862,280.322,81.144,35,35,11.606,63.965,75.571,10.639,22.505,46.184,104.453,113.726,27.14,342.165,37.797,4.412,40.858,56.691,7.863,90.008,93.494,40.719,82.233,0.129,1.401,151.891,2.096,48.58,7.013,20.897,6.242,20.897,6.995,121.066,128.69,135.835,14.458,206.267,3.64,33.218,4.413,4.375,122.952,839.978,504.287,107.703,611.99,56.587,77.81,193.026,70.672,59.901,19.263,19.263,59.901,0.882,400.12,46.477,525.531,787.129,79.329,9.452,182.01,19.013,289.366],"group":["Agricultural","Bio-conversion","Bio-conversion","Bio-conversion","Bio-conversion","Biofuel","Biomass","Coal","Coal","Coal","District","District","District","Electricity","Electricity","Electricity","Electricity","Electricity","Electricity","Electricity","Electricity","Electricity","Electricity","Electricity","Gas","Gas","Gas","Gas","Gas","Gas","Gas","Geothermal","H2","H2","H2","Hydro","Liquid","Liquid","Liquid","Liquid","Liquid","Liquid","Liquid","Liquid","Marine","Ngas","Nuclear","Oil","Oil","Oil","Other","Other","Pumped","Pumped","Solar","Solar","Solar","Solar","Solid","Solid","Solid","Thermal","Thermal","Thermal","Tidal","UK","Wave","Wind"]},"nodes":{"name":["Agricultural 'waste'","Bio-conversion","Liquid","Losses","Solid","Gas","Biofuel imports","Biomass imports","Coal imports","Coal","Coal reserves","District heating","Industry","Heating and cooling - commercial","Heating and cooling - homes","Electricity grid","Over generation / exports","H2 conversion","Road transport","Agriculture","Rail transport","Lighting & appliances - commercial","Lighting & appliances - homes","Gas imports","Ngas","Gas reserves","Thermal generation","Geothermal","H2","Hydro","International shipping","Domestic aviation","International aviation","National navigation","Marine algae","Nuclear","Oil imports","Oil","Oil reserves","Other waste","Pumped heat","Solar PV","Solar Thermal","Solar","Tidal","UK land based bioenergy","Wave","Wind"]},"options":{"NodeID":"name","NodeGroup":null,"LinkGroup":"energy_type","colourScale":"d3.scaleOrdinal(d3.schemeCategory20);","fontSize":7,"fontFamily":null,"nodeWidth":15,"nodePadding":10,"units":"","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":32,"sinksRight":true}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# **visNetwork**
+
+uses `vis.js` library for network vizualization. 
+
+Is implemented as an html widget and it provides a [GUI to configure and view options directly in R](http://datastorm-open.github.io/visNetwork/configure.html.
+
+It is also possible to use images and icons to visualize the nodes.
+
+http://datastorm-open.github.io/visNetwork/
+
+---
+
+# **visNetwork**: minimal example
+
+
+
+```r
+# minimal example
+nodes &lt;- data.frame(id = 1:5)
+edges &lt;- data.frame(from = c(2,2,4,1,1), to = c(1,3,2,3,5))
+visNetwork(nodes, edges, width = "100%")
+```
+
+<div id="htmlwidget-d58e1d3a724bec444aab" style="width:100%;height:360px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d58e1d3a724bec444aab">{"x":{"nodes":{"id":[1,2,3,4,5]},"edges":{"from":[2,2,4,1,1],"to":[1,3,2,3,5]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false}},"groups":null,"width":"100%","height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)"},"evals":[],"jsHooks":[]}</script>
+
+
+---
+
+# **visNetwork**: _Les Misérables_ again
+
+<div id="htmlwidget-61a4001a9efed8f7b118" style="width:100%;height:700px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-61a4001a9efed8f7b118">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-46.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# **visNetwork**: Show nearest neighbors
+
+<div id="htmlwidget-6c967525ec3e5462cf86" style="width:100%;height:600px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6c967525ec3e5462cf86">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-47.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# **tidygraph**
+
+`tidygraph` is a **recent** edition to the network visualization space. Its appeal is that we can continue working with dataframe, along with all the tools (`dplyr` etc.) that we have grown used to.
+
+`tidygraph` and `ggraph` allow you to **deal with network objects** in a manner that is more consistent with the commands used for **working with tibbles and data frames**. However, the true promise of `tidygraph` and `ggrap`h is that they **leverage the power of igraph**.
+
+
+```r
+# Load the packages
+library(tidygraph)
+library(ggraph)
+
+# Load some Data (from Jesse Sadler)
+letters &lt;- read_csv("data/Dutch_letters/correspondence-data-1585.csv")
+letters
+```
+
+```
+## # A tibble: 114 x 4
+##    writer                  source  destination date      
+##    &lt;chr&gt;                   &lt;chr&gt;   &lt;chr&gt;       &lt;date&gt;    
+##  1 Meulen, Andries van der Antwerp Delft       1585-01-03
+##  2 Meulen, Andries van der Antwerp Haarlem     1585-01-09
+##  3 Meulen, Andries van der Antwerp Haarlem     1585-01-11
+##  4 Meulen, Andries van der Antwerp Delft       1585-01-12
+##  5 Meulen, Andries van der Antwerp Haarlem     1585-01-12
+##  6 Meulen, Andries van der Antwerp Delft       1585-01-17
+##  7 Meulen, Andries van der Antwerp Delft       1585-01-22
+##  8 Meulen, Andries van der Antwerp Delft       1585-01-23
+##  9 Della Faille, Marten    Antwerp Haarlem     1585-01-24
+## 10 Meulen, Andries van der Antwerp Delft       1585-01-28
+## # … with 104 more rows
+```
+
+
+```
+## # A tibble: 13 x 2
+##       id label     
+##    &lt;int&gt; &lt;chr&gt;     
+##  1     1 Antwerp   
+##  2     2 Haarlem   
+##  3     3 Dordrecht 
+##  4     4 Venice    
+##  5     5 Lisse     
+##  6     6 Het Vlie  
+##  7     7 Hamburg   
+##  8     8 Emden     
+##  9     9 Amsterdam 
+## 10    10 Delft     
+## 11    11 The Hague 
+## 12    12 Middelburg
+## 13    13 Bremen
+```
+
+```
+## # A tibble: 15 x 3
+##    source    destination weight
+##    &lt;chr&gt;     &lt;chr&gt;        &lt;int&gt;
+##  1 Amsterdam Bremen           1
+##  2 Antwerp   Delft           68
+##  3 Antwerp   Haarlem          5
+##  4 Antwerp   Middelburg       1
+##  5 Antwerp   The Hague        2
+##  6 Dordrecht Haarlem          1
+##  7 Emden     Bremen           1
+##  8 Haarlem   Bremen           2
+##  9 Haarlem   Delft           26
+## 10 Haarlem   Middelburg       1
+## 11 Haarlem   The Hague        1
+## 12 Hamburg   Bremen           1
+## 13 Het Vlie  Bremen           1
+## 14 Lisse     Delft            1
+## 15 Venice    Haarlem          2
+```
+
+```
+## # A tibble: 15 x 3
+##     from    to weight
+##    &lt;int&gt; &lt;int&gt;  &lt;int&gt;
+##  1     9    13      1
+##  2     1    10     68
+##  3     1     2      5
+##  4     1    12      1
+##  5     1    11      2
+##  6     3     2      1
+##  7     8    13      1
+##  8     2    13      2
+##  9     2    10     26
+## 10     2    12      1
+## 11     2    11      1
+## 12     7    13      1
+## 13     6    13      1
+## 14     5    10      1
+## 15     4     2      2
+```
+
+
+---
+
+# **tidygraph**
+
+Make a network `tbl_graph` object:
+
+
+```r
+routes_tidy &lt;- tbl_graph(nodes = nodes, edges = edges, directed = TRUE)
+routes_tidy
+```
+
+```
+## # A tbl_graph: 13 nodes and 15 edges
+## #
+## # A directed acyclic simple graph with 1 component
+## #
+## # Node Data: 13 x 2 (active)
+##      id label    
+##   &lt;int&gt; &lt;chr&gt;    
+## 1     1 Antwerp  
+## 2     2 Haarlem  
+## 3     3 Dordrecht
+## 4     4 Venice   
+## 5     5 Lisse    
+## 6     6 Het Vlie 
+## # … with 7 more rows
+## #
+## # Edge Data: 15 x 3
+##    from    to weight
+##   &lt;int&gt; &lt;int&gt;  &lt;int&gt;
+## 1     9    13      1
+## 2     1    10     68
+## 3     1     2      5
+## # … with 12 more rows
+```
+
+---
+
+# **tidygraph**: A basic plot
+
+
+```r
+ggraph(routes_tidy) + geom_edge_link() + 
+  geom_node_point() + theme_graph()
+```
+
+![](week10_lecture_files/figure-html/unnamed-chunk-51-1.png)&lt;!-- --&gt;
+
+---
+
+# **tidygraph** + **ggraph**
+
+
+
+```r
+ggraph(routes_tidy, layout = "graphopt") + 
+  geom_node_point() +
+  geom_edge_link(aes(width = weight), alpha = 0.8) + 
+  scale_edge_width(range = c(0.2, 2)) +
+  geom_node_text(aes(label = label), repel = TRUE) +
+  labs(edge_width = "Letters") +
+  theme_graph()
+```
+
+![](week10_lecture_files/figure-html/unnamed-chunk-52-1.png)&lt;!-- --&gt;
+
+---
+
+# Arc Diagram
+
+
+```r
+ggraph(routes_tidy, layout = "linear") + 
+  geom_edge_arc(aes(width = weight), alpha = 0.8) + 
+  scale_edge_width(range = c(0.2, 2)) +
+  geom_node_text(aes(label = label)) +
+  labs(edge_width = "Letters") +
+  theme_graph()
+```
+
+![](week10_lecture_files/figure-html/unnamed-chunk-53-1.png)&lt;!-- --&gt;
+
+
+---
+
+# **visnetwork** version
+
+
+
+
+```r
+visNetwork(nodes, edges) %&gt;% 
+  visIgraphLayout(layout = "layout_with_fr") %&gt;% 
+  visEdges(arrows = "middle")
+```
+
+<div id="htmlwidget-0f3ca7551702930bb095" style="width:100%;height:400px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0f3ca7551702930bb095">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-56.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+class: inverse, bottom, center
+background-color: #000000
+
+# Analyzing Twitter
+
+&lt;iframe  title="Twitter Pulse" width="800" height="810" src="http://twistori.com/#i_wish" frameborder="0" allowfullscreen align="right"&gt;&lt;/iframe&gt;
+
+---
+
+# Trending topics
+
+
+
+
+```r
+library(rtweet)
+# Let's get the current trending topcis in the U.S.
+us &lt;- get_trends("united states")
+```
+
+<div id="htmlwidget-57d3bb7f46368bc89d49" style="width:100%;height:360px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-57d3bb7f46368bc89d49">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-59.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+## Capturing Tweets in Real-time with Streaming API
+
+We want to **capture a stream of public tweets in real-time**, optionally filtering by select screen names or keywords in the text of the tweet.
+
+
+```r
+# Capture 60 seconds of tweets in the U.S.
+stream_tweets(
+  lookup_coords("usa"), # handy helper function in rtweet
+  verbose = FALSE,
+  timeout = (60 * 1),
+) -&gt; usa
+```
+
+---
+
+# Where are the tweets from?
+
+
+```r
+count(usa, place_full_name, sort=TRUE)
+```
+
+```
+## # A tibble: 598 x 2
+##    place_full_name       n
+##    &lt;chr&gt;             &lt;int&gt;
+##  1 Los Angeles, CA      47
+##  2 Houston, TX          25
+##  3 Brooklyn, NY         19
+##  4 Chicago, IL          19
+##  5 Florida, USA         17
+##  6 Manhattan, NY        14
+##  7 Georgia, USA         13
+##  8 Toronto, Ontario     12
+##  9 Nashville, TN        11
+## 10 San Francisco, CA    11
+## # … with 588 more rows
+```
+
+---
+
+# What are the tweets about?
+
+
+```r
+unnest(usa, hashtags) %&gt;% 
+  count(hashtags, sort=TRUE) %&gt;% 
+  filter(!is.na(hashtags))
+```
+
+```
+## # A tibble: 131 x 2
+##    hashtags                      n
+##    &lt;chr&gt;                     &lt;int&gt;
+##  1 COVID19                       3
+##  2 Nursing                       3
+##  3 realestate                    3
+##  4 OH                            2
+##  5 1DOnlineConcertStayAtHome     1
+##  6 alcohol                       1
+##  7 ALPHAL20N                     1
+##  8 Art                           1
+##  9 Austin                        1
+## 10 autowa                        1
+## # … with 121 more rows
+```
+
+---
+
+# World Leaders Tweets
+
+Using data from the [Twiplomacy Project](http://twiplomacy.com/blog/twiplomacy-study-2017/), let's check on the set of 50 most influential leaders in the world.
+
+
+```r
+world_leaders &lt;- read_csv("data/Twiplomacy/world_leaders.csv")
+```
+
+
+```r
+# Get 10 latest tweets from each account
+leaders_tweets &lt;- 
+  get_timelines(user = world_leaders$twitter_account,
+    n = 100, ## number of tweets to download (max is 3,200)
+    )
+```
+
+---
+
+# Top Tweet by each World Leader
+
+<div id="htmlwidget-a578d5941e36799fd0f8" style="width:100%;height:360px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-a578d5941e36799fd0f8">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-65.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Most followers, location, friends etc.
+
+
+```r
+# Get more info about accounts
+leaders_info &lt;- lookup_users(unique(leaders_tweets$user_id))
+```
+
+<div id="htmlwidget-2ce9f1a2a3e790362e19" style="width:100%;height:360px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2ce9f1a2a3e790362e19">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-67.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Location of followers
+
+
+```r
+# Based on Jeff Leeks twitterMap function
+source("http://biostat.jhsph.edu/~jleek/code/twitterMap.R")
+twitterMap("BarackObama")
+```
+
+&lt;img src="images/barackobama_followers_map.png" width="100%" /&gt;
+
+---
+
+# `#rstats`
+
+
+```r
+# Getting rstats tweets
+rstats &lt;- search_tweets("#rstats", n=1500)
+```
+
+<div id="htmlwidget-9ac611bd1fc66ee51989" style="width:100%;height:360px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9ac611bd1fc66ee51989">{"x":{"url":"week10_lecture_files/figure-html//widgets/widget_unnamed-chunk-71.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Extract the Originating Source from a Retweet
+
+
+```r
+filter(rstats, retweet_count &gt; 0) %&gt;% 
+  select(screen_name, mentions_screen_name) %&gt;%
+  unnest(mentions_screen_name) %&gt;% 
+  filter(!is.na(mentions_screen_name)) %&gt;% 
+  graph_from_data_frame() -&gt; rt_g
+
+summary(rt_g)
+```
+
+```
+## IGRAPH c31a1d4 DN-- 933 1604 -- 
+## + attr: name (v/c)
+```
+
+---
+
+# How many retweets?
+
+
+```r
+ggplot(data_frame(y=degree_distribution(rt_g), 
+                  x=1:length(y))) +
+  geom_segment(aes(x, y, xend=x, yend=0), color="slateblue") +
+  scale_y_continuous(expand=c(0,0), trans="sqrt") +
+  labs(x="Degree", y="Density (sqrt scale)", 
+       title="#rstats Retweet Degree Distribution") +
+  theme_fivethirtyeight()
+```
+
+![](week10_lecture_files/figure-html/unnamed-chunk-73-1.png)&lt;!-- --&gt;
+
+---
+
+# Location of Tweets
+
+
+```r
+## create lat/lng variables using all available tweet and profile geo-location data
+rstats &lt;- lat_lng(rstats)
+```
+
+![](week10_lecture_files/figure-html/unnamed-chunk-75-1.png)&lt;!-- --&gt;
+
+---
+
+# Add node labels
+
+We will only add labels for nodes that have a degree of 20 or more. 
+
+
+```r
+V(rt_g)$node_label &lt;- 
+  unname(ifelse(degree(rt_g)[V(rt_g)] &gt; 20, 
+                names(V(rt_g)), "")) 
+V(rt_g)$node_size &lt;- 
+  unname(ifelse(degree(rt_g)[V(rt_g)] &gt; 20, 
+                degree(rt_g), 0)) 
+```
+
+---
+
+# Retweet Graph
+
+
+```r
+ggraph(rt_g, layout = 'linear', circular = TRUE) + 
+  geom_edge_arc(edge_width=0.125, aes(alpha=..index..)) +
+  geom_node_label(aes(label=node_label, size=node_size),
+                  label.size=0, fill="#ffffff66", segment.colour="springgreen",
+                  color="slateblue", repel=TRUE, fontface="bold") +
+  coord_fixed() +
+  scale_size_area(trans="sqrt") +
+  labs(title="Retweet Relationships", subtitle="Most retweeted screen names labeled. Darkers edges == more retweets. Node size == larger degree") +
+  theme_graph() +
+  theme(legend.position="none")
+```
+
+---
+
+# Retweet Graph
+
+![](week10_lecture_files/figure-html/unnamed-chunk-78-1.png)&lt;!-- --&gt;
+
+---
+
+# More Resources for Twitter Analysis
+
+* Yanchang Zhao presents a helpful short course on [Twitter Data Analysis with R – Text Mining and Social Network Analysis](http://www.rdatamining.com/docs/twitter-analysis-with-r) (based on his [book](http://www.rdatamining.com/docs/RDataMining-book.pdf))  
+* Bob Rudis has a (still incomplete but already helpful) short primer on [21 Recipes for Mining Twitter Data with rtweet](https://rud.is/books/21-recipes/)   
+* The support page for the R package `smappR` provides a nice FAQ of [solutions to common tasks and problems in analyzing social media data](https://github.com/SMAPPNYU/smappR)  
+* Jesse Sadler, a historian at UCLA, provides a clean [Introduction to Network Analysis with R](https://www.jessesadler.com/post/network-analysis-with-r/), especially with respect to its coverage of `tidygraph` and `ggraph`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,674 @@
+---
+title: "Shiny Example - Visualizing WDI Data"
+author: Thomas Brambor
+job: QMSS Data Visualization
+widgets: []
+mode: selfcontained
+always_allow_html: yes
+runtime: shiny
+
+output:
+  ioslides_presentation:
+    incremental: false
+    smaller: false
+  github_document:
+    toc: true
+    toc_depth: 1
+---
+
+```{r packages, message = FALSE, warning = FALSE, echo=FALSE}
+# Load packages.
+packages <- c("devtools","knitr","leaflet","shiny","raster","rgdal","RColorBrewer","dplyr","readr")
+
+packages <- lapply(packages, FUN = function(x) {
+  if(!require(x, character.only = TRUE)) {
+    install.packages(x)
+    library(x, character.only = TRUE)
+  }
+})
+
+```
+
+
+```{r Setup, include=FALSE, results='hide', warning=FALSE}
+
+# A Prefix nulling hook.
+
+# Make sure to keep the default for normal processing.
+default_output_hook <- knitr::knit_hooks$get("output")
+
+# Output hooks handle normal R console output.
+knitr::knit_hooks$set( output = function(x, options) {
+
+  comment <- knitr::opts_current$get("comment")
+  if( is.na(comment) ) comment <- ""
+  can_null <- grepl( paste0( comment, "\\s*\\[\\d?\\]" ),
+                     x, perl = TRUE)
+  do_null <- isTRUE( knitr::opts_current$get("null_prefix") )
+  if( can_null && do_null ) {
+    # By default R print output aligns at the right brace.
+    align_index <- regexpr( "\\]", x )[1] - 1
+    # Two cases: start or newline
+    re <- paste0( "^.{", align_index, "}\\]")
+    rep <- comment
+    x <- gsub( re, rep,  x )
+    re <- paste0( "\\\n.{", align_index, "}\\]")
+    rep <- paste0( "\n", comment )
+    x <- gsub( re, rep,  x )
+  }
+
+  default_output_hook( x, options )
+
+})
+
+knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
+
+
+## Normal Setup From Here
+library(knitr)
+
+opts_chunk$set(fig.path="images/",
+               cache.path="cache/",
+            #   dev=c("png","pdf"),
+            #  fig.width=5,
+            #  fig.height=4.5,
+            #  dpi=300,
+            #  fig.show="hold",
+            #  fig.lp="fig:",
+               cache=TRUE,
+            #  par=TRUE,
+               echo=TRUE,
+               message=FALSE,
+               warning=FALSE)
+```
+
+
+# Starting with the template
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+library(shiny)
+ui <- fluidPage()
+server <- function(input, output) {}
+shinyApp(ui = ui, server = server)
+```
+
+## Add some layout
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+library(shiny)
+
+ui <- fluidPage(
+  titlePanel("Visualizing the World Development Indicators"),
+  
+  sidebarLayout(sidebarPanel("sidebar panel"),
+                mainPanel("main panel"))
+)
+
+server <- function(input, output) {
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Define input lists
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+# Content of our SETUP.R file
+library(WDI)
+library(readxl)
+
+# Set up the data
+# Generate a lookup table
+# source: databank.worldbank.org/data/download/site-content/WDI_CETS.xls
+
+xl <- "WDI_CETS.xls"
+
+lookup <- read_excel(xl)
+names(lookup) <- c("a", "b", "c", "d", "e", "f")
+
+# Functions to lookup variable names / descriptions
+lookup_list  <- setNames(as.list(lookup$b), lookup$a)
+lookup_list2 <- setNames(as.list(lookup$a), lookup$b)
+
+# Lookup countries
+cc <- read_csv("country_codes.csv", na="", 
+               col_types = list(col_factor(), col_factor()))
+
+lookup_list_countries  <- setNames(as.list(cc$iso_2c), cc$cname)
+lookup_list_countryabb <- setNames(as.list(cc$cname), cc$iso_2c)
+``` 
+
+## Define input variables
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+## The source file creates the lookup lists
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        label = 'World Development Indicator',
+        c("Variable 1", "Variable 2", "Variable3"),
+        selected = 'Variable 1'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        c("US", "CA", "FR"),
+        selected = "US"
+      )
+    ),
+    mainPanel(
+      "Visualization",
+    )
+  )
+)
+
+server <- function(input, output) {
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Named List instead
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'Fertility rate, total (births per woman)'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        c(
+          "United States" = "US",
+          "Canada" = "CA",
+          "France" = "FR"
+        ),
+        selected = "US"
+      )
+    ),
+    mainPanel(h2(h1("Visualization")))
+  )
+)
+
+server <- function(input, output) {
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Adding some simple output for debugging
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'Fertility rate, total (births per woman)'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        c(
+          "United States" = "US",
+          "Canada" = "CA",
+          "France" = "FR"
+        ),
+        selected = "US"
+      )
+    ),
+    mainPanel(h2(h1("Visualization")),
+              textOutput("selected_indicator"),
+              textOutput("selected_country"))
+  )
+)
+
+server <- function(input, output) {
+  output$selected_indicator <- renderText({ 
+    paste("You have selected the variable", input$indicator)
+  })
+  output$selected_country <- renderText({ 
+    paste("You have selected the country", input$ctry)
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Could group the input list as well
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'Fertility rate, total (births per woman)'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        list(
+          `North America` = c("United States" = "US",
+                              "Canada" = "CA"),
+          
+          `Europe` = c("France" = "FR",
+                       "Germany" = "DE")
+        ),
+        selected = "US"
+      )
+    ),
+    mainPanel(h1("Visualization"))
+  )
+)
+
+server <- function(input, output) {
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Define input variables: now country as lookup as well
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'Fertility rate, total (births per woman)'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US",
+      )
+    ),
+    mainPanel(
+      h2(h1("Visualization")),
+      textOutput("selected_indicator"),
+      textOutput("selected_country")
+    )
+  )
+)
+
+server <- function(input, output) {
+  output$selected_indicator <- renderText({
+    paste("You have selected the variable", input$indicator)
+  })
+  output$selected_country <- renderText({
+    paste("You have selected the country", input$ctry)
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Define output in UI
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'Fertility rate, total (births per woman)'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US"
+      )
+    ),
+    
+    mainPanel(h2(h1("Visualization")),
+              dygraphOutput("dchart", width = "100%"))
+  )
+)
+
+
+server <- function(input, output) {
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Define inputs in server: Data
+
+This is how the `WDI` package works:
+
+```{r, echo=TRUE, cache=FALSE, eval=FALSE}
+df <- WDI(
+  country = "US",
+  indicator = "AG.LND.ARBL.HA",
+  start = 1980,
+  end = 2016,
+  extra = FALSE
+)
+
+# To transform the data
+df1 <- df %>%
+  dplyr::select("country", "year", "AG.LND.ARBL.HA") %>%
+  tidyr::spread(key = "country", value = "AG.LND.ARBL.HA") %>%
+  dplyr::mutate(date = as.Date(as.character(year),
+                               format = "%Y")) %>%
+  dplyr::select(-year) 
+```
+
+## Define inputs and outputs in server: Data and Graph
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'Fertility rate, total (births per woman)'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US"
+      )
+    ),
+    mainPanel(h2(h1("Visualization")),
+              dygraphOutput("dchart", width = "100%"))
+  )
+)
+
+server <- function(input, output) {
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2016,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(data = ., key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    dygraph(xtdata) %>%
+      dyOptions(colors = c("black", "black"))
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Add range selector
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'Fertility rate, total (births per woman)'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US"
+      )
+    ),
+    mainPanel(h2(h1("Visualization")),
+              dygraphOutput("dchart", width = "100%"))
+  )
+)
+
+server <- function(input, output) {
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2016,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select_("country", "year", ind) %>%
+      tidyr::spread(data = ., key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20)
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Add highlighting for mouse over
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(title="Make selections",
+               selectInput('indicator', 
+                           'World Development Indicator', 
+                           lookup_list2, 
+                           selected = 'Fertility rate, total (births per woman)'), 
+               selectInput("ctry", label = "Country", 
+                           lookup_list_countries, 
+                           selected = "US") 
+                 ),
+    mainPanel(h1("Visualization"),
+              dygraphOutput("dchart", width = "100%")
+             )
+  )
+)
+
+server <- function(input, output) {
+  
+    output$dchart <- renderDygraph({ 
+      # Which variable to get?  
+      ind <- input$indicator
+      # Get the data
+      df <- WDI(country = input$ctry, indicator = ind, 
+               start = 1980, end = 2016, extra = FALSE)
+      # Transform the data
+      df1 <- df %>%
+        dplyr::select_("country", "year", ind) %>%
+        tidyr::spread(data = ., key = "country", value = ind) %>%
+        dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+        dplyr::select(-year) 
+    
+    xtdata <- xts(df1, order.by = df1$date) 
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc,"in",countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(highlightCircleSize = 5, 
+              highlightSeriesBackgroundAlpha = 0.2,
+              hideOnMouseOut = FALSE)
+    })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Adding styling with CSS
+
+- we can add styling to one particular graph only by attaching CSS file specifically for the graph with 
+
+```
+dygraph(...) %>%
+  dyCSS("dygraph.css")
+```
+
+Here are the relevant CSS tags: http://dygraphs.com/css.html
+
+## Adding styling with CSS
+
+A better option is an **overall CSS stylesheet** change how the Shiny app looks like. Just add it to the `head()` tag in the UI:
+
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  tags$head(includeCSS("styles.css")),
+  titlePanel("Visualizing World Development Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(title="Make selections",
+               selectInput('indicator', 
+                           'World Development Indicator', 
+                           lookup_list2, 
+                           selected = 'Fertility rate, total (births per woman)'), 
+               selectInput("ctry", label = "Country", 
+                           lookup_list_countries, 
+                           selected = "US") 
+                 ),
+    mainPanel(h2(h1("Visualization")),
+              dygraphOutput("dchart", width = "100%")
+             )
+  )
+)
+
+server <- function(input, output) {
+  
+    output$dchart <- renderDygraph({ 
+      # Which variable to get?  
+      ind <- input$indicator
+      # Get the data
+      df <- WDI(country = input$ctry, indicator = ind, 
+               start = 1980, end = 2016, extra = FALSE)
+      # Transform the data
+      df1 <- df %>%
+        dplyr::select_("country", "year", ind) %>%
+        tidyr::spread(data = ., key = "country", value = ind) %>%
+        dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+        dplyr::select(-year) 
+    
+    xtdata <- xts(df1, order.by = df1$date) 
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc,"in",countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(highlightCircleSize = 5, 
+              highlightSeriesBackgroundAlpha = 0.2,
+              hideOnMouseOut = FALSE)
+    })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+# Back to lecture and later part II
+
+
+
+
+
+

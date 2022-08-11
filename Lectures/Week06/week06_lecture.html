@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Visualization with Maps II</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Thomas Brambor" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="custom_Xaringan.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Visualization with Maps II
+## shapefiles, tmap, raster
+### Thomas Brambor
+### 2020/03/02
+
+---
+
+
+class: left, top
+background-image: url(images/roadmap.png)
+background-size: 100%
+background-position: 50% 280%
+
+
+
+
+
+
+
+
+
+## Roadmap for Today
+
+Thematic maps with the `tmap` package
+  - How does the process differ from `ggmap`?
+  - Example: Building some choropleth maps of London.
+
+The `raster` package.
+  - How to add raster layers in `tmap`?
+  - Where to get raster data?
+
+
+---
+
+# Assignment 1
+
+- Grading in progress. Return via comments on Github issue.
+
+--
+
+![academic deadlines](images/academic deadlines.gif)
+
+--
+
+- Data Wrangling with the `tidyverse`. See Grolemund / Wickham's book [_R for Data Science_](http://r4ds.had.co.nz/). 
+
+--
+
+- Ask other students to give you feedback as well. 
+- Practice with the selected student solution.
+
+---
+
+# Final Project
+
+1. Sign up on **campuswire**.
+2. Add a **private Github project** in the class organization!
+    - Repo name: Group\_**Group Letter**\_**Very short title**, e.g. _Group_C_Healthcare_
+    - add all group members AND the TAs and Prof as admins
+3. **Submit your proposal** by next Monday, March 9 at 3pm. Details on Github.
+
+---
+
+background-image: url(images/group_project_funny.jpg)
+background-size: 100%
+background-position: 100% 140%
+
+
+---
+
+class: inverse, middle, center
+
+# Thematic maps with R package `tmap`
+
+---
+
+# `tmap` vs `ggmap`
+
+Both `tmap` vs `ggmap` build up a plot in layers (grammar of graphics)
+
+`ggmap` expects data in data frames, `tmap` expects data in spatial objects
+
+---
+
+# `tmap` vs `ggmap`
+
+![tmap vs ggmap](images/tmap_vs_ggmap.png)
+
+---
+
+# Key differences of `tmap` vs `ggmap`
+
+- No `scale_` equivalents, tweaks to scales happen in the relevant layer call 
+- `tm_shape()` defines default data for any subsequent layers, you can have many in a single plot
+- No need for x and y aesthetics, these are inherent in spatial objects
+- No special evaluation, when mapping variables they must be quoted
+
+---
+
+# Building a thematic map - Example London
+
+- As before, we need to read in the shapefiles using the `rgdal` package 
+- There are several files named "london_sport" in the folder `data/london/` with different extentions, such as .prj, .dbf and .shp. 
+
+
+```r
+library(rgdal)
+lnd &lt;- readOGR(dsn = "data/london", layer = "london_sport")
+```
+
+&lt;small&gt;&lt;small&gt; The shapefiles contain the population of London Boroughs in 2001 and the percentage of the population participating in sporting activities. 
+This data originates from the
+[Active People Survey](https://data.london.gov.uk/dataset/active-people-survey-kpi-data-borough).
+The boundary data is from the [Ordnance Survey](https://www.ordnancesurvey.co.uk/opendata/viewer/).
+&lt;/small&gt;&lt;/small&gt;
+
+---
+
+# Checking the `sp` object
+
+
+```r
+# What kind of object?
+class(lnd)  
+```
+
+```
+## [1] "SpatialPolygonsDataFrame"
+## attr(,"package")
+## [1] "sp"
+```
+
+```r
+# Structure
+str(lnd, max.level=2)
+```
+
+```
+## Formal class 'SpatialPolygonsDataFrame' [package "sp"] with 5 slots
+##   ..@ data       :'data.frame':	33 obs. of  4 variables:
+##   ..@ polygons   :List of 33
+##   ..@ plotOrder  : int [1:33] 1 3 4 19 10 25 28 2 7 27 ...
+##   ..@ bbox       : num [1:2, 1:2] 503571 155851 561941 200932
+##   .. ..- attr(*, "dimnames")=List of 2
+##   ..@ proj4string:Formal class 'CRS' [package "sp"] with 1 slot
+```
+
+---
+
+# Checking the `sp` object
+
+
+```r
+head(lnd@data, n = 2)
+```
+
+```
+##   ons_label                 name Partic_Per Pop_2001
+## 0      00AF              Bromley       21.7   295535
+## 1      00BD Richmond upon Thames       26.6   172330
+```
+
+```r
+mean(lnd$Partic_Per)  # Average participation in active sports
+```
+
+```
+## [1] 20.05455
+```
+
+```r
+nrow(lnd)             # How many boroughs?
+```
+
+```
+## [1] 33
+```
+
+---
+
+# Learning more about `tmap`
+
+A quick introduction to **tmap** can be accessed (after the package is installed)
+by using the vignette function:
+
+
+```r
+# install.packages("tmap") # install the CRAN version
+library(tmap)
+vignette(package = "tmap") # available vignettes in tmap
+vignette("tmap-nutshell")
+```
+
+---
+
+# Building a thematic map
+
+
+```r
+library(tmap)
+tm_shape(lnd) +
+tm_fill()
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+# Adding color
+
+
+```r
+library(tmap)
+tm_shape(lnd) +
+tm_fill("blue")
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
+
+# Borders
+
+
+```r
+tm_shape(lnd) +
+tm_borders()
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+
+# Mapping a variable
+
+
+```r
+tm_shape(lnd) +
+tm_fill("Pop_2001")  ## oops, population is still a factor
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+```r
+  # and the legend placement is not great
+```
+
+---
+
+# Layout options
+
+The element `tm_layout` controls all layout options such as fonts, legends, margins, and colors. 
+
+
+```r
+tm_shape(lnd) +
+tm_fill("Pop_2001",  title = "Population") + 
+(layout &lt;- tm_layout(  # Note we are saving the layout here
+          legend.title.size = 1,
+          legend.text.size = 0.6,
+          legend.position = c(0.8,0),
+          legend.bg.color = "white",
+          legend.bg.alpha = 1,
+          bg.color="white",
+          frame=FALSE))
+```
+
+---
+
+# Layout options
+
+
+```r
+lnd@data$Pop_2001 &lt;- as.numeric(as.character(lnd@data$Pop_2001))
+tm_shape(lnd) + layout +
+tm_fill("Pop_2001", title = "Population")
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+
+# Styles
+
+
+Similar to `ggmap`, you can also add a pre-defined theme to style your map, e.g. `tm_style_natural`, `tm_style_col_blind`, `tm_style_white` etc.
+
+--
+
+.pull-left[
+
+
+```r
+tm_shape(lnd) +   
+  tm_style_natural() +  
+  tm_fill("Pop_2001",  
+      title = "Population")
+# Or set your preferred style
+tmap_style("white")
+```
+
+]
+
+.pull-right[
+
+![](week06_lecture_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+]
+
+
+
+
+---
+
+# Calculate a density
+
+
+```r
+# Let's calculate population density
+tm_shape(lnd) + layout +
+tm_fill("Pop_2001", title = "Population per sq km",
+        convert2density=TRUE,
+        style="kmeans")
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+---
+
+# Setting intervals for the scale
+
+
+```r
+(gg &lt;- tm_shape(lnd) + layout +
+tm_fill("Pop_2001", title = "Population per sq km",
+        convert2density=TRUE,
+        style="pretty") +  # provides nicer intervals
+tm_borders(alpha=.5))
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+
+---
+
+# Adding annotations
+
+
+```r
+gg + tm_text("name", size=.6, shadow=TRUE,
+             bg.color="white", bg.alpha=.25,
+             remove.overlap=TRUE) 
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+
+---
+
+# Aspect ratio and margins
+
+Aspect ratio (=width/height) of the frame determined by (1) device [green] (with outer margins [yellow]), and (2) shape [red] (with frame [blue])
+
+
+```r
+gg + layout + tm_layout(design.mode=TRUE)
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+```r
+  # enables the design mode. Inner and outer margins, legend position, aspect ratio are explicitely shown.
+```
+
+---
+
+# Adding a compass
+
+
+```r
+gg + layout + 
+  tm_compass(position=c(0,0), type="8star", 
+             size=2, show.label=2)
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+
+---
+
+# Adding other data layers
+
+We already tried a few layers thus far, but there are a few more. Here is a selection:
+
+- **tm_shape()**  
+- **tm_fill()**  
+- **tm_borders()**  
+- **tm_polygons()**  
+- tm_bubbles()  
+- tm_dots()  
+- tm_lines()  
+- tm_raster()  
+- tm_marker()
+- tm_symbols() - also with tmap_icons()
+- **tm_text()**  
+
+---
+
+# Identify selected areas
+
+
+```r
+# Select zones where sports participation is less than 17%
+sel &lt;- lnd$Partic_Per &lt; 17
+# Make these boroughs visible through borders 
+gg +  tm_shape(lnd[ sel, ]) + 
+        # Note, we need to add tm_shape() again
+      tm_borders(col = "blue", lwd = 2) +
+      tm_text("name", size=.6, shadow=TRUE,
+              bg.color="white", bg.alpha=.5, 
+              remove.overlap=FALSE) 
+```
+
+---
+
+# Identify by distance from a point
+
+**Goal**: Select all zones whose geographic centroid lies within 10 km of the geographic centroid of inner London.
+
+![](week06_lecture_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+
+---
+
+# Identify by distance from a point
+
+
+
+```r
+library(rgeos) # R's interface to the vector processing library [geos](http://trac.osgeo.org/geos/)
+# find London's geographic centroid
+cent_lnd &lt;- gCentroid(lnd[lnd$name == "City of London",])
+cent_lnd$name &lt;- "Central     London"
+(gg2 &lt;- gg  + tm_shape(cent_lnd) + tm_dots(col="red", size=0.5)
+            + tm_text("name", size=0.8))
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+---
+
+# Identify by distance from a point
+
+
+```r
+# Set 10 km buffer
+lnd_buffer &lt;- gBuffer(spgeom = cent_lnd, width = 10000) 
+gg2 + tm_shape(lnd_buffer) + tm_borders(col="blue")
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+
+---
+
+# Identify by distance from a point
+
+
+```r
+# Method 1 of subsetting selects any intersecting zones
+lnd_central1 &lt;- lnd[lnd_buffer,] # the selection is too big!
+gg2 + tm_shape(lnd_central1) + tm_fill(col="lightblue", alpha=0.4) +
+  tm_shape(lnd_buffer) + tm_borders(col="blue")
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
+
+```r
+  # some areas just touch the buffer
+```
+
+---
+
+# Identify by distance from a point
+
+Let's try an alternate method of subsetting selects only points within the buffer.
+
+
+```r
+## Method2 of subsetting selects only points within the buffer
+
+# Create spatialpoints object of polygo centroids
+lnd_cents &lt;- SpatialPoints(coordinates(lnd),
+                           proj4string = CRS(proj4string(lnd))) 
+
+# select points inside buffer
+sel &lt;- lnd_cents[lnd_buffer,] 
+sel
+```
+
+```
+## class       : SpatialPoints 
+## features    : 14 
+## extent      : 523592.6, 541466.2, 174026.6, 189667.2  (xmin, xmax, ymin, ymax)
+## crs         : +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs
+```
+
+---
+
+# Identify by distance from a point
+
+Let's try an alternate method of subsetting selects only points within the buffer.
+
+
+```r
+## Show where the points are located
+gg2 + tm_shape(sel) + tm_dots(col="black") + 
+  tm_shape(lnd_buffer) + tm_borders(col="blue")
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+
+---
+
+# Identify by distance from a point
+
+
+```r
+lnd_central2 &lt;- lnd[sel,] # select zones intersecting w. sel
+gg2 + 
+  ## Zones with polygons touching the buffer (from above)
+  tm_shape(lnd_central1) + 
+  tm_fill(col="lightblue") + 
+  tm_borders(col="gray") +
+  ## Zones with centroids inside of the buffer
+  tm_shape(lnd_central2) + 
+  tm_fill(col="lightslateblue") + 
+  tm_borders(col="gray") +
+  tm_shape(lnd_buffer) + tm_borders(col="blue") +
+  ## The Central London centroid
+  tm_shape(cent_lnd) + tm_dots(col="red", size=0.5) +
+  tm_text("name", size=0.8)
+```
+
+---
+
+# Identify by distance from a point
+
+![](week06_lecture_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
+
+
+---
+
+# Splitting into quadrants
+
+Let's try another one. This time, we want to **split the London shapefile**  into **4 quadrants** corresponding to the cardinal directions.
+
+Starting from the **center point**, we will use that point's coordinates to create the **lines of latitude and longitude** on which the center of the wards will be tested against.
+
+---
+
+# Find the center of the london area
+
+Given that we already know how to get the center point, let's take the latitude and longitude coordinates from that point:
+
+
+```r
+lat &lt;- coordinates(gCentroid(lnd))[[1]]
+lng &lt;- coordinates(gCentroid(lnd))[[2]]
+```
+
+---
+
+# Selecting quadrants
+
+Let's now work with the shapefile for London and split it into quadrants using lines of latitude and longitude.
+
+
+```r
+# Test whether or not a coordinate is 
+# east or north of the center
+east &lt;- coordinates(lnd)[,1] &gt; lat 
+west &lt;- coordinates(lnd)[,1] &lt; lat 
+north &lt;- coordinates(lnd)[,1] &gt; lng 
+south &lt;- coordinates(lnd)[,1] &lt; lng 
+
+east
+```
+
+```
+##     0     1     2     3     4     5     6     7     8     9    10    11    12 
+##  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE 
+##    13    14    15    16    17    18    19    20    21    22    23    24    25 
+##  TRUE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE 
+##    26    27    28    29    30    31    32 
+##  TRUE  TRUE FALSE FALSE FALSE  TRUE  TRUE
+```
+
+
+
+---
+
+# Plot the Northeast quadrant
+
+
+```r
+tm_shape(lnd) + 
+  tm_borders() +
+  tm_shape(lnd[east &amp; north,]) + 
+  tm_fill(col="red")
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
+
+---
+
+# Unify each quadrant into a single polygon
+
+
+```r
+lnd@data$quadrant[east &amp; north] &lt;- "northeast"
+lnd@data$quadrant[west &amp; north] &lt;- "northwest"
+lnd@data$quadrant[east &amp; south] &lt;- "southeast"
+lnd@data$quadrant[west &amp; south] &lt;- "southwest"
+
+ne = gUnaryUnion(lnd[lnd@data$quadrant=="northeast",], lnd$dummy)
+```
+
+---
+
+# PLotting the quadrant map  
+
+![The 4 quadrants of London](week06_lecture_files/figure-html/unnamed-chunk-32-1.png)
+
+---
+
+# Small multiples
+
+Small multiples, i.e. multiple maps side-by-side are generated in three ways.
+
+1. By assigning multiple values to at least one of the aesthetic arguments
+2. By defining a group-by variable in tm_facets.
+3. By creating multiple stand-alone maps with `tmap_arrange`
+
+Let's go through each of the possibilities.
+
+---
+
+# Small multiples I
+
+
+```r
+tm_shape(lnd) + layout + 
+    tm_polygons(c("Partic_Per", "Pop_2001"), 
+        style=c("pretty", "kmeans"),
+        palette=list("RdYlGn", "-Blues"),
+        auto.palette.mapping=FALSE,
+        title=c("Active People", "Population")) +
+tm_style_white()
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-33-1.png)&lt;!-- --&gt;
+
+---
+
+# Small multiples II
+
+
+```r
+tm_shape(lnd) +
+    tm_polygons("Partic_Per", title="Active People") +
+    tm_facets("quadrant") +
+tm_style_white()
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-34-1.png)&lt;!-- --&gt;
+
+---
+
+# Small multiples II
+
+
+```r
+tm_shape(lnd) +
+    tm_fill("Partic_Per", legend.show = FALSE) +
+  # If drop.units=FALSE then neighboring countries are visible.
+    tm_facets("name", free.coords=TRUE, drop.units=TRUE)
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-35-1.png)&lt;!-- --&gt;
+
+---
+
+# Small multiples III
+
+We can alsp create multiple stand-alone maps and then use `tmap_arrange`.
+
+
+```r
+tm1 &lt;- tm_shape(lnd) + layout + tm_fill("Partic_Per")
+tm2 &lt;- tm_shape(lnd) + layout + tm_fill("Pop_2001", palette="-Blues")
+tmap_arrange(tm1, tm2, asp = 1)
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-36-1.png)&lt;!-- --&gt;
+
+---
+
+# Map attributes
+
+.small[Using the example of a world map, this example shows several map attributes such as grid lines, a different projection, a compass etc. [see the "tmap in a nutshell" tutorial for this].]
+
+
+```r
+data(land)
+data(rivers)
+data(World)
+tm_shape(land, projection="eck4") +
+    tm_raster("elevation", 
+    breaks=c(-Inf, 250, 500, 1000, 1500, 2000, 2500, 3000, 4000, Inf),  
+    palette = terrain.colors(9), title="Elevation", auto.palette.mapping=FALSE) +
+tm_shape(rivers) + tm_lines(col="dodgerblue3") +
+tm_shape(World) +
+    tm_borders("grey20") +
+    tm_grid(projection="longlat", labels.size = .5) +
+    tm_text("name", size="AREA") +
+tm_compass(position = c(.65, .15), color.light = "grey90") +
+tm_credits("Eckert IV projection", position = c(.85, 0)) +
+tm_style_classic(legend.position = c("left", "bottom"), 
+    legend.frame = TRUE, bg.color="lightblue", 
+    legend.bg.color="lightblue", 
+    earth.boundary = TRUE, space.color="grey90")
+```
+
+---
+
+# Map Attributes
+
+![](week06_lecture_files/figure-html/unnamed-chunk-38-1.png)&lt;!-- --&gt;
+
+---
+
+# Exporting thematic maps I
+
+We can use the built in PDF/PNG/JPEG functions:
+
+
+```r
+tm &lt;- tm_shape(lnd) + ...
+
+png("map.png", width=800, height=1000)
+tm + tm_layout(outer.margins=0, asp=0, scale=.8)
+  # no margins -&gt; fits perfectly; scale is global scaling parameter
+dev.off()
+```
+
+---
+
+# Exporting thematic maps II
+
+Alternatively, the function `save_tmap` does it for us:
+
+
+```r
+tm &lt;- tm_shape(lnd) + ...
+
+save_tmap(tm, "map.png", width=1200, height=800)
+# Works also for interactive, standalone maps
+save_tmap(tm, "map.html")
+```
+
+---
+
+# Built in maps
+
+The `tmap` packages already includes several maps for the "World, Europe, and the Netherlands", including land maps, rivers, population data for cities etc.
+
+---
+
+# Built in maps - World
+
+
+```r
+data("World")
+tm_shape(World) +
+tm_polygons("income_grp", palette="-Blues", # reverse RColorBrewer palette “Blues” reversed
+            title="Income classification") + 
+  tm_text("iso_a3", size="AREA") +
+  tm_layout(scale=0.8)
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-41-1.png)&lt;!-- --&gt;
+
+---
+
+# An aside: the package RColorBrewer
+
+The package `RColorBrewer` allows you to easily choose color scales for your graphs and maps. 
+
+There is also an associated website: http://colorbrewer2.org/
+
+
+```r
+library(RColorBrewer)
+display.brewer.pal(11,'RdYlBu')
+```
+
+![Color Brewer Website](images/colorbrewer.org.png)
+
+---
+
+# Built in maps - Bubbles
+
+
+```r
+data(metro)
+metro$growth10y = ((metro$pop2010 - metro$pop2000)/metro$pop2000)*100
+tm_shape(World) + tm_fill("grey70") +
+  tm_shape(metro) +
+  tm_bubbles("pop2010", col = "growth10y",
+             border.col = "black", border.alpha = .5,
+             style="fixed", breaks=c(-Inf, 0, 2, 4, 6, Inf),
+             palette="-RdYlBu",
+             title.size="Metro population", 
+             title.col="Population growth (2000 to 2010)") +
+tm_layout(scale=0.6)
+```
+
+---
+
+# Built in maps - Bubbles
+
+![](week06_lecture_files/figure-html/unnamed-chunk-44-1.png)&lt;!-- --&gt;
+
+---
+
+# Built in maps - Combining choropleth + bubble map
+
+![](week06_lecture_files/figure-html/unnamed-chunk-45-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse, center, middle
+
+# The `raster` package
+
+---
+
+# Raster Data
+
+**Data frames are not a great way to store spatial data**. This holds for raster data as well:
+  - No coordinate reference system (CRS) information 
+  - Inefficient storage 
+  - Inefficient display
+
+---
+
+# Raster Data
+
+Better to **store raster data in an object** containing 
+  - a **data matrix**  
+  - information on **grid**  
+  - and a **CRS**
+    
+
+
+---
+
+# The `raster` package
+
+- `sp` does provide some raster data classes: 
+    + `SpatialGrid`, 
+    `SpatialPixels`,
+    `SpatialGridDataFrame`, `SpatialPixelsDataFrame`
+    
+- But `raster` is better:
+    - easier import of rasters
+    - large rasters aren’t read into memory
+    - provides functions for raster type operations
+    - provides some nice print methods for `sp` objects. 
+
+---
+
+# The `raster` package
+
+
+
+
+```r
+library(raster)
+geospatial::pop  # a raster object, printing to the console
+```
+
+```
+## class      : RasterLayer 
+## dimensions : 480, 660, 316800  (nrow, ncol, ncell)
+## resolution : 0.008333333, 0.008333333  (x, y)
+## extent     : -75, -69.5, 39, 43  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,0 
+## source     : memory
+## names      : num_people 
+## values     : 0, 41140  (min, max)
+```
+
+---
+
+## The `raster` package
+
+
+```r
+str(geospatial::pop, max.level=2)  # structure of object
+```
+
+```
+## Formal class 'RasterLayer' [package "raster"] with 12 slots
+##   ..@ file    :Formal class '.RasterFile' [package "raster"] with 13 slots
+##   ..@ data    :Formal class '.SingleLayerData' [package "raster"] with 13 slots
+##   ..@ legend  :Formal class '.RasterLegend' [package "raster"] with 5 slots
+##   ..@ title   : chr(0) 
+##   ..@ extent  :Formal class 'Extent' [package "raster"] with 4 slots
+##   ..@ rotated : logi FALSE
+##   ..@ rotation:Formal class '.Rotation' [package "raster"] with 2 slots
+##   ..@ ncols   : int 660
+##   ..@ nrows   : int 480
+##   ..@ crs     :Formal class 'CRS' [package "sp"] with 1 slot
+##   ..@ history : list()
+##   ..@ z       : list()
+```
+
+---
+
+## Plotting
+
+
+```r
+library(raster)
+plot(geospatial::pop)  # a heatmap type plot in the raster package
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-49-1.png)&lt;!-- --&gt;
+
+---
+
+## Getting out the raster values
+
+
+```r
+# Call str() on values(pop)
+# the values() function takes out a single vector
+
+str(values(geospatial::pop))
+```
+
+```
+##  int [1:316800] 15 13 12 12 12 5 3 3 4 4 ...
+```
+
+```r
+# Call head() on values(pop)
+head(values(geospatial::pop))
+```
+
+```
+## [1] 15 13 12 12 12  5
+```
+
+---
+
+## Multi-band rasters
+
+The `pop` object we have seen is a `RasterLayer` object.
+
+But the `raster` package also allows more complicated objects:
+  - `RasterStack` and `RasterBrick`. 
+  - These two objects are designed for storing many rasters, all of the same extents and dimension (a.k.a. multi-band, or multi-layer rasters).
+
+---
+
+## Multi-band rasters
+
+If a `RasterLayer` is like a matrix, then `RasterStack` and `RasterBrick` are more like three-dimensional arrays made up of multiple `RasterLayer` objects.
+
+We can use `$` or `[[` to subset a `RasterStack` or `RasterBrick` to grab one layer and return a new RasterLayer object.
+  - e.g. if `x` is a RasterStack, `x$layer_name` or `x[["layer_name"]]` will return a RasterLayer with only the layer called layer_name in it.
+
+---
+
+## Multi-band rasters
+
+
+```r
+# Print pop_by_age
+pop_by_age
+```
+
+```
+## class      : RasterStack 
+## dimensions : 480, 660, 316800, 7  (nrow, ncol, ncell, nlayers)
+## resolution : 0.008333333, 0.008333333  (x, y)
+## extent     : -75, -69.5, 39, 43  (xmin, xmax, ymin, ymax)
+## crs        : +proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,0 
+## names      : under_1, age_1_4, age_5_17, age_18_24, age_25_64, age_65_79, age_80_over 
+## min values :       0,       0,        0,         0,         0,         0,           0 
+## max values :     698,    2467,     8017,      7714,     29263,      3720,        1743
+```
+
+---
+
+## Multi-band rasters
+
+
+```r
+# Subset out the under_1 layer using [[
+under1 &lt;- pop_by_age[["under_1"]]
+# Plot the "under_1"" layer
+plot(under1)
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-52-1.png)&lt;!-- --&gt;
+
+---
+
+## Plotting `raster` data in `tmap`
+
+
+```r
+# Specify pop as the shp and add a tm_raster() layer
+tm_shape(pop) +
+  tm_raster(style="fixed", palette = blues9,
+            breaks = c(0,1,5,10, 25, 50, 100, 200, 500, Inf)) + layout
+```
+
+---
+
+## Plotting `raster` data in `tmap`
+
+
+```r
+# Plot the under_1 layer in pop_by_age
+tm_shape(pop_by_age) +
+  tm_raster(col = "under_1",
+            style="fixed", palette = blues9,
+            breaks = c(0,1,5,10, 25, 50, 100, 200, 500, Inf)) + layout
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-54-1.png)&lt;!-- --&gt;
+
+---
+
+# Getting map (vector and raster) data
+
+- there are plenty of sources of both vector and raster data. We covered a few already.
+   - the `rnaturalearth` package provides **vector data** from Natural Earth, a source of high resolution world maps including coastlines, states, and populated places. 
+   - the `OpenStreetMap` packages provides the type of **raster data** we have seen before in the `ggmaps` package
+   
+---
+
+## `rnaturalearth` package
+
+
+```r
+# devtools::install_github("ropenscilabs/rnaturalearth")
+# devtools::install_github("ropenscilabs/rnaturalearthhires")
+# devtools::install_github("ropenscilabs/rnaturalearthdata")
+
+library(rnaturalearth)
+library(rnaturalearthhires)
+library(rnaturalearthdata)
+```
+
+---
+
+## `rnaturalearth` package
+
+- The `rnaturalearth` comes with some pre-downloaded maps that can be accessed with:
+
+
+```r
+ne_countries() # for country (admin-0) boundaries
+ne_states() # for boundaries within countries (admin-1)
+ne_coastline() # for world coastline
+```
+
+---
+
+## `rnaturalearth` package
+
+
+```r
+# World at small scale (low resolution)
+plot(ne_countries(type = 'countries', scale = 'small'))
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-57-1.png)&lt;!-- --&gt;
+
+---
+
+## `rnaturalearth` package
+
+
+```r
+# Germany
+plot(ne_states(country = "Germany"))
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-58-1.png)&lt;!-- --&gt;
+
+---
+
+## `rnaturalearth` package
+
+- Lots of types of features, e.g. coastline, land, ocean, rivers, lakes, airports, roads, railroads, reefs...
+
+
+```r
+# lakes
+lakes &lt;- ne_download(scale = 'large', type = 'lakes', 
+                        category = 'physical', destdir = getwd())
+```
+
+```
+## OGR data source with driver: ESRI Shapefile 
+## Source: "/Users/tbrambor/Dropbox (Pflegedienst Brambor)/Courses/Current/2020 Spring QMSS Data Visualization/Lectures/Week 06 - Maps II", layer: "ne_10m_lakes"
+## with 1354 features
+## It has 37 fields
+## Integer64 fields read as strings:  scalerank ne_id
+```
+
+```r
+# rivers
+rivers &lt;- ne_download(scale = 'large', type = 'rivers_lake_centerlines', category = 'physical')
+```
+
+```
+## OGR data source with driver: ESRI Shapefile 
+## Source: "/private/var/folders/w4/jbjk4n0x08q39xy1pwbnfby80000gn/T/RtmpVumCeZ", layer: "ne_10m_rivers_lake_centerlines"
+## with 1455 features
+## It has 34 fields
+## Integer64 fields read as strings:  rivernum ne_id
+```
+
+```r
+# World
+# spdf_world &lt;- ne_download( scale = 110, type = 'countries', destdir = getwd() )
+spdf_world &lt;-    ne_load( scale = 110, type = 'countries', destdir = getwd() )
+```
+
+```
+## OGR data source with driver: ESRI Shapefile 
+## Source: "/Users/tbrambor/Dropbox (Pflegedienst Brambor)/Courses/Current/2020 Spring QMSS Data Visualization/Lectures/Week 06 - Maps II", layer: "ne_110m_admin_0_countries"
+## with 177 features
+## It has 71 fields
+```
+
+---
+
+## Mapping different features
+
+
+```r
+# Canada Lakes and Rivers
+tm_shape(ne_states(country = "canada")) + tm_fill() +
+  tm_shape(rivers) + tm_lines(col = "blue") +
+  tm_shape(lakes) + tm_polygons(col = "blue") +
+  tm_style_natural()
+```
+
+---
+
+class: inverse
+
+# Packages to access OpenStreeMap
+
+- `osmdata`
+- `nominatim`
+- `OpenStreetMap`
+
+
+---
+
+## Open Street Map
+
+
+
+Before creating a query, we need to know what we can filter. The `available_features()` function returns a list of available OSM features that have different tags. More details are [available in the OSM wiki](https://wiki.openstreetmap.org/wiki/Map_Features). For example, the feature shop contains several tags among others supermarket, fishing, books, etc.
+
+
+
+```r
+head(available_features())
+```
+
+```
+## [1] "4wd only"  "abandoned" "abutters"  "access"    "addr"      "addr:city"
+```
+
+```r
+#amenities
+head(available_tags("amenity"))
+```
+
+```
+## [1] "animal_boarding" "animal_shelter"  "arts_centre"     "atm"            
+## [5] "baby_hatch"      "baking_oven"
+```
+
+```r
+#shops
+head(available_tags("shop"))
+```
+
+```
+## [1] "agrarian"  "alcohol"   "anime"     "antiques"  "appliance" "art"
+```
+
+---
+
+## OSM: Where are supermarkets in NYC?
+
+
+
+```r
+q &lt;- getbb("New York") %&gt;%
+  opq() %&gt;%
+  add_osm_feature("shop", "supermarket")
+str(q) #query structure
+```
+
+```
+## List of 4
+##  $ bbox    : chr "40.477399,-74.25909,40.9161785,-73.7001809"
+##  $ prefix  : chr "[out:xml][timeout:25];\n(\n"
+##  $ suffix  : chr ");\n(._;&gt;;);\nout body;"
+##  $ features: chr " [\"shop\"=\"supermarket\"]"
+##  - attr(*, "class")= chr [1:2] "list" "overpass_query"
+```
+
+---
+
+## OSM: Where are tattoo shops in NYC?
+
+
+```r
+# Return OSM data in Simple Features (SF) format
+supermarket &lt;- osmdata_sf(q)
+str(supermarket)
+```
+
+```
+## List of 8
+##  $ bbox             : chr "40.477399,-74.25909,40.9161785,-73.7001809"
+##  $ overpass_call    : chr "[out:xml][timeout:25];\n(\n node  [\"shop\"=\"supermarket\"] (40.477399,-74.25909,40.9161785,-73.7001809);\n wa"| __truncated__
+##  $ meta             :List of 3
+##   ..$ timestamp       : chr "[ Mon 2 Mar 2020 02:52:02 ]"
+##   ..$ OSM_version     : chr "0.6"
+##   ..$ overpass_version: chr "Overpass API 0.7.55.7 8b86ff77"
+##  $ osm_points       :Classes 'sf' and 'data.frame':	2558 obs. of  109 variables:
+##   ..$ osm_id                  : chr [1:2558] "297097120" "297097125" "297097128" "297097129" ...
+##   ..$ name                    : chr [1:2558] NA NA NA NA ...
+##   ..$ access                  : chr [1:2558] NA NA NA NA ...
+##   ..$ addr.city               : chr [1:2558] NA NA NA NA ...
+##   ..$ addr.country            : chr [1:2558] NA NA NA NA ...
+##   ..$ addr.housename          : chr [1:2558] NA NA NA NA ...
+##   ..$ addr.housenumber        : chr [1:2558] NA NA NA NA ...
+##   ..$ addr.postcode           : chr [1:2558] NA NA NA NA ...
+##   ..$ addr.state              : chr [1:2558] NA NA NA NA ...
+##   ..$ addr.street             : chr [1:2558] NA NA NA NA ...
+##   ..$ addr.unit               : chr [1:2558] NA NA NA NA ...
+##   ..$ air_conditioning        : chr [1:2558] NA NA NA NA ...
+##   ..$ alt_name                : chr [1:2558] NA NA NA NA ...
+##   ..$ alt_name.ko             : chr [1:2558] NA NA NA NA ...
+##   ..$ amenity                 : chr [1:2558] NA NA NA NA ...
+##   ..$ atm                     : chr [1:2558] NA NA NA NA ...
+##   ..$ branch                  : chr [1:2558] NA NA NA NA ...
+##   ..$ brand                   : chr [1:2558] NA NA NA NA ...
+##   ..$ brand.wikidata          : chr [1:2558] NA NA NA NA ...
+##   ..$ brand.wikipedia         : chr [1:2558] NA NA NA NA ...
+##   ..$ butcher                 : chr [1:2558] NA NA NA NA ...
+##   ..$ capacity                : chr [1:2558] NA NA NA NA ...
+##   ..$ cocktails               : chr [1:2558] NA NA NA NA ...
+##   ..$ contact.email           : chr [1:2558] NA NA NA NA ...
+##   ..$ contact.facebook        : chr [1:2558] NA NA NA NA ...
+##   ..$ contact.instagram       : chr [1:2558] NA NA NA NA ...
+##   ..$ contact.phone           : chr [1:2558] NA NA NA NA ...
+##   ..$ contact.website         : chr [1:2558] NA NA NA NA ...
+##   ..$ craft                   : chr [1:2558] NA NA NA NA ...
+##   ..$ created_by              : chr [1:2558] NA NA NA NA ...
+##   ..$ cuisine                 : chr [1:2558] NA NA NA NA ...
+##   ..$ currency.USD            : chr [1:2558] NA NA NA NA ...
+##   ..$ delivery                : chr [1:2558] NA NA NA NA ...
+##   ..$ delivery.fee            : chr [1:2558] NA NA NA NA ...
+##   ..$ demolished.shop         : chr [1:2558] NA NA NA NA ...
+##   ..$ description             : chr [1:2558] NA NA NA NA ...
+##   ..$ diaper                  : chr [1:2558] NA NA NA NA ...
+##   ..$ diet.halal              : chr [1:2558] NA NA NA NA ...
+##   ..$ diet.vegetarian         : chr [1:2558] NA NA NA NA ...
+##   ..$ dispensing              : chr [1:2558] NA NA NA NA ...
+##   ..$ dog                     : chr [1:2558] NA NA NA NA ...
+##   ..$ drink.beer              : chr [1:2558] NA NA NA NA ...
+##   ..$ drink.coffee            : chr [1:2558] NA NA NA NA ...
+##   ..$ drink.soju              : chr [1:2558] NA NA NA NA ...
+##   ..$ drink.tea               : chr [1:2558] NA NA NA NA ...
+##   ..$ drink.wine              : chr [1:2558] NA NA NA NA ...
+##   ..$ email                   : chr [1:2558] NA NA NA NA ...
+##   ..$ entrance                : chr [1:2558] NA NA NA NA ...
+##   ..$ fax                     : chr [1:2558] NA NA NA NA ...
+##   ..$ fixme                   : chr [1:2558] NA NA NA NA ...
+##   ..$ internet_access         : chr [1:2558] NA NA NA NA ...
+##   ..$ internet_access.fee     : chr [1:2558] NA NA NA NA ...
+##   ..$ level                   : chr [1:2558] NA NA NA NA ...
+##   ..$ name.en                 : chr [1:2558] NA NA NA NA ...
+##   ..$ name.es                 : chr [1:2558] NA NA NA NA ...
+##   ..$ name.ko                 : chr [1:2558] NA NA NA NA ...
+##   ..$ name.pl                 : chr [1:2558] NA NA NA NA ...
+##   ..$ name.zh                 : chr [1:2558] NA NA NA NA ...
+##   ..$ name.zh.Hans            : chr [1:2558] NA NA NA NA ...
+##   ..$ name.zh.Hant            : chr [1:2558] NA NA NA NA ...
+##   ..$ note                    : chr [1:2558] NA NA NA NA ...
+##   ..$ opening_hours           : chr [1:2558] NA NA NA NA ...
+##   ..$ opening_hours.url       : chr [1:2558] NA NA NA NA ...
+##   ..$ operator                : chr [1:2558] NA NA NA NA ...
+##   ..$ organic                 : chr [1:2558] NA NA NA NA ...
+##   ..$ origin                  : chr [1:2558] NA NA NA NA ...
+##   ..$ outdoor_seating         : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.american_express: chr [1:2558] NA NA NA NA ...
+##   ..$ payment.apple_pay       : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.cash            : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.cheque          : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.coins           : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.contactless     : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.credit_cards    : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.debit_cards     : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.discover_card   : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.ebt             : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.gift_card       : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.google_pay      : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.jcb             : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.mastercard      : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.snap            : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.union_pay       : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.unionpay        : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.visa            : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.visa_debit      : chr [1:2558] NA NA NA NA ...
+##   ..$ payment.wic             : chr [1:2558] NA NA NA NA ...
+##   ..$ phone                   : chr [1:2558] NA NA NA NA ...
+##   ..$ postal_code             : chr [1:2558] NA NA NA NA ...
+##   ..$ ref                     : chr [1:2558] NA NA NA NA ...
+##   ..$ reservation             : chr [1:2558] NA NA NA NA ...
+##   ..$ shop                    : chr [1:2558] NA NA NA NA ...
+##   ..$ shop_1                  : chr [1:2558] NA NA NA NA ...
+##   ..$ shop_2                  : chr [1:2558] NA NA NA NA ...
+##   ..$ source                  : chr [1:2558] NA NA NA NA ...
+##   ..$ start_date              : chr [1:2558] NA NA NA NA ...
+##   ..$ stroller                : chr [1:2558] NA NA NA NA ...
+##   ..$ takeaway                : chr [1:2558] NA NA NA NA ...
+##   ..$ toilets                 : chr [1:2558] NA NA NA NA ...
+##   .. [list output truncated]
+##   ..- attr(*, "sf_column")= chr "geometry"
+##   ..- attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA NA NA NA NA NA NA NA NA NA ...
+##   .. ..- attr(*, "names")= chr [1:108] "osm_id" "name" "access" "addr.city" ...
+##  $ osm_lines        : NULL
+##  $ osm_polygons     :Classes 'sf' and 'data.frame':	203 obs. of  92 variables:
+##   ..$ osm_id                   : chr [1:203] "27080469" "27081357" "27111280" "42709376" ...
+##   ..$ name                     : chr [1:203] "Acme" "ShopRite" "ShopRite" "Shoprite" ...
+##   ..$ access                   : chr [1:203] NA NA NA NA ...
+##   ..$ addr.city                : chr [1:203] NA "Hoboken" NA NA ...
+##   ..$ addr.country             : chr [1:203] NA NA NA NA ...
+##   ..$ addr.housename           : chr [1:203] NA NA NA NA ...
+##   ..$ addr.housenumber         : chr [1:203] NA "900" "400" NA ...
+##   ..$ addr.postcode            : chr [1:203] NA "07030" "07302" NA ...
+##   ..$ addr.state               : chr [1:203] NA "NJ" NA NA ...
+##   ..$ addr.street              : chr [1:203] NA "Madison Street" "Marin Boulevard" NA ...
+##   ..$ alt_name                 : chr [1:203] NA NA NA NA ...
+##   ..$ alt_name.ko              : chr [1:203] NA NA NA NA ...
+##   ..$ amenity                  : chr [1:203] NA NA NA NA ...
+##   ..$ atm                      : chr [1:203] NA NA NA NA ...
+##   ..$ branch                   : chr [1:203] NA NA NA NA ...
+##   ..$ brand                    : chr [1:203] "Acme" "ShopRite" "ShopRite" NA ...
+##   ..$ brand.wikidata           : chr [1:203] "Q341975" "Q7501097" "Q7501097" NA ...
+##   ..$ brand.wikipedia          : chr [1:203] "en:Acme Markets" "en:ShopRite (United States)" "en:ShopRite (United States)" NA ...
+##   ..$ building                 : chr [1:203] "yes" "retail" "yes" "yes" ...
+##   ..$ building.colour          : chr [1:203] NA NA NA NA ...
+##   ..$ building.levels          : chr [1:203] NA NA NA NA ...
+##   ..$ building.material        : chr [1:203] NA NA NA NA ...
+##   ..$ building.min_level       : chr [1:203] NA NA NA NA ...
+##   ..$ building.part            : chr [1:203] NA NA NA NA ...
+##   ..$ contact.instagram        : chr [1:203] NA NA NA NA ...
+##   ..$ cuisine                  : chr [1:203] NA NA NA NA ...
+##   ..$ delivery                 : chr [1:203] NA NA NA NA ...
+##   ..$ description              : chr [1:203] NA NA NA NA ...
+##   ..$ designation              : chr [1:203] NA NA NA NA ...
+##   ..$ diet.kosher              : chr [1:203] NA NA NA NA ...
+##   ..$ dispensing               : chr [1:203] NA NA NA NA ...
+##   ..$ drink.beer               : chr [1:203] NA NA NA NA ...
+##   ..$ drink.coffee             : chr [1:203] NA NA NA NA ...
+##   ..$ drink.wine               : chr [1:203] NA NA NA NA ...
+##   ..$ drinking_water           : chr [1:203] NA NA NA NA ...
+##   ..$ drive_through            : chr [1:203] NA NA NA NA ...
+##   ..$ email                    : chr [1:203] NA NA NA NA ...
+##   ..$ fax                      : chr [1:203] NA NA NA NA ...
+##   ..$ healthcare               : chr [1:203] NA NA NA NA ...
+##   ..$ height                   : chr [1:203] NA NA NA NA ...
+##   ..$ internet_access          : chr [1:203] NA "yes" NA NA ...
+##   ..$ internet_access.fee      : chr [1:203] NA "no" NA NA ...
+##   ..$ landuse                  : chr [1:203] NA NA NA NA ...
+##   ..$ level                    : chr [1:203] NA NA NA NA ...
+##   ..$ name.en                  : chr [1:203] NA NA NA NA ...
+##   ..$ name.ko                  : chr [1:203] NA NA NA NA ...
+##   ..$ name.zh                  : chr [1:203] NA NA NA NA ...
+##   ..$ name.zh.Hans             : chr [1:203] NA NA NA NA ...
+##   ..$ name.zh.Hant             : chr [1:203] NA NA NA NA ...
+##   ..$ note                     : chr [1:203] NA NA NA NA ...
+##   ..$ nycdoitt.bin             : chr [1:203] NA NA NA NA ...
+##   ..$ official_name            : chr [1:203] NA NA NA NA ...
+##   ..$ opening_hours            : chr [1:203] NA "Mo-Sa 07:00-00:00; Su 07:00-24:00" "Mo-Su 07:00-24:00" NA ...
+##   ..$ opening_hours.url        : chr [1:203] NA "http://www.shoprite.com/pd/stores/NJ/Hoboken/ShopRite-of-Hoboken/7EF2370" NA NA ...
+##   ..$ operator                 : chr [1:203] NA "ShopRite" NA NA ...
+##   ..$ operator.wikidata        : chr [1:203] NA NA NA NA ...
+##   ..$ operator.wikipedia       : chr [1:203] NA NA NA NA ...
+##   ..$ payment.american_express : chr [1:203] NA NA NA NA ...
+##   ..$ payment.apple_pay        : chr [1:203] NA NA NA NA ...
+##   ..$ payment.cards            : chr [1:203] NA NA NA NA ...
+##   ..$ payment.cash             : chr [1:203] NA NA NA NA ...
+##   ..$ payment.coins            : chr [1:203] NA NA NA NA ...
+##   ..$ payment.credit_cards     : chr [1:203] NA NA NA NA ...
+##   ..$ payment.debit_cards      : chr [1:203] NA NA NA NA ...
+##   ..$ payment.discover_card    : chr [1:203] NA NA NA NA ...
+##   ..$ payment.electronic_purses: chr [1:203] NA NA NA NA ...
+##   ..$ payment.mastercard       : chr [1:203] NA NA NA NA ...
+##   ..$ payment.samsung_pay      : chr [1:203] NA NA NA NA ...
+##   ..$ payment.visa             : chr [1:203] NA NA NA NA ...
+##   ..$ payment.visa_debit       : chr [1:203] NA NA NA NA ...
+##   ..$ payment.visa_electron    : chr [1:203] NA NA NA NA ...
+##   ..$ phone                    : chr [1:203] NA NA NA NA ...
+##   ..$ recycling.cans           : chr [1:203] NA NA NA NA ...
+##   ..$ recycling.glass          : chr [1:203] NA NA NA NA ...
+##   ..$ recycling.plastic        : chr [1:203] NA NA NA NA ...
+##   ..$ ref                      : chr [1:203] NA NA NA NA ...
+##   ..$ ref.walmart              : chr [1:203] NA NA NA NA ...
+##   ..$ roof.colour              : chr [1:203] NA NA NA NA ...
+##   ..$ roof.material            : chr [1:203] NA NA NA NA ...
+##   ..$ roof.shape               : chr [1:203] NA NA NA NA ...
+##   ..$ shop                     : chr [1:203] "supermarket" "supermarket" "supermarket" "supermarket" ...
+##   ..$ smoking                  : chr [1:203] NA NA NA NA ...
+##   ..$ source                   : chr [1:203] NA NA NA NA ...
+##   ..$ takeaway                 : chr [1:203] NA NA NA NA ...
+##   ..$ toilets                  : chr [1:203] NA NA NA NA ...
+##   ..$ toilets.access           : chr [1:203] NA NA NA NA ...
+##   ..$ toilets.wheelchair       : chr [1:203] NA NA NA NA ...
+##   ..$ website                  : chr [1:203] NA NA NA NA ...
+##   ..$ wheelchair               : chr [1:203] NA NA NA NA ...
+##   ..$ wikidata                 : chr [1:203] NA NA NA NA ...
+##   ..$ wikipedia                : chr [1:203] NA NA NA NA ...
+##   ..$ geometry                 :sfc_POLYGON of length 203; first list element: List of 1
+##   .. ..$ : num [1:9, 1:2] -74 -74 -74 -74 -74 ...
+##   .. .. ..- attr(*, "dimnames")=List of 2
+##   .. .. .. ..$ : chr [1:9] "297097120" "297097125" "297097129" "6809102065" ...
+##   .. .. .. ..$ : chr [1:2] "lon" "lat"
+##   .. ..- attr(*, "class")= chr [1:3] "XY" "POLYGON" "sfg"
+##   ..- attr(*, "sf_column")= chr "geometry"
+##   ..- attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA NA NA NA NA NA NA NA NA NA ...
+##   .. ..- attr(*, "names")= chr [1:91] "osm_id" "name" "access" "addr.city" ...
+##  $ osm_multilines   : NULL
+##  $ osm_multipolygons:Classes 'sf' and 'data.frame':	2 obs. of  16 variables:
+##   ..$ osm_id          : chr [1:2] "7793293" "9485912"
+##   ..$ name            : chr [1:2] "Shoprite" "Western Beef"
+##   ..$ addr.city       : chr [1:2] "Brooklyn" ""
+##   ..$ addr.housenumber: chr [1:2] "1080" "301"
+##   ..$ addr.postcode   : chr [1:2] "11230" "10451"
+##   ..$ addr.state      : chr [1:2] "NY" ""
+##   ..$ addr.street     : chr [1:2] "McDonald Avenue" "Morris Avenue"
+##   ..$ building        : chr [1:2] "yes" "retail"
+##   ..$ height          : chr [1:2] "6.0;7.1" "6.0;4.7"
+##   ..$ nycdoitt.bin    : chr [1:2] "3000000;3129321" "2000953;2000956"
+##   ..$ opening_hours   : chr [1:2] "24/7" "Mo-Sa 07:00-22:00; Su 07:00-21:00"
+##   ..$ phone           : chr [1:2] "+1-718-252-5770" ""
+##   ..$ shop            : chr [1:2] "supermarket" "supermarket"
+##   ..$ type            : chr [1:2] "multipolygon" "multipolygon"
+##   ..$ website         : chr [1:2] "http://www.shoprite.com/" ""
+##   ..$ geometry        :sfc_MULTIPOLYGON of length 2; first list element: List of 1
+##   .. ..$ :List of 2
+##   .. .. ..$ 249114738: num [1:5, 1:2] -74 -74 -74 -74 -74 ...
+##   .. .. .. ..- attr(*, "dimnames")=List of 2
+##   .. .. .. .. ..$ : chr [1:5] "2557877540" "2282435331" "2557877543" "2557877541" ...
+##   .. .. .. .. ..$ : chr [1:2] "lat" "lon"
+##   .. .. ..$ 249114732: num [1:10, 1:2] -74 -74 -74 -74 -74 ...
+##   .. .. .. ..- attr(*, "dimnames")=List of 2
+##   .. .. .. .. ..$ : chr [1:10] "2557877541" "2557877469" "5272413870" "2557877526" ...
+##   .. .. .. .. ..$ : chr [1:2] "lat" "lon"
+##   .. ..- attr(*, "class")= chr [1:3] "XY" "MULTIPOLYGON" "sfg"
+##   ..- attr(*, "sf_column")= chr "geometry"
+##   ..- attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA NA NA NA NA NA NA NA NA NA ...
+##   .. ..- attr(*, "names")= chr [1:15] "osm_id" "name" "addr.city" "addr.housenumber" ...
+##  - attr(*, "class")= chr [1:3] "list" "osmdata" "osmdata_sf"
+```
+
+
+--- 
+
+## OSM: Add background map and points
+
+
+```r
+# background map
+nyc_map &lt;-
+  get_stamenmap(
+    getbb("Manhattan"),
+    maptype = "toner-lite",
+    source = "stamen",
+    zoom = 12)
+
+# Adding spatial points
+ggmap(nyc_map)+
+  geom_sf(data = supermarket$osm_points,
+          inherit.aes = FALSE,
+          colour = "black",
+          fill = "red",
+          alpha = .5,
+          size = 2,
+          shape = 21) + theme_simplemap()
+```
+
+![](week06_lecture_files/figure-html/unnamed-chunk-65-1.png)&lt;!-- --&gt;
+
+---
+
+## `nominatim` package
+
+A good package to access open street map data and tools on the file is `nominatim`.
+
+The `nominatim` package lets you:  
+
+- `address_lookup`: Lookup the address of one or multiple OSM objects
+- `osm_geocode`: Search for places by address
+- `osm_search`: Search for places
+- `osm_search_spatial`: Search for places, returning a list of
+`SpatialPointsDataFrame`, `SpatialLinesDataFrame` or a
+`SpatialPolygonsDataFrame`
+- `reverse_geocode_coords`: Reverse geocode based on lat/lon
+- `reverse_geocode_osm`: Reverse geocode based on OSM Type &amp; Id
+
+---
+
+## `nominatim` package
+
+To access the openstreetmap API you need a valid API key. You can get it for free at https://developer.mapquest.com
+
+
+```r
+library(usethis)
+edit_r_environ()   # open your R environ package
+# Add your API keys to the renviron file like this:
+OSM_API_EMAIL=tbrambor@gmail.com
+OSM_API_KEY=fsszjklfue49u4nvsdl
+OSM_API_SECRET=fdslfjejfdkldfj
+```
+
+---
+
+## `nominatim` package
+
+
+```r
+library(nominatim)
+ups_pubs &lt;- osm_search("pubs near columbia university", 
+                        limit=20,
+                        email = Sys.getenv("OSM_API_EMAIL"),
+                        key = Sys.getenv("OSM_API_KEY"))
+
+glimpse(ups_pubs)
+```
+
+```
+## Observations: 20
+## Variables: 15
+## $ place_id     &lt;chr&gt; "27683072", "23547198", "64904564", "24139920", "1736265…
+## $ licence      &lt;chr&gt; "Data © OpenStreetMap contributors, ODbL 1.0. https://ww…
+## $ osm_type     &lt;chr&gt; "node", "node", "node", "node", "node", "node", "node", …
+## $ osm_id       &lt;chr&gt; "2603955337", "2348610318", "5413506167", "2384892242", …
+## $ lat          &lt;dbl&gt; 40.84164, 40.86441, 40.84981, 40.80031, 40.80470, 40.802…
+## $ lon          &lt;dbl&gt; -73.93970, -73.92890, -73.93637, -73.96836, -73.95549, -…
+## $ display_name &lt;chr&gt; "Coogan's, 4015, Broadway, Washington Heights, Manhattan…
+## $ class        &lt;chr&gt; "amenity", "amenity", "amenity", "amenity", "amenity", "…
+## $ type         &lt;chr&gt; "pub", "pub", "bar", "bar", "pub", "pub", "bar", "bar", …
+## $ importance   &lt;dbl&gt; 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, …
+## $ icon         &lt;chr&gt; "http://ip-10-98-165-99.mq-us-east-1.ec2.aolcloud.net/no…
+## $ bbox_left    &lt;dbl&gt; 40.84159, 40.86436, 40.84976, 40.80026, 40.80465, 40.802…
+## $ bbox_top     &lt;dbl&gt; 40.84169, 40.86446, 40.84986, 40.80036, 40.80475, 40.802…
+## $ bbox_right   &lt;dbl&gt; -73.93975, -73.92895, -73.93642, -73.96841, -73.95555, -…
+## $ bbox_bottom  &lt;dbl&gt; -73.93965, -73.92885, -73.93632, -73.96831, -73.95544, -…
+```
+
+--- 
+
+## `nominatim` 
+
+Now, we need to know ...
+
+
+```r
+ups_pubs$display_name
+```
+
+```
+##  [1] "Coogan's, 4015, Broadway, Washington Heights, Manhattan Community Board 12, New York County, New York City, New York, 10032, United States of America"                  
+##  [2] "The Irish Brigade Pub, 4716, Broadway, Washington Heights, Manhattan Community Board 12, New York County, New York City, New York, 10034, United States of America"     
+##  [3] "Bar 180, 4241, Broadway, Washington Heights, Manhattan Community Board 12, New York County, New York City, New York, 10034, United States of America"                   
+##  [4] "Tap a Keg, 2731, Broadway, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10025, United States of America"                     
+##  [5] "Harlem Tavern, West 116th Street, Harlem, Manhattan Community Board 10, New York County, New York City, New York, 10026, United States of America"                      
+##  [6] "Bier International, 2101, Frederick Douglass Boulevard, Harlem, Manhattan Community Board 10, New York County, New York City, New York, 10039, United States of America"
+##  [7] "Shrine, 2271, Adam Clayton Powell Jr. Boulevard, Harlem, Manhattan Community Board 10, New York County, New York City, New York, 10039, United States of America"       
+##  [8] "American legion, 248, West 132nd Street, Harlem, Manhattan Community Board 10, New York County, New York City, New York, 10037, United States of America"               
+##  [9] "Amsterdam Tavern, 938, Amsterdam Avenue, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10025, United States of America"       
+## [10] "McAleer's Pub, 425, Amsterdam Avenue, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10024, United States of America"          
+## [11] "The Parlour, 250, West 86th Street, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10024, United States of America"            
+## [12] "Brother Jimmy's BBQ, 428, Amsterdam Avenue, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10024, United States of America"    
+## [13] "Boubon St, 407, Amsterdam Avenue, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10024, United States of America"              
+## [14] "Soldier McGee, 480, Amsterdam Avenue, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10024, United States of America"          
+## [15] "The West 79th Street Boat Basin Café, Rotunda, Upper West Side, Manhattan Community Board 7, Manhattan, New York City, New York, 10025, United States of America"       
+## [16] "St. James Gate, 441, Amsterdam Avenue, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10024, United States of America"         
+## [17] "Dublin House, 225, West 79th Street, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10024, United States of America"           
+## [18] "Dive Bar, 732, Amsterdam Avenue, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10025, United States of America"               
+## [19] "The Tangled Vine, 434, Amsterdam Avenue, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10024, United States of America"       
+## [20] "The Gin Mill, 442, Amsterdam Avenue, Upper West Side, Manhattan Community Board 7, New York County, New York City, New York, 10024, United States of America"
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

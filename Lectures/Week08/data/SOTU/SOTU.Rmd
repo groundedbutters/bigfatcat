@@ -1,0 +1,779 @@
+---
+title: "State of the Union Text Analysis"
+author: Thomas Brambor
+date: March 24, 2018
+mode: selfcontained
+
+output: 
+  html_document:
+---
+    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r packages, message = FALSE, warning = FALSE, echo=FALSE}
+# Load packages.
+packages <- c("devtools","knitr", "wordcloud", "base64enc", "tm", "quanteda", "qdap", "qdapDictionaries", "tidyverse", "tidytext", "rvest", "stringr", "SnowballC", "plotrix", "tidyr", "stats", "dendextend", "ggthemes")
+
+packages <- lapply(packages, FUN = function(x) {
+  if(!require(x, character.only = TRUE)) {
+    install.packages(x)
+    library(x, character.only = TRUE)
+  }
+})
+```
+
+
+# State of the Union 
+
+Every year, the President of the United State gives a speech to the joint session of the United States Congress. In the first year of the presidency, that speech is not officially called a State of the Union Address but will be included in the analysis.
+
+## Web scraping all State of the Union Addresses
+
+### Source of the Text
+
+We will use the texts published in this site:
+
+http://stateoftheunion.onetwothree.net/texts/index.html
+
+## Get the URLs we want to scrape
+
+```{r, eval=FALSE}
+library(rvest)     # Excellent package for web scraping
+library(stringr)   # Good for working with strings
+
+# Load the page
+main.page <- read_html("http://stateoftheunion.onetwothree.net/texts/index.html")
+
+# Get Link URLs
+urls <- main.page %>% 
+  html_nodes("#text > ul > li > a") %>%   # get the relevant links
+  html_attr("href") %>% # extract the URLs
+  paste("http://stateoftheunion.onetwothree.net/texts/", . , sep="") # back to absolute urls
+```
+
+## Get HTML files and Save
+
+```{r, eval=FALSE}
+# Loop over each row in sotu
+sotu.df <- data.frame(urls = urls, pres_name = NA, date = NA, 
+                      text = NA,  stringsAsFactors = FALSE)
+
+for(i in 1:dim(sotu.df)[1]) {
+  file <- read_html(urls[i])
+  sotu.df[i,"pres_name"] <- file %>% # load the current page
+    html_nodes("h2") %>% # isolate the text
+    html_text() %>% # get the text
+    trimws()
+  sotu.df[i,"date"] <- file %>% # load the page
+    html_nodes("h3") %>% # isloate the text
+    html_text()  # get the text  
+  sotu.df[i,"year"] <- file %>% # load the page
+    html_nodes("h3") %>% # isloate the text
+    html_text() %>% # get the text  
+    stringr::str_sub(-4,-1) # get year only
+  sotu.df[i,"text"] <- file %>% # load the page
+    html_nodes("p") %>% # isloate the text
+    html_text()  %>% # get the text 
+    paste(collapse = " ") %>% # Collapse to one text string
+    gsub("[\r\n]", " ", .) # replace new lines with spaces
+  
+  # Create the text file
+  filename <- paste0("texts/", 1000+i, "_", sotu.df$pres_name[i], "_", sotu.df$year[i], ".txt")
+  sink(file = filename) %>% # open file to write 
+  cat(sotu.df[i,"text"])  # write the file
+  sink() # close the file
+  
+  print(i)
+}
+
+# Reorder columns, save data frame
+sotu.df <- sotu.df[,c("pres_name","year","date")]
+
+library(readr)
+write_csv(sotu.df, "sotu.df.csv")
+```
+
+## Get other meta data - here: president's party
+
+```{r}
+presidents_party <- read_csv("https://gist.githubusercontent.com/namuol/2657233/raw/74135b2637e624848c163759be9cd14ae33f5153/presidents.csv")
+write_csv(presidents_party, "presidents_party.csv")
+```
+
+# Combine the data
+
+```{r, eval=TRUE}
+# Read in Data part
+sotu.df <- read_csv("sotu.df.csv")
+
+# Add party info
+party <- read.csv("presidents_party.csv")
+party <- party[,c("Presidency","President","Took.office",
+                  "Left.office","Party")]
+
+# Correct some names to match
+party$President <- gsub("James K. Polk", "James Polk", party$President)
+party$President <- gsub("William Howard Taft", "William H. Taft", party$President)
+party$President <- gsub("Warren G. Harding", "Warren Harding", party$President)
+party$President <- gsub("Gerald Ford", "Gerald R. Ford", party$President)
+party$President <- gsub("George H. W. Bush", "George H.W. Bush", party$President)
+party$President <- gsub("Bill Clinton", "William J. Clinton", party$President)
+party$President <- gsub("Barack Obama", "Barack Obama", party$President)
+
+sotu.df$party <- party[match(tolower(sotu.df$pres_name),
+                             tolower(party$President)),"Party"]
+
+# Add Donald Trump
+sotu.df[sotu.df$pres_name == "Donald J. Trump", "party"] <- "Republican"
+```
+
+# Create a Corpus
+
+`Tidytext` is nice but it still does not have the full functionality of text analysis packages like `tm()` or `quanteda()`.
+
+```{r}
+# Convert to Corpus object (in the tm() package)
+library(tm)
+#Create Corpus
+sotu <- VCorpus(DirSource("texts/"))
+
+meta(sotu) <- sotu.df
+
+# Add data frame to Corpus
+# Index of the metadata for a document in the corpus in   
+meta(sotu, type="local", tag="author") <- sotu.df$pres_name
+meta(sotu, type="local", tag="year")   <- sotu.df$year
+meta(sotu, type="local", tag="party")  <- sotu.df$party
+```
+
+## Cleaning and preprocessing text
+
+```{r}
+library(qdap)
+library(qdapRegex)
+library(tm)
+library(tidytext)
+
+clean_corpus <- function(corpus){
+  corpus <- tm_map(corpus, removePunctuation)
+  corpus <- tm_map(corpus, content_transformer(tolower))
+  corpus <- tm_map(corpus, content_transformer(replace_symbol))
+  corpus <- tm_map(corpus, removeWords, c(stopwords("en")))  
+  # We could add more stop words as above
+  corpus <- tm_map(corpus, stripWhitespace)
+  corpus <- tm_map(corpus, removeNumbers)
+  return(corpus)
+}
+
+# Apply your customized function to the SOTU: sotu_clean
+sotu_clean <- clean_corpus(sotu)
+```
+
+# Stemming and Completion
+
+## Stemming
+
+```{r, echo=FALSE, null_prefix=TRUE}
+library(SnowballC)    
+# Stem all words
+sotu_stemmed <- tm_map(sotu_clean, stemDocument)
+
+# Show
+strwrap(sotu_stemmed[[100]]$content)[1:3]
+```
+
+## Completing the stems to full words for a corpus
+
+```{r}
+# sotu_compl <- tm_map(sotu_stemmed, stemCompletion(sotu_stemmed, dictionary = sotu_clean))  -> shows error
+
+# Note: Function tm::stemCompletion() shows an error. 
+# Instead, let's write a small loop around the stem completion function:
+
+# Stem completion
+stemCompletion2 <- function(x, dictionary) {
+   x <- unlist(strsplit(as.character(x), " "))
+    # # Oddly, stemCompletion completes an empty string to
+	  # a word in dictionary. Remove empty string to avoid above issue.
+   x <- x[x != ""]
+   x <- stemCompletion(x, dictionary=dictionary)
+   x <- paste(x, sep="", collapse=" ")
+   PlainTextDocument(stripWhitespace(x))
+}
+```
+
+## Using parellel to speed up the process
+
+```{r, include=FALSE, eval=FALSE, echo=FALSE}
+# For all SOTU speeches -> Really slow!
+library(parallel)
+library(pbapply)  # to see progress bar for apply()
+
+# Calculate the number of cores
+no_cores <- detectCores() - 1
+ 
+# Initiate cluster
+start.time <- Sys.time()
+
+sotu_comp_all <- mclapply(sotu_stemmed, 
+                          stemCompletion2, 
+                          dictionary = sotu_clean, 
+                          mc.cores=no_cores)
+
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken 
+ ## 38 min!!
+
+save(sotu_comp_all, file = "sotu_comp_all.RData")
+save.image("sotu_comp_all_image.RData")
+```
+
+## Completing the stems to full words for a corpus
+
+```{r}
+# Completing all stemmed words turns out to be computing intensive 
+# (~40 min on my laptop), though the command could be improved
+
+load("sotu_comp_all.RData")
+
+# Re-attach metadata to Corpus
+sotu.df[] <- lapply(sotu.df, as.character)
+
+for (i in 1:dim(sotu.df)[1]){
+  sotu_comp_all[[i]]$meta$author <- sotu.df[i,"pres_name"]
+  sotu_comp_all[[i]]$meta$year <- sotu.df[i,"year"]
+  sotu_comp_all[[i]]$meta$party <- as.character(sotu.df[i,"party"])
+}
+
+sotu_comp_all <- as.VCorpus(sotu_comp_all)
+```
+
+## Make a Document-Term-Matrix
+
+```{r, eval=TRUE}
+# Create the dtm from the corpus: sotu_comp_all
+sotu_dtm <- DocumentTermMatrix(sotu_comp_all)  
+sotu_dtm$dimnames$Docs <- paste(sotu.df$pres_name,
+                                sotu.df$year,
+                                sotu.df$party, 
+                                sep="_")
+
+# Print out sotu_dtm data
+sotu_dtm
+```
+
+## Make a term document matrix (TDM)
+
+```{r}
+# Create a TDM: sotu_tdm
+sotu_tdm <- TermDocumentMatrix(sotu_comp_all)
+sotu_tdm$dimnames$Docs <- paste(sotu.df$pres_name,
+                                sotu.df$year,
+                                sotu.df$party, 
+                                sep="_")
+
+# Print sotu_tdm data
+sotu_tdm
+```
+
+# Tidying Objects
+
+```{r, message=FALSE, warning=FALSE}
+library(tidytext)
+
+sotu_td <- tidy(sotu_tdm)
+ # note: only the non-zero values are included
+sotu_td$pres <- str_split_fixed(sotu_td$document, "_", n = 3)[,1]
+sotu_td$year <- str_split_fixed(sotu_td$document, "_", n = 3)[,2]
+sotu_td$party <- str_split_fixed(sotu_td$document, "_", n = 3)[,3]
+sotu_td 
+```
+
+## Measuring Word Importance 
+
+```{r, eval=TRUE, echo=FALSE}
+# Bind the TF,DF, and IDF frequency
+# of a tidy text dataset to the dataset
+sotu_tf_idf <-  sotu_td %>%
+                bind_tf_idf(term, document, count) %>%  
+                arrange(desc(tf_idf)) 
+sotu_tf_idf[1:10,c("term","year","count","tf","idf","tf_idf")]
+
+# Are there still stopwords left?
+stopwords <- data_frame(term = c(stopwords("en")))
+remaining_stopwords <- left_join(stopwords, sotu_tf_idf, by = "term") %>%
+  filter(is.na(count) == FALSE)
+
+sotu_tf_idf <- anti_join(sotu_tf_idf,stopwords)
+```
+
+## Most Frequent Terms by President
+
+```{r, eval=FALSE}
+sotu_tf_idf %>% group_by(pres) %>%
+                slice(1)  %>%   # top_n introduces ties
+                filter(year>1970) %>%
+ggplot(aes(x = reorder(term, desc(year)), y = tf_idf)) +
+  geom_bar(stat = "identity") + 
+  geom_text(aes(label=year, x=term, y=0.001), color="white", hjust = 0) +
+  geom_text(aes(label=pres, x=term, y=0.0032), color="white", hjust = 0) +
+  xlab(NULL) +  coord_flip() + theme_tufte()
+```
+
+## Top Words in Selected Speeches
+
+```{r, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE}
+sotu_tf_idf %>% 
+  filter(pres== "Donald J. Trump" & year == 2018 | 
+        (pres=="Donald J. Trump" & year==2019)) %>% 
+  group_by(year) %>% 
+  top_n(n = 10, wt = tf_idf) %>%
+  mutate(term = factor(term, term)) %>%
+  arrange(tf_idf) %>% 
+ggplot(aes(x = reorder(term, tf_idf), y = tf_idf)) +
+  geom_point(stat = "identity") + coord_flip() +
+  facet_wrap(~document, scales="free_y") + 
+  xlab(NULL) + ylab("Most important words (TF-IDF)") + theme_fivethirtyeight()
+```
+
+## Words over time
+
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
+sotu_tf_idf %>% mutate(year = as.numeric(year)) %>%
+  group_by(year) %>%
+  mutate(year_total = sum(count)) %>%  # Get counts by year 
+  filter(term %in% c("god", "america", "union", "war", 
+                     "constitution", "freedom", "market")) %>%
+  ungroup() %>%
+ggplot(aes(year, count / year_total)) +
+  geom_point() +  geom_smooth() +
+  facet_wrap(~ term, scales = "free_y") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_x_continuous(breaks = c(1800,1850,1900,1950,2000)) +
+  stat_smooth() +
+  ylab("% frequency of word in state of union address") + xlab(NULL)
+```
+
+# Similarity of Texts
+
+- based on our document-term matrix, we can calculate a measure of similarity between texts; the term-document matrix allows to calculate distance between words
+
+## Remove some sparse terms first
+
+```{r}
+dim(sotu_tdm)
+# Create tdm1
+tdm1 <- removeSparseTerms(sotu_tdm, sparse = 0.05)
+# Create tdm2
+tdm2 <- removeSparseTerms(sotu_tdm, sparse = 0.999)
+# Print tdm1
+tdm1
+# Print tdm2
+tdm2
+```
+
+
+## Cluster dendrogram of Words
+
+Actually not that interesting -- especially since we did not take care of collocations yet.
+
+```{r, eval=TRUE}
+# Create tdm_m
+tdm_m <- as.matrix(tdm1)
+
+# Create tdm_df
+tdm_df <- as.data.frame(tdm_m)
+
+# Create words_dist
+words_dist <- dist(tdm_df)
+
+# Create hc
+hc <- hclust(words_dist)
+
+# Plot the dendrogram
+plot(hc)
+```
+
+## Cluster dendrogram of Presidential SOTU Texts
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Get Sotu DTM
+preslastnameyear <- paste(do.call(rbind, strsplit(sotu.df$pres_name, 
+   ' (?=[^ ]+$)', perl=TRUE))[,2], sotu.df$year, sep="-")
+sotu_tdm$dimnames$Docs <- preslastnameyear
+
+sotu_dtm <- t(sotu_tdm[,200:233])  
+  # transposes from TDM <-> DTM; selects Reagan onwards
+```
+
+## Cluster dendrogram of SOTU texts
+
+```{r, eval=TRUE}
+# Create data for dendrogram
+dtm1 <- removeSparseTerms(sotu_dtm, sparse = 0.01) # Remove most sparse terms
+dtm_m <- as.matrix(dtm1) # Create tdm_m
+dtm_df <- as.data.frame(dtm_m) # Create tdm_df
+texts_dist <- dist(dtm_df) # Create texts_dist
+hc <- hclust(texts_dist) # Create hc
+
+# Plot the dendrogram
+par(mar=c(0, 4, 4, 2)) # c(bottom, left, top, right)
+plot(hc, xlab="", sub="")
+```
+
+## Improving the dendrogram
+
+```{r}
+require(dendextend)
+
+# Create hc
+hc <- hclust(texts_dist)
+
+# Create hcd
+hcd <- as.dendrogram(hc)
+
+# Get Republican Presidents
+dem <- grep("Obama|Clinton", labels(hcd), value=TRUE)
+rep <- grep("Reagan|Bush|Trump", labels(hcd), value=TRUE)
+
+# Change the branch color to red for "marvin" and "gaye"
+hcd <- branches_attr_by_labels(hcd, dem, "steelblue")
+hcd <- branches_attr_by_labels(hcd, rep, "firebrick")
+
+# Plot hcd
+# plot(hcd, main = "Better Dendrogram")
+
+# Plot with reduced label size
+par(cex=0.5, mar=c(0,9,3,6))
+plot(hcd, xlab="", ylab="", 
+     main="Clustering of State of the Union Texts", 
+     sub="1989 - 2019", axes=FALSE, horiz=T)
+```
+
+
+# Getting past single words
+
+-  uses the `RWeka` package to create digram (two word) tokens: min and max are both set to 2.
+
+```{r, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+# Had some troubles with Java. Used command described here in terminal to fix:
+# http://stackoverflow.com/questions/30738974/rjava-load-error-in-rstudio-r-after-upgrading-to-osx-yosemite/31039105#31039105
+# install.packages("rJava",type='source')
+# install.packages("RWeka")
+```
+
+## Unigram - single words
+
+```{r, eval=TRUE}
+require(RWeka)
+# Make tokenizer function 
+tokenizer <- function(x) 
+  NGramTokenizer(x, Weka_control(min = 2, max = 2))
+
+# Create unigram_dtm
+unigram_dtm <- DocumentTermMatrix(sotu_comp_all)
+
+# Examine unigram_dtm
+unigram_dtm
+```
+
+## Bigram - two words in each term
+
+```{r, eval=TRUE}
+# Create bigram_dtm
+bigram_dtm <- DocumentTermMatrix(
+  sotu_comp_all, 
+  control = list(tokenize = tokenizer,
+  options(mc.cores=1))
+)
+
+# Examine bigram_dtm
+bigram_dtm  # Note, we have 112m entries already!
+```
+
+## Bigrams
+
+```{r, eval=TRUE}
+# Create bigram_dtm_m
+bigram_dtm_m <- as.matrix(bigram_dtm)
+
+# Create freq
+freq <- colSums(bigram_dtm_m)
+
+# Create bi_words
+bi_words <- names(freq)
+
+# Examine part of bi_words
+bi_words[2577:2587]
+```
+
+## Bigrams
+
+```{r, echo=FALSE}
+# Replace "unit state" with "United States"
+bi_words[grep("unit state",bi_words)] <- "united states"
+```
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Plot a wordcloud
+par(mai=c(0,0,0,0))
+wordcloud(bi_words, freq, max.words = 40)
+```
+
+
+# Measurement of Linguistic Complexity
+
+
+```{r, message=FALSE, warning=FALSE}
+require(quanteda)
+require(dplyr)
+sotu_corpus <- corpus(sotu)  # convert to quanteda corpus
+FRE_sotu <- textstat_readability(sotu_corpus,
+              measure=c('Flesch.Kincaid'))
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+FRE <- data_frame(FK = FRE_sotu$Flesch.Kincaid,
+    pres = sotu_corpus$documents$author,
+    year = as.numeric(sotu_corpus$documents$year),
+    words = ntoken(sotu_corpus),
+    party = sotu.df$party)
+FRE[c(1,13,135,158,178,200,231,232,233),c(1:4)]
+```
+
+## FRE in SOTU texts
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(plotly)
+
+gg <- ggplot(data=FRE, aes(x=year,y=FK, size=words, label = pres)) + 
+  geom_point(alpha=0.5) + geom_smooth() + guides(size=FALSE) +
+  theme_tufte() + xlab("") + ylab("Flesch-Kincaid Grade Level") +
+  theme(legend.position="none") 
+
+ggplotly(gg)
+```
+
+## Exploring the declining reading level of the SOTU speeches
+
+## Application: FRE in SOTU texts
+
+- some addresses were spoken, other submitted in written form
+- over time, the type of publication form also changed. Radio, TV, and since 2002 live publication on the web
+- Let's add that information: http://www.presidency.ucsb.edu/sou_words.php
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+delivery <- read_csv("sotu_delivery_format.csv")
+delivery$year <- as.numeric(delivery$year)
+
+# delivery[delivery$year==1981,]
+# FRE[FRE$year==1981,]
+ # Need to correct 1981
+
+FRE2 <- as_data_frame(merge(FRE, delivery, by=c("year")))
+FRE2[FRE2$year==1981 & FRE2$pres=="Jimmy Carter","Format"] <- "written"
+```
+
+```{r, eval=FALSE, message=FALSE, warning=FALSE}
+# Plot with added information
+ggplot(data=FRE2, aes(x=year,y=FK, size=words)) + 
+  geom_point(alpha=0.5,aes(col=Publicity, shape=Format)) + 
+  geom_smooth() + 
+  guides(size=FALSE) + theme_tufte() + 
+  xlab("") + ylab("Flesch-Kincaid Grade Level") 
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Plot with added information
+gg <- ggplot(data=FRE2, aes(x=year,y=FK, size=words, col=Publicity, label = pres)) + 
+  geom_point(alpha=0.5,aes(shape=Format)) + 
+  geom_smooth(method="lm", se=FALSE) + 
+  guides(size=FALSE) + 
+  theme_tufte() + xlab("") + ylab("Flesch-Kincaid Grade Level") 
+
+ggplotly(gg)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Plot with added information
+ggplot(data=FRE2, aes(x=year,y=FK, size=words, shape=Format)) + 
+  geom_point(alpha=0.5,aes(col=Publicity)) + 
+  geom_smooth(method="loess", se=T, aes(linetype=Format)) + 
+  guides(size=FALSE) + theme_tufte() + 
+  labs(x = "", y = "Flesch-Kincaid Grade Level",  
+  title = "Written and Spoken Difficulty Levels",
+  subtitle = "only became different with publication")
+```
+
+# Sentiment Analysis
+
+## Positive / Negative Sentiment only
+
+```{r message=FALSE, warning=FALSE}
+library(tidytext)
+# sentiments
+
+nrc_word_counts <- sotu_tf_idf %>%
+  inner_join(get_sentiments("nrc"), by = c("term" = "word")) %>%
+  group_by(term, sentiment) %>%
+  mutate(sent_count = n()) %>%
+  ungroup()
+
+nrc_word_counts %>%
+  filter(pres == "Donald J. Trump") %>%
+  filter(sentiment %in% c("positive","negative")) %>%
+  group_by(sentiment) %>%
+  top_n(20) %>%
+  ungroup() %>%
+  mutate(term = reorder(term, sent_count)) %>%
+  ggplot(aes(term, sent_count, color = sentiment, size = tf_idf)) +
+  geom_point(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",
+       x = NULL,
+       title = "Donald Trumps use of negative / positive sentiments",
+       subtitle = "Scaled by TD_IDF to show importance of words across all State of the Union Speeches") + 
+  coord_flip() + theme_tufte()
+```
+
+## By types of sentiment
+
+```{r message=FALSE, warning=FALSE}
+nrc_word_counts %>%
+  filter(pres == "Donald J. Trump") %>%
+  filter(!(sentiment %in% c("positive","negative"))) %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(term = reorder(term, sent_count)) %>%
+  ggplot(aes(term, sent_count, color = sentiment, size = tf_idf)) +
+  geom_point(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",
+       x = NULL,
+       title = "Donald Trumps use of different types of sentiments",
+       subtitle = "Scaled by TD_IDF to show importance of words across all State of the Union Speeches") + 
+  coord_flip() + theme_bw()
+```
+
+## Measuring Emotions - RID Dictionary
+
+- The **Regressive Imagery Dictionary** (Martindale, 1975,1990) is a content analysis coding scheme designed to measure _primordial vs. conceptual_ thinking. 
+- Conceptual thought is abstract, logical, reality oriented, and aimed at problem solving. Primordial thought is associative, concrete, and takes little account of reality.
+
+## Measuring Emotions - RID Dictionary
+
+```{r}
+# Regressive Imagery dictionary
+# primordial / conceptual thinking
+RID_dictionary <- dictionary(file="dictionaries/RID.cat",
+                             format = "wordstat")
+
+# make a dfm based on the dictionary
+DTM_RIDdict <- dfm(sotu_corpus, dictionary=RID_dictionary)
+```
+
+## Measuring Emotions - Categories
+
+```{r}
+# What kind of categories do we have?
+DTM_RIDdict@Dimnames$features[c(8:9,22:23,38:43)]
+```
+
+## Measuring Emotions - DFM to Data Frame
+
+```{r}
+# Make DFM into data frame to plot with ggplot
+require(reshape2)
+require(stringr)
+RIDdf <- melt(as.matrix(DTM_RIDdict))
+RIDdf$docs <- as.character(RIDdf$docs)
+RIDdf$pres <- str_split_fixed(RIDdf$docs, "_", n = Inf)[,2]
+RIDdf$year <- str_extract(RIDdf$docs, "(\\d{4})(?=\\.)")
+RIDdf$year <- as.numeric(RIDdf$year)
+RIDdf <- as_data_frame(RIDdf)
+```
+
+## Measuring Emotions - Aggression in SOTU
+
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
+require(ggrepel)
+# Has politics become more aggressive over time?
+filter(RIDdf, features=="EMOTIONS.AGGRESSION") %>% 
+  ggplot(aes(x=year, y=value)) + 
+  geom_point() + 
+  labs(y = "Aggression",
+       x = "",
+       title = "Most Aggressive State of the Union Addresses",
+       subtitle = "Using the Regressive Imagery Dictionary for Scoring") + 
+  geom_smooth() + 
+  geom_text_repel(data=filter(RIDdf,
+  features=="EMOTIONS.AGGRESSION",value>250), 
+  aes(label=pres), size=2) + theme_tufte()
+```
+
+
+## Measuring Emotions - Narcissism in SOTU
+
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
+require(ggrepel)
+# Has politics become more aggressive over time?
+filter(RIDdf, features=="PRIMARY.REGR_KNOL.NARCISSISM") %>% 
+  ggplot(aes(x=year, y=value)) + 
+  geom_point() + 
+  labs(y = "Narcisism",
+       x = "",
+       title = "Roosevelt, not Trump, most narcissistic president ever",
+       subtitle = "Using the Regressive Imagery Dictionary for Scoring") + 
+  geom_smooth() + 
+  geom_text_repel(data=filter(RIDdf,
+  features=="PRIMARY.REGR_KNOL.NARCISSISM",value>80), 
+  aes(label=pres), size=2) + theme_tufte()
+```
+
+# Topic Modeling
+
+## Latent Dirichlet allocation with the topicmodels package
+
+```{r}
+dtm1 <- removeSparseTerms(sotu_dtm, sparse = 0.01) # Remove most sparse terms
+
+library(topicmodels)
+sotu_lda <- LDA(dtm1, k = 4, control = list(seed = 12345))
+sotu_lda 
+```
+
+```{r}
+sotu_lda <- tidy(sotu_lda)
+
+top_terms <- sotu_lda %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+top_terms
+```
+
+
+
+```{r}
+top_terms %>%
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_bar(alpha = 0.8, stat = "identity", show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip()
+```
+
+## Back to topics per SOTU - DOES NOT WORK
+
+```{r, eval=FALSE}
+# Does not work - stack over flow
+options(expressions=100000)
+sotu_lda_gamma <- tidy(sotu_lda, matrix = "gamma")
+sotu_lda_gamma
+```
+

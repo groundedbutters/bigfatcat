@@ -1,0 +1,9 @@
+ Name: Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Rio de Janeiro, Southeast Region, Brazil
+ Coordinates: -43.344,-23.027 x -43.143,-22.874
+ Script URL: http://extract.bbbike.org/?sw_lng=-43.344&sw_lat=-23.027&ne_lng=-43.143&ne_lat=-22.874&format=osm.pbf&city=Rio%20de%20Janeiro%2C%20Regi%C3%A3o%20Metropolitana%20do%20Rio%20de%20Janeiro%2C%20Rio%20de%20Janeiro%2C%20Southeast%20Region%2C%20Brazil
+ Square kilometre: 350
+ Granularity: 10,000 (1.1 meters)
+ Format: osm.pbf
+ File size: 3.3 MB
+ Last planet.osm database update: Thu Feb  9 06:32:49 2017 UTC
+ License: OpenStreetMap License

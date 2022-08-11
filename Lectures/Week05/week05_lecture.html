@@ -1,0 +1,3824 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Visualization with Maps I</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Thomas Brambor" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="custom_Xaringan.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Visualization with Maps I
+## Projections, ggmaps, raster and shapefiles
+### Thomas Brambor
+### 2020/02/24
+
+---
+
+
+class: left, top
+background-image: url(images/compass_map.jpg)
+background-size: 115%
+background-position: 0% 0%
+
+
+
+
+
+
+
+
+
+## Roadmap for Today
+
+- Mapping the 2016 presidential elections:  
+  - What have others done?
+
+- Projections
+
+- Mapping the 2016 presidential elections ourselves:
+  - shaded statemaps
+  - county level maps
+  - cartograms
+
+- The `ggmap()` package
+
+Next Lecture:   
+  - Shape files vs. data frames  
+  - The `tmap()` package
+
+
+---
+
+class: top, left, inverse
+background-image: url(images/megaphone_guy.png)
+background-size: 50%
+background-position: 90% 90%
+
+# Announcements
+
+---
+
+background-image: url(images/final_project_dataviz.jpg)
+background-size: 100%
+background-position: 100% 140%
+
+# Final Project
+
+- Who has found a group? Who is still looking? 
+  - **Recall**: 3-4 students per group.
+- I will assign group letters today. 
+- Add a private Github project in the class organization. 
+    - Repo name: Group\_**Group Letter**\_**Very short title**, e.g. _Group_C_Healthcare_
+    - add all group members AND the instructor team as admins
+    - add a `.readme` file to the repo with a group title, brief description, the names and the emails of all members. 
+
+---
+
+# Exercise this week
+
+- Added the weekly non-mandatory assignment:
+    - World Map of Health Care Expenditures
+    - Fortune 500 companies: 
+        - make shaded polygon map
+        - geocode addresses of headquarters and add to the map
+
+---
+
+class: bottom, center, inverse
+background-image: url(images/election_2016_NYTimes.png)
+background-size: 80%
+background-position: 50% 30%
+
+# U.S. electoral results on different maps
+
+---
+
+background-image: url(images/educational-attainment-in-manhattan.gif)
+background-size: 48%
+background-position: 100% 0%
+
+# Choropleth maps
+
+.pull-left[
+
+- **Choropleth maps** are maps in which areas are **shaded or patterned in proportion to the measurement** of the statistical variable being displayed on the map.
+- Choropleth maps are visually appealing, but can also be misleading. 
+
+.small[
+- **Example**: election results in the U.S. The fundamental issue in these maps is always that people vote, not places. So we are presenting _areas that are not congruent to votes_.
+]
+
+]
+
+.pull-right[
+
+]
+
+
+---
+
+# 2016 U.S. Election, Winner by State
+
+&lt;img src="images/election_2016_mapbystate.jpg" width="100%" /&gt;
+
+---
+
+# 2016 U.S. Election, Winner by County
+
+&lt;img src="images/election_2016_mapbycounty1.png" width="100%" /&gt;
+
+---
+
+# 2016 U.S. Election, Winner by County
+
+Zooming improves the issue (maybe) but not sufficiently. Now it looks like Hillary got barely any votes. But she won the popular vote!
+
+ - The map is still somewhat misleading because **we have colored every county either red or blue, as if every voter voted the same way**. 
+- This is of course not realistic: all counties contain both Republican and Democratic supporters and in **using just the two colors on our map we lose any information about the balance between them**. 
+- There is no way to tell whether a particular county went strongly for one candidate or the other or whether it was relatively evenly split.
+
+---
+
+## 2016 U.S. Election, Winner by County Share
+
+County share grades the **color scale by the winning margin**. This improves the picture somewhat but leaves the majority of the map shaded in red. 
+
+&lt;img src="images/election_2016_mapbycounty2.png" width="95%" /&gt;
+
+---
+
+# 2016 U.S. Election, Color-Centered
+
+.small[
+
+Reveal **more nuance** in the vote is to use not just two colors, red and blue, but to use **red, blue, and shades of purple** in between to indicate percentages of votes. 
+]
+
+&lt;img src="images/election_2016_mapbycounty3_color_centered.png" width="90%" /&gt;
+
+&lt;small&gt;&lt;small&gt;Mark Newman. 2016. http://www-personal.umich.edu/~mejn/election/2016/&lt;/small&gt;&lt;/small&gt;
+&lt;/small&gt;&lt;/small&gt;
+
+---
+
+# 2016 U.S. Election, Cartogram
+
+.small[
+The issue remains the **incorrect mapping between area and number of votes**.
+
+
+A **cartogram map** deforms the shape of each state/county so that **each area is sized proportional to its population**.
+]
+
+&lt;img src="images/election_2016_cartogram1.png" width="80%" /&gt;
+
+&lt;small&gt;&lt;small&gt;Mark Newman. 2016. http://www-personal.umich.edu/~mejn/election/2016/&lt;/small&gt;&lt;/small&gt;
+&lt;/small&gt;&lt;/small&gt;
+
+---
+
+# 2016 U.S. Election, Cartogram
+
+.small[
+The map below uses a **spectrum of colors**, rather than just red and blue, to show how close the vote was in each county.
+
+
+But **cartograms have shortcomings**: the shapes can become **unfamiliar**, making it difficult to recognize what the different areas are.
+]
+
+&lt;img src="images/election_2016_cartogram1.png" width="80%" /&gt;
+
+---
+
+# 2016 U.S. Election, tiled cartogram
+
+.small[
+Tiled cartograms **try to preserve the sense of geographical space** while building the "map" from equally-sized blocks, with the number of blocks used to construct each unit varying by some quantity of interest, like population.
+]
+
+&lt;img src="images/election_2016_cartogram2_tiled.png" width="80%" /&gt;
+
+&lt;small&gt;&lt;small&gt;http://blog.revolutionanalytics.com/2016/10/tilegrams-in-r.html
+&lt;/small&gt;&lt;/small&gt;
+
+---
+
+# 2016 U.S. Election, prism map
+
+.small[
+And yes, it is, of course, possible to use a third dimension to show the population distribution - with the usual caveats we had for using 3D displays.
+]
+
+&lt;img src="images/election_2016_prism_map.png" width="80%" /&gt;
+
+&lt;small&gt;&lt;small&gt;http://metrocosm.com/election-2016-map-3d/
+&lt;/small&gt;&lt;/small&gt;
+
+---
+
+# Other ways to skin the cat
+
+.small[
+Take a look here. The good people at the NYTimes have proposed many different presentations of the electoral results:
+
+.small[
+https://www.nytimes.com/interactive/2016/11/01/upshot/many-ways-to-map-election-results.html]
+]
+
+--
+
+&lt;img src="images/election2014_shift_vote_margin.gif" width="100%" /&gt;
+
+---
+
+class: center
+background-image: url(images/electoral_maps.png)
+background-size: 95%
+background-position: 50% 100%
+
+# What do you want to map?
+
+???
+
+https://lisacharlotterost.github.io/2016/10/19/election-map/
+
+
+---
+
+class: bottom, center, inverse
+background-image: url(images/projection_face.png)
+background-size: 60%
+background-position: 50% 30%
+
+# Projections
+
+
+???
+
+https://archive.org/stream/cu31924003898271#page/n58/mode/1up
+
+
+---
+
+# Projections 
+
+.small[
+A **map projection** is a systematic transformation of the latitudes and longitudes of locations on the surface of a sphere into locations on a plane. 
+
+
+We need to use map projections to **create 2D maps of our 3D earth**.
+
+All map projections **distort** the surface in some fashion.
+]
+
+&lt;img src="images/map_projections_types.jpg" width="100%" /&gt;
+
+
+???
+
+Picture from:
+https://www.atlasandboots.com/map-projections/
+
+---
+
+# Mercator
+
+.small[
+Meridians are mapped to **equally spaced vertical lines and circles of latitude** (parallels) are mapped to horizontal lines.
+
+Mercator projection **distorts the size** of objects as the latitude **increases from the Equator to the poles**. 
+]
+
+&lt;img src="images/proj_mercator.jpg" width="100%" /&gt;
+
+---
+
+background-image: url(images/africa_true_size.png)
+background-size: 55%
+background-position: 100% 50%
+
+
+# Mercator
+
+
+.pull-left[
+
+**Mercator projection is commonly used**, for example on google maps.
+
+.small[
+
+**But:** landmasses such as Greenland and Antarctica appear much larger than they actually are relative to land masses near the equator, such as Central Africa.
+
+Try [thetruesize.com](https://thetruesize.com/) to "correct your vision".
+]
+
+]
+
+.pull-right[
+
+]
+
+---
+
+# Will the Real U.S. Please Stand Up?
+
+&lt;img src="images/proj-usa-four-ways.jpg" width="95%" /&gt;
+
+.footnotesize[
+
+**Top Left:** Mercator; Note the straight border to Canada. Most common.  
+**Bottom Left:** U.S. National Atlas. Optimized for U.S. map (wide East-West, shorter North-South)   
+**Top Right:** UTM (Universal Transverse Mercator, not the same as a Mercator, confusingly). Good for measuring distances between two points (in small areas)  
+**Bottom Right:** A specific mapping system. There are tons of them, e.g. Google maps uses "EPSG:3857.WGS84"  
+]
+
+???
+
+https://source.opennews.org/articles/choosing-right-map-projection/  
+
+
+---
+
+background-image: url(images/Londoners_label_the_map.jpg)
+background-size: 70%
+background-position: 50% 20%
+
+class: inverse, bottom, center
+
+# Our [own](https://www.wimp.com/british-people-hilariously-label-a-map-of-the-united-states/) map of the 2016 Elections
+
+---
+
+# Let's start with a simple state map
+
+
+```r
+us.states &lt;- ggplot2::map_data("state")
+ggplot() + geom_polygon(data = us.states, aes(x=long,y=lat,group=group), 
+                        color = "grey", fill = NA)
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+---
+
+# Projections can be easily added
+  
+
+```r
+library(maps)
+# See the `‘mapproj’` package for a list of projections
+us.states &lt;- map_data("state")
+ggplot() + geom_polygon( data = us.states, 
+                         aes(x = long, y = lat, group=group), 
+                         color = "grey", fill = NA) +
+  coord_map(projection = "azequidistant")
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+
+```r
+# Equal spaced parallels, true distances from pole
+```
+
+---
+
+## Prepare to merge the state map and electoral data
+  
+
+```r
+library(maps)
+library(dplyr)
+library(tidyverse)  
+
+# The maps package has geographic information on all U.S states
+us.states &lt;- map_data("state")
+us.states &lt;- as_data_frame(us.states)
+us.states &lt;- dplyr::rename(us.states, state = region)
+us.states$subregion = NULL
+us.states$state &lt;- str_to_title(us.states$state)
+
+us.states
+```
+
+```
+## # A tibble: 15,537 x 5
+##     long   lat group order state  
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;  
+##  1 -87.5  30.4     1     1 Alabama
+##  2 -87.5  30.4     1     2 Alabama
+##  3 -87.5  30.4     1     3 Alabama
+##  4 -87.5  30.3     1     4 Alabama
+##  5 -87.6  30.3     1     5 Alabama
+##  6 -87.6  30.3     1     6 Alabama
+##  7 -87.6  30.3     1     7 Alabama
+##  8 -87.6  30.3     1     8 Alabama
+##  9 -87.7  30.3     1     9 Alabama
+## 10 -87.8  30.3     1    10 Alabama
+## # … with 15,527 more rows
+```
+
+---
+
+## Prepare to merge the state map and electoral data
+
+
+```r
+# Add State Abbreviations and Centers
+statenames &lt;- as_data_frame(
+  cbind(state=state.name, state.abb = state.abb, 
+        state.center.x = state.center$x, 
+        state.center.y = state.center$y))
+statenames &lt;- statenames %&gt;% mutate_each_(funs(as.numeric), 
+                 vars=c("state.center.x","state.center.y"))
+us.states &lt;- left_join(us.states, statenames)
+str(us.states)
+```
+
+```
+## Classes 'tbl_df', 'tbl' and 'data.frame':	15537 obs. of  8 variables:
+##  $ long          : num  -87.5 -87.5 -87.5 -87.5 -87.6 ...
+##  $ lat           : num  30.4 30.4 30.4 30.3 30.3 ...
+##  $ group         : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ order         : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ state         : chr  "Alabama" "Alabama" "Alabama" "Alabama" ...
+##  $ state.abb     : chr  "AL" "AL" "AL" "AL" ...
+##  $ state.center.x: num  -86.8 -86.8 -86.8 -86.8 -86.8 ...
+##  $ state.center.y: num  32.6 32.6 32.6 32.6 32.6 ...
+```
+
+---
+
+# State level electoral results
+  
+
+```r
+# Data from David Leip's Election Atlas http://uselectionatlas.org/
+library(readxl)
+elecstate &lt;- 
+ read_excel("data/US_Presidential_Results_by_State_1828-2016.xlsx",
+            sheet=2, col_names=FALSE)
+# Drop election results 1828-2012 and regional results
+elecstate &lt;- elecstate[c(4:54),c(1:3)]  
+elecstate &lt;- dplyr::rename(elecstate, 
+               state = "...1", Clinton = "...2", Trump = "...3")
+
+elecstate &lt;- elecstate %&gt;% mutate_each_(funs(as.numeric), 
+                                        vars=c("Trump","Clinton"))
+elecstate &lt;- mutate(elecstate, R.D = ifelse(Trump &gt; 50, "R", "D"))
+elecstate
+```
+
+```
+## # A tibble: 51 x 4
+##    state       Clinton Trump R.D  
+##    &lt;chr&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;
+##  1 Alabama        35.6  64.4 R    
+##  2 Alaska         41.6  58.4 R    
+##  3 Arizona        48.1  51.9 R    
+##  4 Arkansas       35.7  64.3 R    
+##  5 California     66.1  33.9 D    
+##  6 Colorado       52.7  47.3 D    
+##  7 Connecticut    57.1  42.9 D    
+##  8 Delaware       56.0  44.0 D    
+##  9 Florida        49.4  50.6 R    
+## 10 Georgia        47.3  52.7 R    
+## # … with 41 more rows
+```
+
+---
+
+# Merge Electoral Data and Map
+  
+
+```r
+# Merge the data
+elecstate.merged = left_join(elecstate, us.states)
+```
+
+```
+## Joining, by = "state"
+```
+
+.footnotesize[
+
+```
+## # A tibble: 6 x 11
+##   state Clinton Trump R.D    long   lat group order state.abb state.center.x
+##   &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;              &lt;dbl&gt;
+## 1 Alab…    35.6  64.4 R     -87.5  30.4     1     1 AL                 -86.8
+## 2 Alab…    35.6  64.4 R     -87.5  30.4     1     2 AL                 -86.8
+## 3 Alab…    35.6  64.4 R     -87.5  30.4     1     3 AL                 -86.8
+## 4 Alab…    35.6  64.4 R     -87.5  30.3     1     4 AL                 -86.8
+## 5 Alab…    35.6  64.4 R     -87.6  30.3     1     5 AL                 -86.8
+## 6 Alab…    35.6  64.4 R     -87.6  30.3     1     6 AL                 -86.8
+## # … with 1 more variable: state.center.y &lt;dbl&gt;
+```
+]
+
+---
+
+# Plot the map (1)
+
+
+```r
+(winstatesmap &lt;- ggplot(elecstate.merged, 
+    aes(x = long, y = lat, group=group)) + 
+    geom_polygon(aes(fill = R.D), color="white"))
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+---
+
+# Plot the map (2) - Add appropriate colors
+
+
+```r
+(winstatesmap &lt;- winstatesmap + 
+  scale_fill_manual(values = c("steel blue","firebrick"))) 
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+
+---
+
+# Plot the map (3) - Add state codes
+
+
+```r
+(winstatesmap &lt;- winstatesmap +   
+  geom_text(data=statenames, inherit.aes = FALSE,   
+              aes(label=state.abb,   
+                  x=state.center.x, y=state.center.y),  
+                  colour="white"))  
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
+
+---
+
+# Plot the map (4) - Add theme / projection
+
+
+```r
+(winstatesmap &lt;- winstatesmap + 
+    theme_map() + 
+    coord_map(projection = "mercator"))
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+
+---
+
+# Plotting Vote Margins
+
+
+```r
+ggplot(elecstate.merged, 
+       aes(x = long, y = lat, group=group, label=state)) + 
+* geom_polygon(aes(fill = Trump-Clinton)) +
+* scale_fill_gradientn(colours=c("red","purple2","blue")) +
+  geom_text(data=statenames, inherit.aes = FALSE, 
+            aes(label=state.abb, x=state.center.x, 
+                y=state.center.y), colour="white") +
+  theme_map() + coord_map(projection = "mercator")
+```
+
+---
+
+# Plotting Vote Margins
+
+![](week05_lecture_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+
+---
+
+# County-Level Electoral Results
+  
+Let's now turn to county-level results.
+
+Data for the county-level comes from [Tony McGovern](https://github.com/tonmcg/County_Level_Election_Results_12-16
+) on GitHub.
+
+
+```r
+# Import Data from Github
+url = "https://raw.githubusercontent.com/tonmcg/County_Level_Election_Results_12-16/master/US_County_Level_Presidential_Results_12-16.csv"
+eleccounty &lt;- read_csv(url)
+eleccounty$X1 &lt;- NULL
+```
+
+
+```r
+# Import Data from Data Folder in Lecture Material
+eleccounty &lt;- read_csv("data/US_County_Level_Election_Results_2016/US_County_Level_Presidential_Results_12-16.csv")
+eleccounty$X1 &lt;- NULL
+```
+
+Next, let's merge on county and state names
+
+---
+
+# Getting U.S. County maps
+  
+There are several ways to get U.S. county maps:
+  
+- `ggplot2` contains county maps
+- `urbnmapr` is package with county shape files
+- and the [U.S. Census Bureau](https://www.census.gov/geo/maps-data/data/cbf/cbf_counties.html) provides the shape files as well
+
+&amp;rarr; I will use the `urbnmapr` package for the example. We will return on how to import shapefiles from any source later.
+
+---
+
+# Getting U.S. county maps
+  
+
+```r
+# devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
+# Returns a ggplot2 object with a geom_map of the the lower 
+# 48 states (plus Hawaii &amp; Alaska reset on the bottom) 
+uscounties_sf &lt;- get_urbn_map("counties", sf = TRUE)
+str(uscounties_sf)
+```
+
+```
+## Classes 'sf' and 'data.frame':	3142 obs. of  7 variables:
+##  $ county_fips: chr  "04015" "12035" "20129" "28093" ...
+##  $ state_abbv : chr  "AZ" "FL" "KS" "MS" ...
+##  $ state_fips : chr  "04" "12" "20" "28" ...
+##  $ county_name: chr  "Mohave County" "Flagler County" "Morton County" "Marshall County" ...
+##  $ fips_class : chr  "H1" "H1" "H1" "H1" ...
+##  $ state_name : chr  "Arizona" "Florida" "Kansas" "Mississippi" ...
+##  $ geometry   :sfc_MULTIPOLYGON of length 3142; first list element: List of 1
+##   ..$ :List of 1
+##   .. ..$ : num [1:1023, 1:2] -1321573 -1321334 -1320642 -1319546 -1317819 ...
+##   ..- attr(*, "class")= chr  "XY" "MULTIPOLYGON" "sfg"
+##  - attr(*, "sf_column")= chr "geometry"
+##  - attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA NA NA NA NA NA
+##   ..- attr(*, "names")= chr  "county_fips" "state_abbv" "state_fips" "county_name" ...
+```
+
+---
+
+# Plotting the shape file directly
+
+
+```r
+ggplot(uscounties_sf) + geom_sf() + theme_map()
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-29-1.png)&lt;!-- --&gt;
+
+
+---
+
+# Plot election data (as a data frame)
+
+
+
+```r
+elec_data &lt;- left_join(eleccounty, counties, by = c("FIPS" = "county_fips"))
+(gg &lt;- elec_data %&gt;%
+  ggplot(aes(long, lat, group = group, 
+             fill = per_point_diff_2016*100)) +
+  geom_polygon(color = "white", size=0.125) +
+  scale_fill_gradientn(colours=c("red","purple2","blue"), 
+           name="Vote Margin \nClinton - Trump \nin percent")) + theme_map()
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;
+
+---
+
+# Changing legend, adding title
+  
+
+```r
+(gg &lt;- gg + theme(legend.position="right") + 
+  ggtitle("U.S. Presidential Election 2016 - Result by County") +
+   theme_map() + theme(plot.title = element_text(hjust = 0.5, size=20),
+        legend.title = element_text(size=10)) )
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-31-1.png)&lt;!-- --&gt;
+
+---
+
+# Highlighting state borders
+
+
+```r
+(gg + geom_polygon(data = urbnmapr::states, 
+                  mapping = aes(x = long, y = lat, group = group),
+                  fill = NA, color = "white", size=1))
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-32-1.png)&lt;!-- --&gt;
+
+
+---
+
+# Cartogram: State-Bins
+  
+Abstracting the map helps to break the association between area of the place and importance in the display.
+
+
+```r
+library(statebins)
+# Prepare the data
+elecstate.bin &lt;- elecstate.merged[c("state.abb", "R.D", "Trump")]
+elecstate.bin &lt;- group_by(elecstate.bin, state.abb) %&gt;% slice(1)
+elecstate.bin$state &lt;- elecstate.bin$state.abb
+elecstate.bin &lt;- elecstate.bin[is.na(elecstate.bin$state.abb)==F,]
+elecstate.bin$value &lt;- ifelse(elecstate.bin$Trump&gt;50, "Trump", "Clinton") 
+```
+
+---
+
+# Cartogram: State-Bins
+  
+
+```r
+statebins(
+  elecstate.bin, 
+  font_size = 4, dark_label = "white", light_label = "white",
+  ggplot2_scale_function = scale_fill_manual, 
+  name = "Winner", values = c(Clinton = "#2166ac", Trump = "#b2182b")
+) + theme_statebins()
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-34-1.png)&lt;!-- --&gt;
+
+---
+
+# Cartogram: State-Bins
+  
+
+```r
+# We can more precise with the vote margin here as well.
+statebins(elecstate.bin, state_col="state.abb", value_col="Trump",
+  palette="RdBu", round=TRUE) +
+  theme_statebins(legend_position="right")
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-35-1.png)&lt;!-- --&gt;
+
+---
+
+# Cartogram and Facets
+
+&lt;img src="images/flu_statebins.png" width="100%" /&gt;
+
+
+
+---
+
+class: bottom, left 
+background-image: url(images/stamen_watercolor_nyc.png)
+background-size: 100%
+background-position: 50% 50%
+
+# Raster Maps with ggmap
+
+`ggmap` is a package that uses the ggplot2 syntax as a template to create maps with raster map tiles taken from map servers such as Google Maps, OpenStreetMap, or Stamen Maps.
+
+---
+
+# Google Maps
+
+  &lt;!--- 
+  Source: Jiayi (Jason) Liu
+https://rstudio-pubs-static.s3.amazonaws.com/59317_9906f6e5167943a08f3e511849eb8831.html --&gt;
+  
+
+
+&lt;img src="images/google_map_types.png" width="100%" /&gt;
+
+---
+
+# Google Maps
+  
+.small[
+`ggmap` provides easy access to maps from different providers with its `get_map()` function.]
+ 
+
+```r
+library(ggmap)
+map_CU_gm &lt;- get_googlemap("Columbia University", zoom=18, 
+                     source="google", maptype="hybrid")
+ggmap(map_CU_gm)
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-40-1.png)&lt;!-- --&gt;
+
+---
+
+# Set API key
+
+Google unfortunately now requires a credit card to set up an API key.
+  - Get started here: https://cloud.google.com/maps-platform/
+  - You get **$200 monthly equivalent free usage**. That translates to  to 100,000 static map calls or 40,000 routing calls. See [here](https://cloud.google.com/maps-platform/pricing/sheet/) for details.
+
+It's easy to add the API key to your `.renviron` file:
+
+
+```r
+# this sets your google map permanently
+register_google(key = "[your key]", write = TRUE)
+```
+
+which will add a line to your `.renviron` file:
+
+```
+GOOGLE_MAPS_API_KEY=AJDSJFNEH933KSFK
+```
+
+---
+
+# Geo code location
+  
+We can also **find and re-use latitude/longitude location information through `geocode`**. 
+
+Helpful, if we have addresses in our data. In fact, `get_map()` uses this command if you use a lazy geographic input.
+
+
+```r
+geocode("the white house")
+```
+
+```
+## # A tibble: 1 x 2
+##     lon   lat
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1 -77.0  38.9
+```
+
+---
+
+# Reverse Geocode 
+  
+We can use Google's API for reverse geocoding through `revgeocode()` as well.
+
+
+
+```r
+revgeocode(c(-0.1277395, 51.5033943), output="all")
+```
+
+```
+## $plus_code
+## $plus_code$compound_code
+## [1] "GV3C+9W Westminster, London, UK"
+## 
+## $plus_code$global_code
+## [1] "9C3XGV3C+9W"
+## 
+## 
+## $results
+## $results[[1]]
+## $results[[1]]$address_components
+## $results[[1]]$address_components[[1]]
+## $results[[1]]$address_components[[1]]$long_name
+## [1] "11"
+## 
+## $results[[1]]$address_components[[1]]$short_name
+## [1] "11"
+## 
+## $results[[1]]$address_components[[1]]$types
+## $results[[1]]$address_components[[1]]$types[[1]]
+## [1] "street_number"
+## 
+## 
+## 
+## $results[[1]]$address_components[[2]]
+## $results[[1]]$address_components[[2]]$long_name
+## [1] "Downing Street"
+## 
+## $results[[1]]$address_components[[2]]$short_name
+## [1] "Downing St"
+## 
+## $results[[1]]$address_components[[2]]$types
+## $results[[1]]$address_components[[2]]$types[[1]]
+## [1] "route"
+## 
+## 
+## 
+## $results[[1]]$address_components[[3]]
+## $results[[1]]$address_components[[3]]$long_name
+## [1] "Westminster"
+## 
+## $results[[1]]$address_components[[3]]$short_name
+## [1] "Westminster"
+## 
+## $results[[1]]$address_components[[3]]$types
+## $results[[1]]$address_components[[3]]$types[[1]]
+## [1] "neighborhood"
+## 
+## $results[[1]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[1]]$address_components[[4]]
+## $results[[1]]$address_components[[4]]$long_name
+## [1] "London"
+## 
+## $results[[1]]$address_components[[4]]$short_name
+## [1] "London"
+## 
+## $results[[1]]$address_components[[4]]$types
+## $results[[1]]$address_components[[4]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[1]]$address_components[[5]]
+## $results[[1]]$address_components[[5]]$long_name
+## [1] "Greater London"
+## 
+## $results[[1]]$address_components[[5]]$short_name
+## [1] "Greater London"
+## 
+## $results[[1]]$address_components[[5]]$types
+## $results[[1]]$address_components[[5]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[1]]$address_components[[5]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[1]]$address_components[[6]]
+## $results[[1]]$address_components[[6]]$long_name
+## [1] "England"
+## 
+## $results[[1]]$address_components[[6]]$short_name
+## [1] "England"
+## 
+## $results[[1]]$address_components[[6]]$types
+## $results[[1]]$address_components[[6]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[1]]$address_components[[6]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[1]]$address_components[[7]]
+## $results[[1]]$address_components[[7]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[1]]$address_components[[7]]$short_name
+## [1] "GB"
+## 
+## $results[[1]]$address_components[[7]]$types
+## $results[[1]]$address_components[[7]]$types[[1]]
+## [1] "country"
+## 
+## $results[[1]]$address_components[[7]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[1]]$address_components[[8]]
+## $results[[1]]$address_components[[8]]$long_name
+## [1] "SW1A 2AB"
+## 
+## $results[[1]]$address_components[[8]]$short_name
+## [1] "SW1A 2AB"
+## 
+## $results[[1]]$address_components[[8]]$types
+## $results[[1]]$address_components[[8]]$types[[1]]
+## [1] "postal_code"
+## 
+## 
+## 
+## 
+## $results[[1]]$formatted_address
+## [1] "11 Downing St, Westminster, London SW1A 2AB, UK"
+## 
+## $results[[1]]$geometry
+## $results[[1]]$geometry$location
+## $results[[1]]$geometry$location$lat
+## [1] 51.50337
+## 
+## $results[[1]]$geometry$location$lng
+## [1] -0.1277908
+## 
+## 
+## $results[[1]]$geometry$location_type
+## [1] "ROOFTOP"
+## 
+## $results[[1]]$geometry$viewport
+## $results[[1]]$geometry$viewport$northeast
+## $results[[1]]$geometry$viewport$northeast$lat
+## [1] 51.50471
+## 
+## $results[[1]]$geometry$viewport$northeast$lng
+## [1] -0.1264418
+## 
+## 
+## $results[[1]]$geometry$viewport$southwest
+## $results[[1]]$geometry$viewport$southwest$lat
+## [1] 51.50202
+## 
+## $results[[1]]$geometry$viewport$southwest$lng
+## [1] -0.1291398
+## 
+## 
+## 
+## 
+## $results[[1]]$place_id
+## [1] "ChIJ64Z3QcUEdkgRu_XB2S70e60"
+## 
+## $results[[1]]$plus_code
+## $results[[1]]$plus_code$compound_code
+## [1] "GV3C+8V Westminster, London, United Kingdom"
+## 
+## $results[[1]]$plus_code$global_code
+## [1] "9C3XGV3C+8V"
+## 
+## 
+## $results[[1]]$types
+## $results[[1]]$types[[1]]
+## [1] "street_address"
+## 
+## 
+## 
+## $results[[2]]
+## $results[[2]]$address_components
+## $results[[2]]$address_components[[1]]
+## $results[[2]]$address_components[[1]]$long_name
+## [1] "10"
+## 
+## $results[[2]]$address_components[[1]]$short_name
+## [1] "10"
+## 
+## $results[[2]]$address_components[[1]]$types
+## $results[[2]]$address_components[[1]]$types[[1]]
+## [1] "street_number"
+## 
+## 
+## 
+## $results[[2]]$address_components[[2]]
+## $results[[2]]$address_components[[2]]$long_name
+## [1] "Downing Street"
+## 
+## $results[[2]]$address_components[[2]]$short_name
+## [1] "Downing St"
+## 
+## $results[[2]]$address_components[[2]]$types
+## $results[[2]]$address_components[[2]]$types[[1]]
+## [1] "route"
+## 
+## 
+## 
+## $results[[2]]$address_components[[3]]
+## $results[[2]]$address_components[[3]]$long_name
+## [1] "Westminster"
+## 
+## $results[[2]]$address_components[[3]]$short_name
+## [1] "Westminster"
+## 
+## $results[[2]]$address_components[[3]]$types
+## $results[[2]]$address_components[[3]]$types[[1]]
+## [1] "neighborhood"
+## 
+## $results[[2]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[2]]$address_components[[4]]
+## $results[[2]]$address_components[[4]]$long_name
+## [1] "London"
+## 
+## $results[[2]]$address_components[[4]]$short_name
+## [1] "London"
+## 
+## $results[[2]]$address_components[[4]]$types
+## $results[[2]]$address_components[[4]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[2]]$address_components[[5]]
+## $results[[2]]$address_components[[5]]$long_name
+## [1] "Greater London"
+## 
+## $results[[2]]$address_components[[5]]$short_name
+## [1] "Greater London"
+## 
+## $results[[2]]$address_components[[5]]$types
+## $results[[2]]$address_components[[5]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[2]]$address_components[[5]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[2]]$address_components[[6]]
+## $results[[2]]$address_components[[6]]$long_name
+## [1] "England"
+## 
+## $results[[2]]$address_components[[6]]$short_name
+## [1] "England"
+## 
+## $results[[2]]$address_components[[6]]$types
+## $results[[2]]$address_components[[6]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[2]]$address_components[[6]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[2]]$address_components[[7]]
+## $results[[2]]$address_components[[7]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[2]]$address_components[[7]]$short_name
+## [1] "GB"
+## 
+## $results[[2]]$address_components[[7]]$types
+## $results[[2]]$address_components[[7]]$types[[1]]
+## [1] "country"
+## 
+## $results[[2]]$address_components[[7]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[2]]$address_components[[8]]
+## $results[[2]]$address_components[[8]]$long_name
+## [1] "SW1A 2AA"
+## 
+## $results[[2]]$address_components[[8]]$short_name
+## [1] "SW1A 2AA"
+## 
+## $results[[2]]$address_components[[8]]$types
+## $results[[2]]$address_components[[8]]$types[[1]]
+## [1] "postal_code"
+## 
+## 
+## 
+## 
+## $results[[2]]$formatted_address
+## [1] "10 Downing St, Westminster, London SW1A 2AA, UK"
+## 
+## $results[[2]]$geometry
+## $results[[2]]$geometry$location
+## $results[[2]]$geometry$location$lat
+## [1] 51.50336
+## 
+## $results[[2]]$geometry$location$lng
+## [1] -0.1276248
+## 
+## 
+## $results[[2]]$geometry$location_type
+## [1] "ROOFTOP"
+## 
+## $results[[2]]$geometry$viewport
+## $results[[2]]$geometry$viewport$northeast
+## $results[[2]]$geometry$viewport$northeast$lat
+## [1] 51.50471
+## 
+## $results[[2]]$geometry$viewport$northeast$lng
+## [1] -0.1262758
+## 
+## 
+## $results[[2]]$geometry$viewport$southwest
+## $results[[2]]$geometry$viewport$southwest$lat
+## [1] 51.50201
+## 
+## $results[[2]]$geometry$viewport$southwest$lng
+## [1] -0.1289738
+## 
+## 
+## 
+## 
+## $results[[2]]$place_id
+## [1] "ChIJyd0SasUEdkgRoJZNDPv4eg8"
+## 
+## $results[[2]]$plus_code
+## $results[[2]]$plus_code$compound_code
+## [1] "GV3C+8X Westminster, London, United Kingdom"
+## 
+## $results[[2]]$plus_code$global_code
+## [1] "9C3XGV3C+8X"
+## 
+## 
+## $results[[2]]$types
+## $results[[2]]$types[[1]]
+## [1] "establishment"
+## 
+## $results[[2]]$types[[2]]
+## [1] "health"
+## 
+## $results[[2]]$types[[3]]
+## [1] "point_of_interest"
+## 
+## 
+## 
+## $results[[3]]
+## $results[[3]]$address_components
+## $results[[3]]$address_components[[1]]
+## $results[[3]]$address_components[[1]]$long_name
+## [1] "11"
+## 
+## $results[[3]]$address_components[[1]]$short_name
+## [1] "11"
+## 
+## $results[[3]]$address_components[[1]]$types
+## $results[[3]]$address_components[[1]]$types[[1]]
+## [1] "street_number"
+## 
+## 
+## 
+## $results[[3]]$address_components[[2]]
+## $results[[3]]$address_components[[2]]$long_name
+## [1] "Downing Street"
+## 
+## $results[[3]]$address_components[[2]]$short_name
+## [1] "Downing St"
+## 
+## $results[[3]]$address_components[[2]]$types
+## $results[[3]]$address_components[[2]]$types[[1]]
+## [1] "route"
+## 
+## 
+## 
+## $results[[3]]$address_components[[3]]
+## $results[[3]]$address_components[[3]]$long_name
+## [1] "Westminster"
+## 
+## $results[[3]]$address_components[[3]]$short_name
+## [1] "Westminster"
+## 
+## $results[[3]]$address_components[[3]]$types
+## $results[[3]]$address_components[[3]]$types[[1]]
+## [1] "neighborhood"
+## 
+## $results[[3]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[3]]$address_components[[4]]
+## $results[[3]]$address_components[[4]]$long_name
+## [1] "London"
+## 
+## $results[[3]]$address_components[[4]]$short_name
+## [1] "London"
+## 
+## $results[[3]]$address_components[[4]]$types
+## $results[[3]]$address_components[[4]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[3]]$address_components[[5]]
+## $results[[3]]$address_components[[5]]$long_name
+## [1] "Greater London"
+## 
+## $results[[3]]$address_components[[5]]$short_name
+## [1] "Greater London"
+## 
+## $results[[3]]$address_components[[5]]$types
+## $results[[3]]$address_components[[5]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[3]]$address_components[[5]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[3]]$address_components[[6]]
+## $results[[3]]$address_components[[6]]$long_name
+## [1] "England"
+## 
+## $results[[3]]$address_components[[6]]$short_name
+## [1] "England"
+## 
+## $results[[3]]$address_components[[6]]$types
+## $results[[3]]$address_components[[6]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[3]]$address_components[[6]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[3]]$address_components[[7]]
+## $results[[3]]$address_components[[7]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[3]]$address_components[[7]]$short_name
+## [1] "GB"
+## 
+## $results[[3]]$address_components[[7]]$types
+## $results[[3]]$address_components[[7]]$types[[1]]
+## [1] "country"
+## 
+## $results[[3]]$address_components[[7]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[3]]$address_components[[8]]
+## $results[[3]]$address_components[[8]]$long_name
+## [1] "SW1A"
+## 
+## $results[[3]]$address_components[[8]]$short_name
+## [1] "SW1A"
+## 
+## $results[[3]]$address_components[[8]]$types
+## $results[[3]]$address_components[[8]]$types[[1]]
+## [1] "postal_code"
+## 
+## $results[[3]]$address_components[[8]]$types[[2]]
+## [1] "postal_code_prefix"
+## 
+## 
+## 
+## 
+## $results[[3]]$formatted_address
+## [1] "11 Downing St, Westminster, London SW1A, UK"
+## 
+## $results[[3]]$geometry
+## $results[[3]]$geometry$location
+## $results[[3]]$geometry$location$lat
+## [1] 51.50326
+## 
+## $results[[3]]$geometry$location$lng
+## [1] -0.1278772
+## 
+## 
+## $results[[3]]$geometry$location_type
+## [1] "RANGE_INTERPOLATED"
+## 
+## $results[[3]]$geometry$viewport
+## $results[[3]]$geometry$viewport$northeast
+## $results[[3]]$geometry$viewport$northeast$lat
+## [1] 51.50461
+## 
+## $results[[3]]$geometry$viewport$northeast$lng
+## [1] -0.1265282
+## 
+## 
+## $results[[3]]$geometry$viewport$southwest
+## $results[[3]]$geometry$viewport$southwest$lat
+## [1] 51.50191
+## 
+## $results[[3]]$geometry$viewport$southwest$lng
+## [1] -0.1292262
+## 
+## 
+## 
+## 
+## $results[[3]]$place_id
+## [1] "EhkxMSBEb3duaW5nIFN0LCBMb25kb24sIFVLIhoSGAoUChIJv87lQMUEdkgREjLZITDtmcwQCw"
+## 
+## $results[[3]]$types
+## $results[[3]]$types[[1]]
+## [1] "street_address"
+## 
+## 
+## 
+## $results[[4]]
+## $results[[4]]$address_components
+## $results[[4]]$address_components[[1]]
+## $results[[4]]$address_components[[1]]$long_name
+## [1] "1-11"
+## 
+## $results[[4]]$address_components[[1]]$short_name
+## [1] "1-11"
+## 
+## $results[[4]]$address_components[[1]]$types
+## $results[[4]]$address_components[[1]]$types[[1]]
+## [1] "street_number"
+## 
+## 
+## 
+## $results[[4]]$address_components[[2]]
+## $results[[4]]$address_components[[2]]$long_name
+## [1] "Downing Street"
+## 
+## $results[[4]]$address_components[[2]]$short_name
+## [1] "Downing St"
+## 
+## $results[[4]]$address_components[[2]]$types
+## $results[[4]]$address_components[[2]]$types[[1]]
+## [1] "route"
+## 
+## 
+## 
+## $results[[4]]$address_components[[3]]
+## $results[[4]]$address_components[[3]]$long_name
+## [1] "Westminster"
+## 
+## $results[[4]]$address_components[[3]]$short_name
+## [1] "Westminster"
+## 
+## $results[[4]]$address_components[[3]]$types
+## $results[[4]]$address_components[[3]]$types[[1]]
+## [1] "neighborhood"
+## 
+## $results[[4]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[4]]$address_components[[4]]
+## $results[[4]]$address_components[[4]]$long_name
+## [1] "London"
+## 
+## $results[[4]]$address_components[[4]]$short_name
+## [1] "London"
+## 
+## $results[[4]]$address_components[[4]]$types
+## $results[[4]]$address_components[[4]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[4]]$address_components[[5]]
+## $results[[4]]$address_components[[5]]$long_name
+## [1] "Greater London"
+## 
+## $results[[4]]$address_components[[5]]$short_name
+## [1] "Greater London"
+## 
+## $results[[4]]$address_components[[5]]$types
+## $results[[4]]$address_components[[5]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[4]]$address_components[[5]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[4]]$address_components[[6]]
+## $results[[4]]$address_components[[6]]$long_name
+## [1] "England"
+## 
+## $results[[4]]$address_components[[6]]$short_name
+## [1] "England"
+## 
+## $results[[4]]$address_components[[6]]$types
+## $results[[4]]$address_components[[6]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[4]]$address_components[[6]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[4]]$address_components[[7]]
+## $results[[4]]$address_components[[7]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[4]]$address_components[[7]]$short_name
+## [1] "GB"
+## 
+## $results[[4]]$address_components[[7]]$types
+## $results[[4]]$address_components[[7]]$types[[1]]
+## [1] "country"
+## 
+## $results[[4]]$address_components[[7]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[4]]$address_components[[8]]
+## $results[[4]]$address_components[[8]]$long_name
+## [1] "SW1A"
+## 
+## $results[[4]]$address_components[[8]]$short_name
+## [1] "SW1A"
+## 
+## $results[[4]]$address_components[[8]]$types
+## $results[[4]]$address_components[[8]]$types[[1]]
+## [1] "postal_code"
+## 
+## $results[[4]]$address_components[[8]]$types[[2]]
+## [1] "postal_code_prefix"
+## 
+## 
+## 
+## 
+## $results[[4]]$formatted_address
+## [1] "1-11 Downing St, Westminster, London SW1A, UK"
+## 
+## $results[[4]]$geometry
+## $results[[4]]$geometry$bounds
+## $results[[4]]$geometry$bounds$northeast
+## $results[[4]]$geometry$bounds$northeast$lat
+## [1] 51.50326
+## 
+## $results[[4]]$geometry$bounds$northeast$lng
+## [1] -0.1271427
+## 
+## 
+## $results[[4]]$geometry$bounds$southwest
+## $results[[4]]$geometry$bounds$southwest$lat
+## [1] 51.50321
+## 
+## $results[[4]]$geometry$bounds$southwest$lng
+## [1] -0.1278772
+## 
+## 
+## 
+## $results[[4]]$geometry$location
+## $results[[4]]$geometry$location$lat
+## [1] 51.50324
+## 
+## $results[[4]]$geometry$location$lng
+## [1] -0.1275099
+## 
+## 
+## $results[[4]]$geometry$location_type
+## [1] "GEOMETRIC_CENTER"
+## 
+## $results[[4]]$geometry$viewport
+## $results[[4]]$geometry$viewport$northeast
+## $results[[4]]$geometry$viewport$northeast$lat
+## [1] 51.50459
+## 
+## $results[[4]]$geometry$viewport$northeast$lng
+## [1] -0.126161
+## 
+## 
+## $results[[4]]$geometry$viewport$southwest
+## $results[[4]]$geometry$viewport$southwest$lat
+## [1] 51.50189
+## 
+## $results[[4]]$geometry$viewport$southwest$lng
+## [1] -0.1288589
+## 
+## 
+## 
+## 
+## $results[[4]]$place_id
+## [1] "ChIJi23vasUEdkgRTBYZoNfZl90"
+## 
+## $results[[4]]$types
+## $results[[4]]$types[[1]]
+## [1] "route"
+## 
+## 
+## 
+## $results[[5]]
+## $results[[5]]$address_components
+## $results[[5]]$address_components[[1]]
+## $results[[5]]$address_components[[1]]$long_name
+## [1] "SW1A 2AB"
+## 
+## $results[[5]]$address_components[[1]]$short_name
+## [1] "SW1A 2AB"
+## 
+## $results[[5]]$address_components[[1]]$types
+## $results[[5]]$address_components[[1]]$types[[1]]
+## [1] "postal_code"
+## 
+## 
+## 
+## $results[[5]]$address_components[[2]]
+## $results[[5]]$address_components[[2]]$long_name
+## [1] "Downing Street"
+## 
+## $results[[5]]$address_components[[2]]$short_name
+## [1] "Downing St"
+## 
+## $results[[5]]$address_components[[2]]$types
+## $results[[5]]$address_components[[2]]$types[[1]]
+## [1] "route"
+## 
+## 
+## 
+## $results[[5]]$address_components[[3]]
+## $results[[5]]$address_components[[3]]$long_name
+## [1] "Westminster"
+## 
+## $results[[5]]$address_components[[3]]$short_name
+## [1] "Westminster"
+## 
+## $results[[5]]$address_components[[3]]$types
+## $results[[5]]$address_components[[3]]$types[[1]]
+## [1] "neighborhood"
+## 
+## $results[[5]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[5]]$address_components[[4]]
+## $results[[5]]$address_components[[4]]$long_name
+## [1] "London"
+## 
+## $results[[5]]$address_components[[4]]$short_name
+## [1] "London"
+## 
+## $results[[5]]$address_components[[4]]$types
+## $results[[5]]$address_components[[4]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[5]]$address_components[[5]]
+## $results[[5]]$address_components[[5]]$long_name
+## [1] "Greater London"
+## 
+## $results[[5]]$address_components[[5]]$short_name
+## [1] "Greater London"
+## 
+## $results[[5]]$address_components[[5]]$types
+## $results[[5]]$address_components[[5]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[5]]$address_components[[5]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[5]]$address_components[[6]]
+## $results[[5]]$address_components[[6]]$long_name
+## [1] "England"
+## 
+## $results[[5]]$address_components[[6]]$short_name
+## [1] "England"
+## 
+## $results[[5]]$address_components[[6]]$types
+## $results[[5]]$address_components[[6]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[5]]$address_components[[6]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[5]]$address_components[[7]]
+## $results[[5]]$address_components[[7]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[5]]$address_components[[7]]$short_name
+## [1] "GB"
+## 
+## $results[[5]]$address_components[[7]]$types
+## $results[[5]]$address_components[[7]]$types[[1]]
+## [1] "country"
+## 
+## $results[[5]]$address_components[[7]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[5]]$formatted_address
+## [1] "Downing St, Westminster, London SW1A 2AB, UK"
+## 
+## $results[[5]]$geometry
+## $results[[5]]$geometry$bounds
+## $results[[5]]$geometry$bounds$northeast
+## $results[[5]]$geometry$bounds$northeast$lat
+## [1] 51.50359
+## 
+## $results[[5]]$geometry$bounds$northeast$lng
+## [1] -0.1269883
+## 
+## 
+## $results[[5]]$geometry$bounds$southwest
+## $results[[5]]$geometry$bounds$southwest$lat
+## [1] 51.50287
+## 
+## $results[[5]]$geometry$bounds$southwest$lng
+## [1] -0.12802
+## 
+## 
+## 
+## $results[[5]]$geometry$location
+## $results[[5]]$geometry$location$lat
+## [1] 51.50319
+## 
+## $results[[5]]$geometry$location$lng
+## [1] -0.1275878
+## 
+## 
+## $results[[5]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[5]]$geometry$viewport
+## $results[[5]]$geometry$viewport$northeast
+## $results[[5]]$geometry$viewport$northeast$lat
+## [1] 51.50458
+## 
+## $results[[5]]$geometry$viewport$northeast$lng
+## [1] -0.1261552
+## 
+## 
+## $results[[5]]$geometry$viewport$southwest
+## $results[[5]]$geometry$viewport$southwest$lat
+## [1] 51.50188
+## 
+## $results[[5]]$geometry$viewport$southwest$lng
+## [1] -0.1288531
+## 
+## 
+## 
+## 
+## $results[[5]]$place_id
+## [1] "ChIJQeSgQcUEdkgRg_-yYgSOh_o"
+## 
+## $results[[5]]$types
+## $results[[5]]$types[[1]]
+## [1] "postal_code"
+## 
+## 
+## 
+## $results[[6]]
+## $results[[6]]$address_components
+## $results[[6]]$address_components[[1]]
+## $results[[6]]$address_components[[1]]$long_name
+## [1] "SW1A"
+## 
+## $results[[6]]$address_components[[1]]$short_name
+## [1] "SW1A"
+## 
+## $results[[6]]$address_components[[1]]$types
+## $results[[6]]$address_components[[1]]$types[[1]]
+## [1] "postal_code"
+## 
+## $results[[6]]$address_components[[1]]$types[[2]]
+## [1] "postal_code_prefix"
+## 
+## 
+## 
+## $results[[6]]$address_components[[2]]
+## $results[[6]]$address_components[[2]]$long_name
+## [1] "London"
+## 
+## $results[[6]]$address_components[[2]]$short_name
+## [1] "London"
+## 
+## $results[[6]]$address_components[[2]]$types
+## $results[[6]]$address_components[[2]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[6]]$address_components[[3]]
+## $results[[6]]$address_components[[3]]$long_name
+## [1] "Greater London"
+## 
+## $results[[6]]$address_components[[3]]$short_name
+## [1] "Greater London"
+## 
+## $results[[6]]$address_components[[3]]$types
+## $results[[6]]$address_components[[3]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[6]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[6]]$address_components[[4]]
+## $results[[6]]$address_components[[4]]$long_name
+## [1] "England"
+## 
+## $results[[6]]$address_components[[4]]$short_name
+## [1] "England"
+## 
+## $results[[6]]$address_components[[4]]$types
+## $results[[6]]$address_components[[4]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[6]]$address_components[[4]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[6]]$address_components[[5]]
+## $results[[6]]$address_components[[5]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[6]]$address_components[[5]]$short_name
+## [1] "GB"
+## 
+## $results[[6]]$address_components[[5]]$types
+## $results[[6]]$address_components[[5]]$types[[1]]
+## [1] "country"
+## 
+## $results[[6]]$address_components[[5]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[6]]$formatted_address
+## [1] "London SW1A, UK"
+## 
+## $results[[6]]$geometry
+## $results[[6]]$geometry$bounds
+## $results[[6]]$geometry$bounds$northeast
+## $results[[6]]$geometry$bounds$northeast$lat
+## [1] 51.50797
+## 
+## $results[[6]]$geometry$bounds$northeast$lng
+## [1] -0.1190027
+## 
+## 
+## $results[[6]]$geometry$bounds$southwest
+## $results[[6]]$geometry$bounds$southwest$lat
+## [1] 51.49475
+## 
+## $results[[6]]$geometry$bounds$southwest$lng
+## [1] -0.150052
+## 
+## 
+## 
+## $results[[6]]$geometry$location
+## $results[[6]]$geometry$location$lat
+## [1] 51.50311
+## 
+## $results[[6]]$geometry$location$lng
+## [1] -0.1306184
+## 
+## 
+## $results[[6]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[6]]$geometry$viewport
+## $results[[6]]$geometry$viewport$northeast
+## $results[[6]]$geometry$viewport$northeast$lat
+## [1] 51.50797
+## 
+## $results[[6]]$geometry$viewport$northeast$lng
+## [1] -0.1190027
+## 
+## 
+## $results[[6]]$geometry$viewport$southwest
+## $results[[6]]$geometry$viewport$southwest$lat
+## [1] 51.49475
+## 
+## $results[[6]]$geometry$viewport$southwest$lng
+## [1] -0.150052
+## 
+## 
+## 
+## 
+## $results[[6]]$place_id
+## [1] "ChIJkdtCDcQEdkgR-JIf7eN8obs"
+## 
+## $results[[6]]$types
+## $results[[6]]$types[[1]]
+## [1] "postal_code"
+## 
+## $results[[6]]$types[[2]]
+## [1] "postal_code_prefix"
+## 
+## 
+## 
+## $results[[7]]
+## $results[[7]]$address_components
+## $results[[7]]$address_components[[1]]
+## $results[[7]]$address_components[[1]]$long_name
+## [1] "Westminster"
+## 
+## $results[[7]]$address_components[[1]]$short_name
+## [1] "Westminster"
+## 
+## $results[[7]]$address_components[[1]]$types
+## $results[[7]]$address_components[[1]]$types[[1]]
+## [1] "neighborhood"
+## 
+## $results[[7]]$address_components[[1]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[7]]$address_components[[2]]
+## $results[[7]]$address_components[[2]]$long_name
+## [1] "London"
+## 
+## $results[[7]]$address_components[[2]]$short_name
+## [1] "London"
+## 
+## $results[[7]]$address_components[[2]]$types
+## $results[[7]]$address_components[[2]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[7]]$address_components[[3]]
+## $results[[7]]$address_components[[3]]$long_name
+## [1] "Greater London"
+## 
+## $results[[7]]$address_components[[3]]$short_name
+## [1] "Greater London"
+## 
+## $results[[7]]$address_components[[3]]$types
+## $results[[7]]$address_components[[3]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[7]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[7]]$address_components[[4]]
+## $results[[7]]$address_components[[4]]$long_name
+## [1] "England"
+## 
+## $results[[7]]$address_components[[4]]$short_name
+## [1] "England"
+## 
+## $results[[7]]$address_components[[4]]$types
+## $results[[7]]$address_components[[4]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[7]]$address_components[[4]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[7]]$address_components[[5]]
+## $results[[7]]$address_components[[5]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[7]]$address_components[[5]]$short_name
+## [1] "GB"
+## 
+## $results[[7]]$address_components[[5]]$types
+## $results[[7]]$address_components[[5]]$types[[1]]
+## [1] "country"
+## 
+## $results[[7]]$address_components[[5]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[7]]$formatted_address
+## [1] "Westminster, London, UK"
+## 
+## $results[[7]]$geometry
+## $results[[7]]$geometry$bounds
+## $results[[7]]$geometry$bounds$northeast
+## $results[[7]]$geometry$bounds$northeast$lat
+## [1] 51.50739
+## 
+## $results[[7]]$geometry$bounds$northeast$lng
+## [1] -0.1223458
+## 
+## 
+## $results[[7]]$geometry$bounds$southwest
+## $results[[7]]$geometry$bounds$southwest$lat
+## [1] 51.48813
+## 
+## $results[[7]]$geometry$bounds$southwest$lng
+## [1] -0.1471354
+## 
+## 
+## 
+## $results[[7]]$geometry$location
+## $results[[7]]$geometry$location$lat
+## [1] 51.49749
+## 
+## $results[[7]]$geometry$location$lng
+## [1] -0.1356583
+## 
+## 
+## $results[[7]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[7]]$geometry$viewport
+## $results[[7]]$geometry$viewport$northeast
+## $results[[7]]$geometry$viewport$northeast$lat
+## [1] 51.50739
+## 
+## $results[[7]]$geometry$viewport$northeast$lng
+## [1] -0.1223458
+## 
+## 
+## $results[[7]]$geometry$viewport$southwest
+## $results[[7]]$geometry$viewport$southwest$lat
+## [1] 51.48813
+## 
+## $results[[7]]$geometry$viewport$southwest$lng
+## [1] -0.1471354
+## 
+## 
+## 
+## 
+## $results[[7]]$place_id
+## [1] "ChIJVbSVrt0EdkgRQH_FO4ZkHc0"
+## 
+## $results[[7]]$types
+## $results[[7]]$types[[1]]
+## [1] "neighborhood"
+## 
+## $results[[7]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[8]]
+## $results[[8]]$address_components
+## $results[[8]]$address_components[[1]]
+## $results[[8]]$address_components[[1]]$long_name
+## [1] "City of Westminster"
+## 
+## $results[[8]]$address_components[[1]]$short_name
+## [1] "City of Westminster"
+## 
+## $results[[8]]$address_components[[1]]$types
+## $results[[8]]$address_components[[1]]$types[[1]]
+## [1] "administrative_area_level_3"
+## 
+## $results[[8]]$address_components[[1]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[8]]$address_components[[2]]
+## $results[[8]]$address_components[[2]]$long_name
+## [1] "London"
+## 
+## $results[[8]]$address_components[[2]]$short_name
+## [1] "London"
+## 
+## $results[[8]]$address_components[[2]]$types
+## $results[[8]]$address_components[[2]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[8]]$address_components[[3]]
+## $results[[8]]$address_components[[3]]$long_name
+## [1] "Greater London"
+## 
+## $results[[8]]$address_components[[3]]$short_name
+## [1] "Greater London"
+## 
+## $results[[8]]$address_components[[3]]$types
+## $results[[8]]$address_components[[3]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[8]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[8]]$address_components[[4]]
+## $results[[8]]$address_components[[4]]$long_name
+## [1] "England"
+## 
+## $results[[8]]$address_components[[4]]$short_name
+## [1] "England"
+## 
+## $results[[8]]$address_components[[4]]$types
+## $results[[8]]$address_components[[4]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[8]]$address_components[[4]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[8]]$address_components[[5]]
+## $results[[8]]$address_components[[5]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[8]]$address_components[[5]]$short_name
+## [1] "GB"
+## 
+## $results[[8]]$address_components[[5]]$types
+## $results[[8]]$address_components[[5]]$types[[1]]
+## [1] "country"
+## 
+## $results[[8]]$address_components[[5]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[8]]$formatted_address
+## [1] "City of Westminster, London, UK"
+## 
+## $results[[8]]$geometry
+## $results[[8]]$geometry$bounds
+## $results[[8]]$geometry$bounds$northeast
+## $results[[8]]$geometry$bounds$northeast$lat
+## [1] 51.53979
+## 
+## $results[[8]]$geometry$bounds$northeast$lng
+## [1] -0.1111016
+## 
+## 
+## $results[[8]]$geometry$bounds$southwest
+## $results[[8]]$geometry$bounds$southwest$lat
+## [1] 51.48382
+## 
+## $results[[8]]$geometry$bounds$southwest$lng
+## [1] -0.2160886
+## 
+## 
+## 
+## $results[[8]]$geometry$location
+## $results[[8]]$geometry$location$lat
+## [1] 51.50018
+## 
+## $results[[8]]$geometry$location$lng
+## [1] -0.1332326
+## 
+## 
+## $results[[8]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[8]]$geometry$viewport
+## $results[[8]]$geometry$viewport$northeast
+## $results[[8]]$geometry$viewport$northeast$lat
+## [1] 51.53979
+## 
+## $results[[8]]$geometry$viewport$northeast$lng
+## [1] -0.1111016
+## 
+## 
+## $results[[8]]$geometry$viewport$southwest
+## $results[[8]]$geometry$viewport$southwest$lat
+## [1] 51.48382
+## 
+## $results[[8]]$geometry$viewport$southwest$lng
+## [1] -0.2160886
+## 
+## 
+## 
+## 
+## $results[[8]]$place_id
+## [1] "ChIJxwN8mDUFdkgRoGfsoi2uDgQ"
+## 
+## $results[[8]]$types
+## $results[[8]]$types[[1]]
+## [1] "administrative_area_level_3"
+## 
+## $results[[8]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[9]]
+## $results[[9]]$address_components
+## $results[[9]]$address_components[[1]]
+## $results[[9]]$address_components[[1]]$long_name
+## [1] "London"
+## 
+## $results[[9]]$address_components[[1]]$short_name
+## [1] "London"
+## 
+## $results[[9]]$address_components[[1]]$types
+## $results[[9]]$address_components[[1]]$types[[1]]
+## [1] "locality"
+## 
+## $results[[9]]$address_components[[1]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[9]]$address_components[[2]]
+## $results[[9]]$address_components[[2]]$long_name
+## [1] "London"
+## 
+## $results[[9]]$address_components[[2]]$short_name
+## [1] "London"
+## 
+## $results[[9]]$address_components[[2]]$types
+## $results[[9]]$address_components[[2]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[9]]$address_components[[3]]
+## $results[[9]]$address_components[[3]]$long_name
+## [1] "Greater London"
+## 
+## $results[[9]]$address_components[[3]]$short_name
+## [1] "Greater London"
+## 
+## $results[[9]]$address_components[[3]]$types
+## $results[[9]]$address_components[[3]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[9]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[9]]$address_components[[4]]
+## $results[[9]]$address_components[[4]]$long_name
+## [1] "England"
+## 
+## $results[[9]]$address_components[[4]]$short_name
+## [1] "England"
+## 
+## $results[[9]]$address_components[[4]]$types
+## $results[[9]]$address_components[[4]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[9]]$address_components[[4]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[9]]$address_components[[5]]
+## $results[[9]]$address_components[[5]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[9]]$address_components[[5]]$short_name
+## [1] "GB"
+## 
+## $results[[9]]$address_components[[5]]$types
+## $results[[9]]$address_components[[5]]$types[[1]]
+## [1] "country"
+## 
+## $results[[9]]$address_components[[5]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[9]]$formatted_address
+## [1] "London, UK"
+## 
+## $results[[9]]$geometry
+## $results[[9]]$geometry$bounds
+## $results[[9]]$geometry$bounds$northeast
+## $results[[9]]$geometry$bounds$northeast$lat
+## [1] 51.67234
+## 
+## $results[[9]]$geometry$bounds$northeast$lng
+## [1] 0.148271
+## 
+## 
+## $results[[9]]$geometry$bounds$southwest
+## $results[[9]]$geometry$bounds$southwest$lat
+## [1] 51.38494
+## 
+## $results[[9]]$geometry$bounds$southwest$lng
+## [1] -0.3514683
+## 
+## 
+## 
+## $results[[9]]$geometry$location
+## $results[[9]]$geometry$location$lat
+## [1] 51.50735
+## 
+## $results[[9]]$geometry$location$lng
+## [1] -0.1277583
+## 
+## 
+## $results[[9]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[9]]$geometry$viewport
+## $results[[9]]$geometry$viewport$northeast
+## $results[[9]]$geometry$viewport$northeast$lat
+## [1] 51.67234
+## 
+## $results[[9]]$geometry$viewport$northeast$lng
+## [1] 0.148271
+## 
+## 
+## $results[[9]]$geometry$viewport$southwest
+## $results[[9]]$geometry$viewport$southwest$lat
+## [1] 51.38494
+## 
+## $results[[9]]$geometry$viewport$southwest$lng
+## [1] -0.3514683
+## 
+## 
+## 
+## 
+## $results[[9]]$place_id
+## [1] "ChIJdd4hrwug2EcRmSrV3Vo6llI"
+## 
+## $results[[9]]$types
+## $results[[9]]$types[[1]]
+## [1] "locality"
+## 
+## $results[[9]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[10]]
+## $results[[10]]$address_components
+## $results[[10]]$address_components[[1]]
+## $results[[10]]$address_components[[1]]$long_name
+## [1] "London"
+## 
+## $results[[10]]$address_components[[1]]$short_name
+## [1] "London"
+## 
+## $results[[10]]$address_components[[1]]$types
+## $results[[10]]$address_components[[1]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[10]]$address_components[[2]]
+## $results[[10]]$address_components[[2]]$long_name
+## [1] "Greater London"
+## 
+## $results[[10]]$address_components[[2]]$short_name
+## [1] "Greater London"
+## 
+## $results[[10]]$address_components[[2]]$types
+## $results[[10]]$address_components[[2]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[10]]$address_components[[2]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[10]]$address_components[[3]]
+## $results[[10]]$address_components[[3]]$long_name
+## [1] "England"
+## 
+## $results[[10]]$address_components[[3]]$short_name
+## [1] "England"
+## 
+## $results[[10]]$address_components[[3]]$types
+## $results[[10]]$address_components[[3]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[10]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[10]]$address_components[[4]]
+## $results[[10]]$address_components[[4]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[10]]$address_components[[4]]$short_name
+## [1] "GB"
+## 
+## $results[[10]]$address_components[[4]]$types
+## $results[[10]]$address_components[[4]]$types[[1]]
+## [1] "country"
+## 
+## $results[[10]]$address_components[[4]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[10]]$formatted_address
+## [1] "London, UK"
+## 
+## $results[[10]]$geometry
+## $results[[10]]$geometry$bounds
+## $results[[10]]$geometry$bounds$northeast
+## $results[[10]]$geometry$bounds$northeast$lat
+## [1] 51.67234
+## 
+## $results[[10]]$geometry$bounds$northeast$lng
+## [1] 0.148271
+## 
+## 
+## $results[[10]]$geometry$bounds$southwest
+## $results[[10]]$geometry$bounds$southwest$lat
+## [1] 51.38494
+## 
+## $results[[10]]$geometry$bounds$southwest$lng
+## [1] -0.3514683
+## 
+## 
+## 
+## $results[[10]]$geometry$location
+## $results[[10]]$geometry$location$lat
+## [1] 51.55699
+## 
+## $results[[10]]$geometry$location$lng
+## [1] -0.1411791
+## 
+## 
+## $results[[10]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[10]]$geometry$viewport
+## $results[[10]]$geometry$viewport$northeast
+## $results[[10]]$geometry$viewport$northeast$lat
+## [1] 51.67234
+## 
+## $results[[10]]$geometry$viewport$northeast$lng
+## [1] 0.148271
+## 
+## 
+## $results[[10]]$geometry$viewport$southwest
+## $results[[10]]$geometry$viewport$southwest$lat
+## [1] 51.38494
+## 
+## $results[[10]]$geometry$viewport$southwest$lng
+## [1] -0.3514683
+## 
+## 
+## 
+## 
+## $results[[10]]$place_id
+## [1] "ChIJ8_MXt1sbdkgRCrIAOXkukUk"
+## 
+## $results[[10]]$types
+## $results[[10]]$types[[1]]
+## [1] "postal_town"
+## 
+## 
+## 
+## $results[[11]]
+## $results[[11]]$address_components
+## $results[[11]]$address_components[[1]]
+## $results[[11]]$address_components[[1]]$long_name
+## [1] "Greater London"
+## 
+## $results[[11]]$address_components[[1]]$short_name
+## [1] "Greater London"
+## 
+## $results[[11]]$address_components[[1]]$types
+## $results[[11]]$address_components[[1]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[11]]$address_components[[1]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[11]]$address_components[[2]]
+## $results[[11]]$address_components[[2]]$long_name
+## [1] "England"
+## 
+## $results[[11]]$address_components[[2]]$short_name
+## [1] "England"
+## 
+## $results[[11]]$address_components[[2]]$types
+## $results[[11]]$address_components[[2]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[11]]$address_components[[2]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[11]]$address_components[[3]]
+## $results[[11]]$address_components[[3]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[11]]$address_components[[3]]$short_name
+## [1] "GB"
+## 
+## $results[[11]]$address_components[[3]]$types
+## $results[[11]]$address_components[[3]]$types[[1]]
+## [1] "country"
+## 
+## $results[[11]]$address_components[[3]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[11]]$formatted_address
+## [1] "Greater London, UK"
+## 
+## $results[[11]]$geometry
+## $results[[11]]$geometry$bounds
+## $results[[11]]$geometry$bounds$northeast
+## $results[[11]]$geometry$bounds$northeast$lat
+## [1] 51.69187
+## 
+## $results[[11]]$geometry$bounds$northeast$lng
+## [1] 0.3339957
+## 
+## 
+## $results[[11]]$geometry$bounds$southwest
+## $results[[11]]$geometry$bounds$southwest$lat
+## [1] 51.28676
+## 
+## $results[[11]]$geometry$bounds$southwest$lng
+## [1] -0.5103751
+## 
+## 
+## 
+## $results[[11]]$geometry$location
+## $results[[11]]$geometry$location$lat
+## [1] 51.43092
+## 
+## $results[[11]]$geometry$location$lng
+## [1] -0.0936496
+## 
+## 
+## $results[[11]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[11]]$geometry$viewport
+## $results[[11]]$geometry$viewport$northeast
+## $results[[11]]$geometry$viewport$northeast$lat
+## [1] 51.69187
+## 
+## $results[[11]]$geometry$viewport$northeast$lng
+## [1] 0.3339957
+## 
+## 
+## $results[[11]]$geometry$viewport$southwest
+## $results[[11]]$geometry$viewport$southwest$lat
+## [1] 51.28676
+## 
+## $results[[11]]$geometry$viewport$southwest$lng
+## [1] -0.5103751
+## 
+## 
+## 
+## 
+## $results[[11]]$place_id
+## [1] "ChIJb-IaoQug2EcRi-m4hONz8S8"
+## 
+## $results[[11]]$types
+## $results[[11]]$types[[1]]
+## [1] "administrative_area_level_2"
+## 
+## $results[[11]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[12]]
+## $results[[12]]$address_components
+## $results[[12]]$address_components[[1]]
+## $results[[12]]$address_components[[1]]$long_name
+## [1] "England"
+## 
+## $results[[12]]$address_components[[1]]$short_name
+## [1] "England"
+## 
+## $results[[12]]$address_components[[1]]$types
+## $results[[12]]$address_components[[1]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[12]]$address_components[[1]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[12]]$address_components[[2]]
+## $results[[12]]$address_components[[2]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[12]]$address_components[[2]]$short_name
+## [1] "GB"
+## 
+## $results[[12]]$address_components[[2]]$types
+## $results[[12]]$address_components[[2]]$types[[1]]
+## [1] "country"
+## 
+## $results[[12]]$address_components[[2]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[12]]$formatted_address
+## [1] "England, UK"
+## 
+## $results[[12]]$geometry
+## $results[[12]]$geometry$bounds
+## $results[[12]]$geometry$bounds$northeast
+## $results[[12]]$geometry$bounds$northeast$lat
+## [1] 55.81166
+## 
+## $results[[12]]$geometry$bounds$northeast$lng
+## [1] 1.762916
+## 
+## 
+## $results[[12]]$geometry$bounds$southwest
+## $results[[12]]$geometry$bounds$southwest$lat
+## [1] 49.86474
+## 
+## $results[[12]]$geometry$bounds$southwest$lng
+## [1] -6.418546
+## 
+## 
+## 
+## $results[[12]]$geometry$location
+## $results[[12]]$geometry$location$lat
+## [1] 52.35552
+## 
+## $results[[12]]$geometry$location$lng
+## [1] -1.17432
+## 
+## 
+## $results[[12]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[12]]$geometry$viewport
+## $results[[12]]$geometry$viewport$northeast
+## $results[[12]]$geometry$viewport$northeast$lat
+## [1] 55.81166
+## 
+## $results[[12]]$geometry$viewport$northeast$lng
+## [1] 1.762916
+## 
+## 
+## $results[[12]]$geometry$viewport$southwest
+## $results[[12]]$geometry$viewport$southwest$lat
+## [1] 49.86474
+## 
+## $results[[12]]$geometry$viewport$southwest$lng
+## [1] -6.418546
+## 
+## 
+## 
+## 
+## $results[[12]]$place_id
+## [1] "ChIJ39UebIqp0EcRqI4tMyWV4fQ"
+## 
+## $results[[12]]$types
+## $results[[12]]$types[[1]]
+## [1] "administrative_area_level_1"
+## 
+## $results[[12]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## $results[[13]]
+## $results[[13]]$address_components
+## $results[[13]]$address_components[[1]]
+## $results[[13]]$address_components[[1]]$long_name
+## [1] "Great Britain"
+## 
+## $results[[13]]$address_components[[1]]$short_name
+## [1] "Great Britain"
+## 
+## $results[[13]]$address_components[[1]]$types
+## $results[[13]]$address_components[[1]]$types[[1]]
+## [1] "establishment"
+## 
+## $results[[13]]$address_components[[1]]$types[[2]]
+## [1] "natural_feature"
+## 
+## 
+## 
+## $results[[13]]$address_components[[2]]
+## $results[[13]]$address_components[[2]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[13]]$address_components[[2]]$short_name
+## [1] "GB"
+## 
+## $results[[13]]$address_components[[2]]$types
+## $results[[13]]$address_components[[2]]$types[[1]]
+## [1] "country"
+## 
+## $results[[13]]$address_components[[2]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[13]]$formatted_address
+## [1] "Great Britain, United Kingdom"
+## 
+## $results[[13]]$geometry
+## $results[[13]]$geometry$bounds
+## $results[[13]]$geometry$bounds$northeast
+## $results[[13]]$geometry$bounds$northeast$lat
+## [1] 58.67219
+## 
+## $results[[13]]$geometry$bounds$northeast$lng
+## [1] 1.756173
+## 
+## 
+## $results[[13]]$geometry$bounds$southwest
+## $results[[13]]$geometry$bounds$southwest$lat
+## [1] 49.9588
+## 
+## $results[[13]]$geometry$bounds$southwest$lng
+## [1] -6.227929
+## 
+## 
+## 
+## $results[[13]]$geometry$location
+## $results[[13]]$geometry$location$lat
+## [1] 53.83374
+## 
+## $results[[13]]$geometry$location$lng
+## [1] -2.429015
+## 
+## 
+## $results[[13]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[13]]$geometry$viewport
+## $results[[13]]$geometry$viewport$northeast
+## $results[[13]]$geometry$viewport$northeast$lat
+## [1] 58.67219
+## 
+## $results[[13]]$geometry$viewport$northeast$lng
+## [1] 1.756173
+## 
+## 
+## $results[[13]]$geometry$viewport$southwest
+## $results[[13]]$geometry$viewport$southwest$lat
+## [1] 49.9588
+## 
+## $results[[13]]$geometry$viewport$southwest$lng
+## [1] -6.227929
+## 
+## 
+## 
+## 
+## $results[[13]]$place_id
+## [1] "ChIJAc8Rblc_YkgRBbyOF5ySMQs"
+## 
+## $results[[13]]$types
+## $results[[13]]$types[[1]]
+## [1] "establishment"
+## 
+## $results[[13]]$types[[2]]
+## [1] "natural_feature"
+## 
+## 
+## 
+## $results[[14]]
+## $results[[14]]$address_components
+## $results[[14]]$address_components[[1]]
+## $results[[14]]$address_components[[1]]$long_name
+## [1] "United Kingdom"
+## 
+## $results[[14]]$address_components[[1]]$short_name
+## [1] "GB"
+## 
+## $results[[14]]$address_components[[1]]$types
+## $results[[14]]$address_components[[1]]$types[[1]]
+## [1] "country"
+## 
+## $results[[14]]$address_components[[1]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $results[[14]]$formatted_address
+## [1] "United Kingdom"
+## 
+## $results[[14]]$geometry
+## $results[[14]]$geometry$bounds
+## $results[[14]]$geometry$bounds$northeast
+## $results[[14]]$geometry$bounds$northeast$lat
+## [1] 60.9157
+## 
+## $results[[14]]$geometry$bounds$northeast$lng
+## [1] 33.91655
+## 
+## 
+## $results[[14]]$geometry$bounds$southwest
+## $results[[14]]$geometry$bounds$southwest$lat
+## [1] 34.5614
+## 
+## $results[[14]]$geometry$bounds$southwest$lng
+## [1] -8.8989
+## 
+## 
+## 
+## $results[[14]]$geometry$location
+## $results[[14]]$geometry$location$lat
+## [1] 55.37805
+## 
+## $results[[14]]$geometry$location$lng
+## [1] -3.435973
+## 
+## 
+## $results[[14]]$geometry$location_type
+## [1] "APPROXIMATE"
+## 
+## $results[[14]]$geometry$viewport
+## $results[[14]]$geometry$viewport$northeast
+## $results[[14]]$geometry$viewport$northeast$lat
+## [1] 60.9157
+## 
+## $results[[14]]$geometry$viewport$northeast$lng
+## [1] 33.91655
+## 
+## 
+## $results[[14]]$geometry$viewport$southwest
+## $results[[14]]$geometry$viewport$southwest$lat
+## [1] 34.5614
+## 
+## $results[[14]]$geometry$viewport$southwest$lng
+## [1] -8.8989
+## 
+## 
+## 
+## 
+## $results[[14]]$place_id
+## [1] "ChIJqZHHQhE7WgIReiWIMkOg-MQ"
+## 
+## $results[[14]]$types
+## $results[[14]]$types[[1]]
+## [1] "country"
+## 
+## $results[[14]]$types[[2]]
+## [1] "political"
+## 
+## 
+## 
+## 
+## $status
+## [1] "OK"
+```
+
+---
+
+# Map Styles
+
+We already saw the five different familiar map types Google provides: base, terrain (default), satellite, roadmap, and hybrid.
+
+Style is where **Stamen** Maps really shine. Stamen Maps has three available tile sets: terrain, watercolor, and toner.
+
+
+???
+
+Stamen tile set options:
+"toner", "watercolor", "terrain-labels", "terrain-lines",
+  "toner-2010", "toner-2011", "toner-background", "toner-hybrid",
+  "toner-labels", "toner-lines", "toner-lite"
+
+---
+
+# Stamen Maps - watercolor
+
+
+```r
+# Stamen Maps
+map_NYC_st &lt;- get_map("New York City", zoom=14, 
+source="stamen", maptype="watercolor")
+ggmap(map_NYC_st)
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-44-1.png)&lt;!-- --&gt;
+
+
+---
+
+# Stamen Maps - toner
+
+
+```r
+# Stamen Maps
+map_SF_st &lt;- get_map("San Francisco", zoom=10, 
+source="stamen",maptype="toner-lite")
+ggmap(map_SF_st)
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-45-1.png)&lt;!-- --&gt;
+
+---
+
+# ggplot and ggmap
+
+- Once `get_map` has grabbed the map of interest, `ggmap`
+is ready to plot it. 
+- Importantly, **`ggmap` returns a `ggplot` object**. 
+- That means the product of **ggmap** can itself **act as a base layer in** the **ggplot2**
+framework. Really useful!
+
+
+```r
+mapSF &lt;- ggmap(map_SF_st)
+class(mapSF)
+```
+
+```
+## [1] "gg"     "ggplot"
+```
+
+
+---
+
+class: inverse, bottom, center
+background-image: url(images/nypd_complaint_example.png)
+background-size: 90% 
+background-color: #000000
+background-position: 50% 15%
+
+
+# Mapping NYPD Complaint Data
+
+---
+
+# Get the data
+
+We get the data from the NYC Open Data Site here:
+.footnotesize[https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Map-Year-to-Date-/2fra-mtpn]
+
+&gt; This dataset includes **all valid felony, misdemeanor, and violation crimes reported to the New York City Police Department** (NYPD) for all complete quarters so far this year (2018). Offenses occurring at intersections are represented at the X Coordinate and Y Coordinate of the intersection. Crimes occurring anywhere other than an intersection are geo-located to the middle of the block. 
+
+
+
+
+```r
+# This is a subset of the data for 06/2018 and Manhattan only
+library(readr)
+nypd &lt;- read_csv("data/NYPD_Complaint_2018-06_Manhattan.csv")
+```
+
+---
+
+# Get a map
+
+
+```r
+map_Manhattan_st &lt;- get_map("Manhattan", zoom=12, 
+    source="stamen", maptype="toner-background")
+ggmap(map_Manhattan_st)
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-49-1.png)&lt;!-- --&gt;
+
+---
+
+# Map the complaint locations
+  
+
+```r
+g &lt;- ggmap(map_Manhattan_st) 
+g + geom_point(data=nypd, aes(x=Longitude,y=Latitude),
+                    size=0.3, alpha=0.3, color="red")
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-50-1.png)&lt;!-- --&gt;
+
+---
+
+## Zooming in 
+  
+.small[Crime everywhere? Hard to tell from this map where the hotspots are.]
+
+
+```r
+map_TS_st1 &lt;- get_map("Times Square", zoom=14, 
+                      source="stamen",maptype="toner-background")
+ggmap_TS_st1 &lt;- ggmap(map_TS_st1) 
+ggmap_TS_st1 + geom_point(aes(x=Longitude,y=Latitude),data=nypd, 
+                    size=1, alpha=0.9, color="red") 
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-51-1.png)&lt;!-- --&gt;
+
+---
+
+## Zooming in a bit more
+
+.small[Crimes are coded to intersections and the middle of the block.]
+
+
+```r
+map_TS_st2 &lt;- get_map("Times Square", zoom=16, 
+                      source="stamen",maptype="toner-background")
+ggmap_TS_st2 &lt;- ggmap(map_TS_st2) 
+ggmap_TS_st2 + geom_point(aes(x=Longitude,y=Latitude),
+                    data=nypd, size=2, alpha=0.9, color="red") 
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-52-1.png)&lt;!-- --&gt;
+
+---
+
+## High Density Areas - Contours
+  
+We can plot the **2D-Density** like a topographic map using contour layers.
+
+
+```r
+ggmap_TS_st1 + geom_density_2d(aes(x=Longitude,y=Latitude, 
+  color="red"), data=nypd, size=1) + theme_simplemap()
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-53-1.png)&lt;!-- --&gt;
+
+---
+
+## High Density Areas - Shaded Density
+  
+.small[With `stat_density2d`, we can **shade high crime areas**. Times Square looks like trouble.]
+
+
+```r
+ggmap_TS_st1 + stat_density2d(data = nypd, geom = "polygon",
+  aes(x = Longitude, y = Latitude, fill=..level..,alpha=..level..)) + 
+  scale_fill_gradient(low = "yellow", high = "red") + theme_simplemap()
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-54-1.png)&lt;!-- --&gt;
+
+---
+
+## Combine Contour and Density
+
+
+```r
+ggmap_TS_st1 + geom_density2d(aes(x=Longitude,y=Latitude), 
+  data=nypd, color="blue", size=1, bins=12) +
+  stat_density2d(aes(x=Longitude,y=Latitude,
+    fill = ..level.., alpha = ..level..),
+    data=nypd, geom = 'polygon', bins=12) +
+  scale_fill_gradient2(low = "green", mid="yellow", high = "red") +
+  scale_alpha(range = c(0.00, 0.5)) + theme_simplemap()
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-55-1.png)&lt;!-- --&gt;
+
+
+---
+
+# High Density Areas - Annotate
+  
+
+
+
+```r
+# As before, we can add annotation to ggplot figures
+(g &lt;- g + annotate("text",x=-73.987325, y=40.758899, label="Times Square",
+                   color="Dark Blue",fontface=2, size=5) +
+    annotate("text",x=-73.988898, y=40.7493349, label="Herald Square",
+             color="Dark Blue",fontface=2, size=5))
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-57-1.png)&lt;!-- --&gt;
+
+---
+
+# Facets
+  
+Just as before in `ggplot`, we can **facet our map by some data value**.
+
+Let's select a few common offenses in the data for that.
+
+
+```r
+# Selected offenses
+# sort(table(nypd$offense_desc1))
+off &lt;- nypd$offense_desc1 
+offsel &lt;- NA
+offsel &lt;- ifelse(off=="GRAND LARCENY" | 
+                 off=="PETIT LARCENY" | 
+                 off=="THEFT-FRAUD" | 
+                 off=="THEFT OF SERVICES", "Theft", offsel)
+offsel &lt;- ifelse(off=="HARRASSMENT", "Harrassment", offsel)
+offsel &lt;- ifelse(off=="ASSAULT 3 &amp; RELATED OFFENSES" | 
+                 off=="FELONY ASSAULT", "Assault", offsel)
+offsel &lt;- ifelse(off=="DANGEROUS DRUGS", "Drugs", offsel)
+offsel &lt;- ifelse(is.na(offsel), "Other Crime", offsel)
+nypd$offsel1 &lt;- offsel
+```
+
+---
+
+# Facets
+
+
+
+
+```r
+g + facet_wrap(~ offsel1, ncol = 2)
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-60-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse, bottom
+background-image: url(images/google_maps_with_style.png)
+background-size: 100%
+background-position: 50% 50%
+
+# Styled Google Maps in ggmap
+
+---
+
+# Styled Google Maps in ggmap
+
+- Beyond the 5 styles introduced before, Google Maps also allows to style the maps it provides.
+- We can use the Google's **Styled Maps Wizard** and style a map before importing it into R.
+- Go to: https://mapstyle.withgoogle.com/
+
+![Google Map Style Wizard](images/google_map_style_wizard.png) 
+
+---
+
+# Creating Styled Google Maps in ggmap
+
+- Can choose pre-set styles for the map
+- Advanced options allow you to choose colors, geometry, and labels
+- Options for borders, landscape, points of interest, roads, transit etc. 
+
+![Google Map Style Wizard - Advanced Options](images/google_map_style_wizard_advanced.png)
+
+---
+
+# Copy JSON
+
+When done, copy the JSON code for the styles you selected.
+
+[Google Map Style Wizard - Advanced Options](images/google_map_style_wizard_json.png)
+
+---
+
+# Create the map in ggmap
+
+With the json code we copied, we can re-create the map in ggmap.
+
+
+```r
+library(RJSONIO)
+# This is the JSON you copied
+# Marks all parks in green
+style &lt;- '[
+  {
+    "stylers": [
+      { "saturation": -100 },
+      { "gamma": 0.5 }
+      ]
+  },{
+    "featureType": "poi.park",
+    "elementType": "geometry",
+    "stylers": [
+      { "color": "#008000" }
+      ]
+  }
+  ]'
+style_list &lt;- fromJSON(style, asText=TRUE)
+```
+
+---
+
+# Get Google Map with the style
+
+
+```r
+# Use this helper function to convert json to API string
+source("data/google_map_create_style_string.R")
+style_string &lt;- create_style_string(style_list)
+ggmap(get_googlemap("San Francisco", style=style_string)) + theme_simplemap()
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-62-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse, bottom, center
+
+background-image: url(images/raster_vs_vector.png)
+background-size: 65%
+background-position: 50% 20%
+
+# Geospatial Raster vs. Vector Data 
+
+---
+
+background-image: url(images/raster_vs_vector.png)
+background-size: 18%
+background-position: 97% 4%
+
+# Geospatial Raster vs. Vector Data 
+
+Geospatial Data can be represented as **vector** and **raster** information. 
+
+**Vector data**: A representation of the world using **points, lines, and polygons**. Vector models are useful for storing data that has discrete boundaries, such as country borders, land parcels, and streets.
+
+**Raster data**: A representation of the **world as a surface divided into a regular grid of cells**. Raster models are useful for storing data that varies continuously, as in an aerial photograph, a satellite image, a surface of chemical concentrations, or an elevation surface.
+
+.footnotesize[Source: [ESRI GIS Dictionary](https://support.esri.com/en/other-resources/gis-dictionary/term/vector%20data%20model)]
+
+
+---
+
+# Vector Data is stored in shapefiles
+
+- A **shapefile** is a vector data storage format (developed by [ESRI](https://support.esri.com/en/other-resources/gis-dictionary/search/shapefile)) for **storing the location, shape, and attributes of geographic features**. 
+- The **shapefile format spatially describes geometries** as either **'points', 'polylines', or 'polygons'**.
+- The shapefile is in fact a grouping of several files formatted to represent different aspects of geodata:
+  - `.shp` — shape format; the feature geometry itself.
+  - `.shx` — shape index format; a positional index of the feature geometry to allow seeking forwards and backwards quickly.
+  - `.dbf` — attribute format; columnar attributes for each shape, in dBase IV format.
+
+---
+
+# Where to get shape files?
+
+There are plenty of places to get free shape files online. Here are a few examples:
+
+- [GeoFabrik](http://download.geofabrik.de/index.html) Provides data extracts from the OpenStreetMap project.
+- [BBBike.org](http://extract.bbbike.org/) Allows you to create your own custom shapefiles. Provides separate shapefiles for points, places, waterways, roads, railways, landuse and buildings with relevant tags, then shapefiles with all points, lines and polygons together.
+- [U.S. Census Tiger Database](http://www.census.gov/geo/maps-data/data/tiger.html) Shape files provided by the the U.S. Census Bureau.
+
+And here is a longer list of links to shapefile resources:
+http://wiki.openstreetmap.org/wiki/Shapefiles
+
+---
+
+# Shapefiles from BBBike.org
+
+- make sure to choose `ESRI` as the output format. It is easy to work with in R.
+
+![Get Rio Map from BBBike.org](images/get_map_Rio.png)
+
+---
+
+# Example: Shape files for NYC
+
+Get shape files for NYC [here](http://www1.nyc.gov/site/planning/data-maps/open-data/districts-download-metadata.page)
+
+![Get NYC shape files](images/get_shapefiles_NYC.png)
+
+---
+
+# Reading shape files into R
+
+
+```r
+library(rgdal) # for reading shape files into R
+# Defining the folder and base name of the files
+nyc_census &lt;- readOGR("data/nyc_shapefiles/census/.","nycb2010")
+```
+
+```
+## OGR data source with driver: ESRI Shapefile 
+## Source: "/Users/tbrambor/Dropbox (Pflegedienst Brambor)/Courses/Current/2020 Spring QMSS Data Visualization/Lectures/Week 05 - Maps I/data/nyc_shapefiles/census", layer: "nycb2010"
+## with 38794 features
+## It has 7 fields
+```
+
+```r
+# Let's keep only Manhattan
+nyc_census &lt;- subset(nyc_census, BoroName=="Manhattan")
+```
+
+---
+
+# Converting to a shape object
+  
+We need to prepare our object so that it may be portrayed on a map. 
+
+`spTransform` allows us to convert and transform between different mapping projections and datums.
+
+
+```r
+nyc_census &lt;- spTransform(nyc_census, 
+                          CRS("+proj=longlat +datum=WGS84"))
+```
+
+---
+
+# Fortify() for ggmap
+  
+**Option 1**: For most simple spatial objects, we can use `geom_sf` to add spatial objects directly to gpplot2. Preferred!
+
+**Option 2**: If you experience issues with the spatial object you want to plot, you also have the (less efficient) option of converting the spatial object to a dataframe using `fortify`
+
+We can **`fortify` the object** to prepare it for `ggmap`.
+
+
+```r
+nyc_census &lt;- fortify(nyc_census)
+```
+
+Note, the `broom::tidy()` package can do the same conversion, so feel free to use either.
+
+---
+
+# Plot the map
+
+
+```r
+map_census &lt;- ggmap(map_TS_st1) + # our raster map from before
+  geom_polygon(aes(x=long, y=lat, group=group), 
+               size=0.3, color='red', data=nyc_census, alpha=0)
+map_census
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-66-1.png)&lt;!-- --&gt;
+
+
+
+```r
+map_census &lt;- ggmap(map_TS_st1) + # our raster map from before
+  geom_polygon(aes(x=long, y=lat, group=group), 
+               size=0.3, color='red', data=nyc_census, alpha=0)
+map_census
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-67-1.png)&lt;!-- --&gt;
+
+---
+
+# Let's import city council districts
+  
+
+```r
+nyc_citycouncil &lt;- readOGR("data/nyc_shapefiles/city_council/.","nycc")
+```
+
+```
+## OGR data source with driver: ESRI Shapefile 
+## Source: "/Users/tbrambor/Dropbox (Pflegedienst Brambor)/Courses/Current/2020 Spring QMSS Data Visualization/Lectures/Week 05 - Maps I/data/nyc_shapefiles/city_council", layer: "nycc"
+## with 51 features
+## It has 3 fields
+```
+
+```r
+nyc_citycouncil &lt;- spTransform(nyc_citycouncil, CRS("+proj=longlat +datum=WGS84"))
+nyc_citycouncil &lt;- fortify(nyc_citycouncil)
+```
+
+
+---
+
+# Map city council districts
+
+
+```r
+(map_citycouncil &lt;- ggmap(map_Manhattan_st) + # our raster map 
+  geom_polygon(aes(x=long, y=lat, group=group, fill=id), 
+               size=0.5, color='blue', data=nyc_citycouncil)     + theme_simplemap() )
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-69-1.png)&lt;!-- --&gt;
+
+---
+
+# Zooming in a polygon map
+  
+.small[Zooming a map of polygons. Let's use the Times Square Map from before.]
+  
+
+```r
+ggmap(map_TS_st1) +    # our raster map from before
+geom_polygon(aes(x=long, y=lat, group=group, fill=id), 
+size=0.5, color='blue', data=nyc_citycouncil) + theme_simplemap()
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-70-1.png)&lt;!-- --&gt;
+
+---
+
+# Zooming in a polygon map
+
+The previous map is screwed up. By zooming in to the extent of the raster image, polygon points outside the zoomed-in rectangle get dropped as `NA`, leading to incomplete polygons. Let's fix that:
+  
+
+```r
+(map_TS_cc &lt;- ggmap(map_TS_st1, 
+                    base_layer=ggplot(aes(x=long,y=lat), 
+                                      data=nyc_citycouncil),
+                    extent = "normal", maprange=FALSE) + 
+   # Note: the map should not define the x and y limits
+ geom_polygon(aes(x=long, y=lat, group=group, fill=id), size=2, 
+              color='blue', alpha=0.3) + theme_simplemap() +
+ coord_map(projection="mercator",  
+           # And now using the extent of the raster image
+  xlim=c(attr(map_TS_st1, "bb")$ll.lon, 
+         attr(map_TS_st1, "bb")$ur.lon),
+  ylim=c(attr(map_TS_st1, "bb")$ll.lat, 
+         attr(map_TS_st1, "bb")$ur.lat)) )
+```
+
+
+---
+
+# Zooming in a polygon map
+
+![](week05_lecture_files/figure-html/unnamed-chunk-72-1.png)&lt;!-- --&gt;
+
+---
+
+## Combining city council and census tracts
+
+Now, we can add the second set of shape files for the census tracts over the city council borders. 
+
+
+```r
+(map_TS_cc + 
+  geom_polygon(aes(x=long, y=lat, group=group), 
+  size=0.3, color='red', data=nyc_census, alpha=0) )
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-73-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse, center, bottom
+background-image: url(images/code_structure_spdf.png)
+background-size: 80%
+background-position: 50% 30%
+background-color: #000000
+
+# Data frames vs. spatial objects
+
+---
+
+## Data frames vs. spatial objects
+
+The elecotoral data we used above were stored in a normal data frame.
+
+
+```r
+elecstate.merged 
+```
+
+```
+## # A tibble: 15,530 x 11
+##    state Clinton Trump R.D    long   lat group order state.abb state.center.x
+##    &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;chr&gt;              &lt;dbl&gt;
+##  1 Alab…    35.6  64.4 R     -87.5  30.4     1     1 AL                 -86.8
+##  2 Alab…    35.6  64.4 R     -87.5  30.4     1     2 AL                 -86.8
+##  3 Alab…    35.6  64.4 R     -87.5  30.4     1     3 AL                 -86.8
+##  4 Alab…    35.6  64.4 R     -87.5  30.3     1     4 AL                 -86.8
+##  5 Alab…    35.6  64.4 R     -87.6  30.3     1     5 AL                 -86.8
+##  6 Alab…    35.6  64.4 R     -87.6  30.3     1     6 AL                 -86.8
+##  7 Alab…    35.6  64.4 R     -87.6  30.3     1     7 AL                 -86.8
+##  8 Alab…    35.6  64.4 R     -87.6  30.3     1     8 AL                 -86.8
+##  9 Alab…    35.6  64.4 R     -87.7  30.3     1     9 AL                 -86.8
+## 10 Alab…    35.6  64.4 R     -87.8  30.3     1    10 AL                 -86.8
+## # … with 15,520 more rows, and 1 more variable: state.center.y &lt;dbl&gt;
+```
+
+---
+
+## Data frames are not the best way to store spatial data
+
+- there is **no** good way to keep information about a **cordinate reference system** in a usual data frame
+- they are **inefficient** for complex spatial objects (e.g. we repeat data for each part of the polygon)
+- the **hierachical structure of spatial objects** gets pressed into a flat structure of columns and rows
+
+---
+
+## The `sp` package
+
+- but, we already saw the way to get around it.   
+The [`sp()` package](https://edzer.github.io/sp/) stores spatial information. 
+- The **`sp` package**
+    - **allows different classes for storing spatial data**:
+        - point data
+        - line data, and
+        - polygon data
+    - provides **methods to manipulate spatial data**
+    - is a **standard**, so new spatial packages expect data in an `sp` object
+    - is a **more efficient** way to store geographic data
+
+---
+
+## Spatial objects: the `sp` package
+
+Looks like a list, but instead of the elements being proceeded by `$` in the output they are instead proceeded by an `@`. 
+
+`sp` classes are S4 objects, so instead of having elements they have slots and you access them with `@`.
+
+
+
+
+```r
+str(nyc_citycouncil, max.level=2)
+```
+
+```
+## Formal class 'SpatialPolygonsDataFrame' [package "sp"] with 5 slots
+##   ..@ data       :'data.frame':	51 obs. of  3 variables:
+##   ..@ polygons   :List of 51
+##   ..@ plotOrder  : int [1:51] 3 34 37 20 25 24 29 5 33 44 ...
+##   ..@ bbox       : num [1:2, 1:2] -74.3 40.5 -73.7 40.9
+##   .. ..- attr(*, "dimnames")=List of 2
+##   ..@ proj4string:Formal class 'CRS' [package "sp"] with 1 slot
+```
+
+---
+
+## Spatial objects: the `sp` package
+
+Notice, that the **data is one of the slots of the `sp` object**. The `sp` package has spatial objects with and without such added dataframes.
+
+
+```r
+library(sp)
+summary(nyc_citycouncil)
+```
+
+```
+## Object of class SpatialPolygonsDataFrame
+## Coordinates:
+##         min       max
+## x -74.25559 -73.70001
+## y  40.49612  40.91553
+## Is projected: FALSE 
+## proj4string :
+## [+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0]
+## Data attributes:
+##     CounDist      Shape_Leng       Shape_Area       
+##  Min.   : 1.0   Min.   : 42153   Min.   : 37202962  
+##  1st Qu.:13.5   1st Qu.: 59033   1st Qu.: 80101555  
+##  Median :26.0   Median : 77504   Median :120055228  
+##  Mean   :26.0   Mean   :107548   Mean   :165263069  
+##  3rd Qu.:38.5   3rd Qu.:114915   3rd Qu.:203255827  
+##  Max.   :51.0   Max.   :432778   Max.   :655544323
+```
+
+---
+
+## Accessing slots in `sp` objects
+
+
+```r
+# 1. A specific command
+proj4string(nyc_citycouncil)
+```
+
+```
+## [1] "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"
+```
+
+```r
+# 2. @ followed by the slot names (just like lists and $)
+nyc_citycouncil@proj4string
+```
+
+```
+## CRS arguments:
+##  +proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0
+```
+
+```r
+# 3. Use slot() with quoted slot name
+slot(nyc_citycouncil, "proj4string")
+```
+
+```
+## CRS arguments:
+##  +proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0
+```
+
+---
+
+## Examing the structure of the `sp` object
+
+
+```r
+# How many polygons
+str(nyc_citycouncil@polygons, max.level=1)
+```
+
+```
+## List of 51
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+##  $ :Formal class 'Polygons' [package "sp"] with 5 slots
+```
+
+```r
+ # -&gt; 51 polygons, as many as city council members
+```
+
+---
+
+## Getting one of the polygons
+
+
+```r
+# Take the fifth polygon
+ex1 &lt;- nyc_citycouncil@polygons[[5]]
+# str() with max.level = 3, on the Polygons slot of ex1
+str(ex1@Polygons, max.level=3)
+```
+
+```
+## List of 1
+##  $ :Formal class 'Polygon' [package "sp"] with 5 slots
+##   .. ..@ labpt  : num [1:2] -73.7 40.7
+##   .. ..@ area   : num 0.00302
+##   .. ..@ hole   : logi FALSE
+##   .. ..@ ringDir: int 1
+##   .. ..@ coords : num [1:358, 1:2] -73.7 -73.7 -73.7 -73.7 -73.7 ...
+```
+
+---
+
+## Plotting one of the polygons
+
+
+```r
+# Plot the single polygon
+plot(ex1@Polygons[[1]]@coords)
+```
+
+![](week05_lecture_files/figure-html/unnamed-chunk-81-1.png)&lt;!-- --&gt;
+
+---
+
+## The `sp` object hierarchy
+
+![sp object hierarchy](images/sp_object_hierarchy.png)
+
+---
+
+## Different types of `sp` objects
+
+![sp polygons object](images/sp_object_type_polygons.png)
+![sp polygons object](images/sp_object_type_lines.png)
+![sp polygons object](images/sp_object_type_points.png)
+
+---
+
+## Subsetting `sp` objects
+
+
+```r
+# Subset by index
+str(nyc_citycouncil[1:3,], max.level=2)  
+```
+
+```
+## Formal class 'SpatialPolygonsDataFrame' [package "sp"] with 5 slots
+##   ..@ data       :'data.frame':	3 obs. of  3 variables:
+##   ..@ polygons   :List of 3
+##   ..@ plotOrder  : int [1:3] 3 1 2
+##   ..@ bbox       : num [1:2, 1:2] -74.3 40.5 -73.8 40.7
+##   .. ..- attr(*, "dimnames")=List of 2
+##   ..@ proj4string:Formal class 'CRS' [package "sp"] with 1 slot
+```
+
+```r
+  # Notice: "list of 3" in @polygons output
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

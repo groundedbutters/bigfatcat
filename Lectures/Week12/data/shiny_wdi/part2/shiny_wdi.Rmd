@@ -1,0 +1,1999 @@
+---
+title: "Shiny Example - Visualizing WDI Data"
+author: Thomas Brambor
+job: QMSS Data Visualization
+widgets: []
+mode: selfcontained
+always_allow_html: yes
+runtime: shiny
+
+output:
+  html_document:
+    toc: true
+    toc_depth: 1
+---
+
+```{r packages, message = FALSE, warning = FALSE, echo=FALSE}
+# Load packages.
+packages <- c("devtools","knitr","leaflet","shiny","raster","rgdal","RColorBrewer","dplyr","readr")
+
+packages <- lapply(packages, FUN = function(x) {
+  if(!require(x, character.only = TRUE)) {
+    install.packages(x)
+    library(x, character.only = TRUE)
+  }
+})
+
+```
+
+
+```{r Setup, include=FALSE, results='hide', warning=FALSE}
+
+# A Prefix nulling hook.
+
+# Make sure to keep the default for normal processing.
+default_output_hook <- knitr::knit_hooks$get("output")
+
+# Output hooks handle normal R console output.
+knitr::knit_hooks$set( output = function(x, options) {
+
+  comment <- knitr::opts_current$get("comment")
+  if( is.na(comment) ) comment <- ""
+  can_null <- grepl( paste0( comment, "\\s*\\[\\d?\\]" ),
+                     x, perl = TRUE)
+  do_null <- isTRUE( knitr::opts_current$get("null_prefix") )
+  if( can_null && do_null ) {
+    # By default R print output aligns at the right brace.
+    align_index <- regexpr( "\\]", x )[1] - 1
+    # Two cases: start or newline
+    re <- paste0( "^.{", align_index, "}\\]")
+    rep <- comment
+    x <- gsub( re, rep,  x )
+    re <- paste0( "\\\n.{", align_index, "}\\]")
+    rep <- paste0( "\n", comment )
+    x <- gsub( re, rep,  x )
+  }
+
+  default_output_hook( x, options )
+
+})
+
+knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
+
+
+## Normal Setup From Here
+library(knitr)
+
+opts_chunk$set(fig.path="images/",
+               cache.path="cache/",
+            #   dev=c("png","pdf"),
+            #  fig.width=5,
+            #  fig.height=4.5,
+            #  dpi=300,
+            #  fig.show="hold",
+            #  fig.lp="fig:",
+               cache=TRUE,
+            #  par=TRUE,
+               echo=TRUE,
+               message=FALSE,
+               warning=FALSE)
+```
+
+
+# Starting with the template (Part 1)
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+library(shiny)
+ui <- fluidPage()
+server <- function(input, output) {}
+shinyApp(ui = ui, server = server)
+```
+
+## Add some layout
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+library(shiny)
+
+ui <- fluidPage(
+  titlePanel("Visualizing the World Development Indicators"),
+
+    sidebarLayout(
+    sidebarPanel( "sidebar panel"),
+    mainPanel("main panel")
+  )
+)
+
+server <- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Define input lists
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+# Content of our SETUP.R file
+
+library(WDI)
+library(readxl)
+
+# Set up the data
+# Generate a lookup table
+# source: databank.worldbank.org/data/download/site-content/WDI_CETS.xls
+
+xl <- "WDI_CETS.xls"
+
+lookup <- read_excel(xl)
+names(lookup) <- c("a", "b", "c", "d", "e", "f")
+
+# Lookup variable names / descriptions
+lookup_list <- setNames(as.list(lookup$b), lookup$a)
+lookup_list2 <- setNames(as.list(lookup$a), lookup$b)
+
+# Lookup countries
+cc <- read.csv("country_codes.csv")
+lookup_list_countries <- setNames(as.list(cc$cname), cc$iso_2c)
+``` 
+
+## Define input variables
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing Quality of Government Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(title="Make selections",
+               selectInput('indicator', 
+                           'World Development Indicator', 
+                           lookup_list2, 
+                           selected = 'AG.LND.AGRI.ZS'), 
+               selectInput("ctry", label = "Country", 
+                           c("US","CA","FR"), 
+                           selected = "US") 
+                 ),
+    mainPanel(h2("Visualization"))
+  )
+)
+
+server <- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Define input variables: country as lookup lost as well
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing Quality of Government Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(title="Make selections",
+               selectInput('indicator', 
+                           'World Development Indicator', 
+                           lookup_list2, 
+                           selected = 'AG.LND.AGRI.ZS'), 
+               selectInput("ctry", label = "Country", 
+                           lookup_list_countries, 
+                           selected = "US") 
+                 ),
+    mainPanel(h2("Visualization"))
+  )
+)
+
+server <- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Define output in UI
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing Quality of Government Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(title="Make selections",
+               selectInput('indicator', 
+                           'World Development Indicator', 
+                           lookup_list2, 
+                           selected = 'AG.LND.AGRI.ZS'), 
+               selectInput("ctry", label = "Country", 
+                           lookup_list_countries, 
+                           selected = "US") 
+                 ),
+    
+    mainPanel(h2("Visualization"),
+             dygraphOutput("dchart", width = "100%"))
+    )
+  )
+
+
+server <- function(input, output) {}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Define inputs in server: Data
+
+This is how the `WDI` package works:
+
+```{r, echo=TRUE, cache=FALSE, eval=FALSE}
+df <- WDI(country = "US", indicator = "AG.LND.ARBL.HA", 
+          start = 1980, end = 2015, extra = FALSE)
+
+# To transform the data
+df1 <- df %>%
+        dplyr::select("country", "year", "AG.LND.ARBL.HA") %>%
+        tidyr::spread(key = "country", value = "AG.LND.ARBL.HA") %>%
+        dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+        dplyr::select(-year) 
+```
+
+## Define inputs and outputs in server: Data and Graph
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing Quality of Government Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'AG.LND.AGRI.ZS'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US"
+      )
+    ),
+    mainPanel(h2("Visualization"),
+              dygraphOutput("dchart", width = "100%"))
+  )
+)
+
+server <- function(input, output) {
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    dygraph(xtdata) %>%
+      dyOptions(colors = c("black", "black"))
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Add range selector
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing Quality of Government Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'AG.LND.AGRI.ZS'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US"
+      )
+    ),
+    mainPanel(h2("Visualization"),
+              dygraphOutput("dchart", width = "100%"))
+  )
+)
+
+server <- function(input, output) {
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20)
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Add highlighting for mouse over
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing Quality of Government Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'AG.LND.AGRI.ZS'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US"
+      )
+    ),
+    mainPanel(h2("Visualization"),
+              dygraphOutput("dchart", width = "100%"))
+  )
+)
+
+server <- function(input, output) {
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Adding styling with CSS
+
+- we can add styling to one particular graph only by attaching CSS file specifically for the graph with 
+
+```
+dygraph(...) %>%
+  dyCSS("dygraph.css")
+```
+
+Here are the relevant CSS tags: http://dygraphs.com/css.html
+
+- a better option is an overall CSS stylesheet change how the Shiny app looks like. Just add it to the `head()` tag in the UI:
+
+## Adding styling with CSS
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  tags$head(includeCSS("styles.css")),
+  titlePanel("Visualizing Quality of Government Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'AG.LND.AGRI.ZS'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US"
+      )
+    ),
+    mainPanel(h2("Visualization"),
+              dygraphOutput("dchart", width = "100%"))
+  )
+)
+
+server <- function(input, output) {
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+# Adding a leaflet map (Part 2)
+
+We want to add a fullscale leaflet map in the background. What we got thus far should be a small panel on the top right hand corner in the end, with the map occupying the entire background.
+
+## Let's get the shapefiles for the map
+
+We downloaded shapefiles for the world from naturalworld.com
+
+```{r, eval=FALSE}
+# Add to our setup.R file
+countries <- rgdal::readOGR("ne_50m_admin_0_countries/ne_50m_admin_0_countries.shp")
+```
+
+## Merge the WDI data to the shapefiles
+
+```{r}
+# Add to our setup.R file
+## Get map data and merge to WDI data
+# Set up the data
+countries <-
+  rgdal::readOGR("ne_50m_admin_0_countries/ne_50m_admin_0_countries.shp")
+
+# Function to join data frame and spatial data
+join_shapefile_to_df <-
+  function(spatial_data, data_frame, by_sp, by_df)
+  {
+    spatial_data@data <-
+      data.frame(spatial_data@data, data_frame[match(spatial_data@data[[by_sp]],
+                                                     data_frame[[by_df]]),])
+    spatial_data
+  }
+
+# Function to grab WDI data and merge to the spatial data frame
+merge_to_wdi <- function(indicator, year) {
+  # Get WDI data
+  dat <- WDI(
+    country = "all",
+    indicator = indicator,
+    start = year,
+    end = year
+  )
+  dat[[indicator]] <- round(dat[[indicator]], 1)
+  # Join to map data
+  countries2 <- join_shapefile_to_df(countries,
+                                     dat,
+                                     "iso_a2",
+                                     "iso2c")
+  countries2
+}
+```
+
+## Make map in `server.R`
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  tags$head(includeCSS("styles.css")),
+  titlePanel("Visualizing Quality of Government Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'AG.LND.AGRI.ZS'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US"
+      )
+    ),
+    mainPanel(dygraphOutput("dchart", width = "100%"))
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values 
+  # from the input to fetch the data from WDI and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Add empty map to `ui.R`
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  tags$head(includeCSS("styles.css")),
+  titlePanel("Visualizing Quality of Government Indicators"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      title = "Make selections",
+      selectInput(
+        'indicator',
+        'World Development Indicator',
+        lookup_list2,
+        selected = 'AG.LND.AGRI.ZS'
+      ),
+      selectInput(
+        "ctry",
+        label = "Country",
+        lookup_list_countries,
+        selected = "US"
+      )
+    ),
+    mainPanel(
+      dygraphOutput("dchart", width = "100%"),
+      # ADDITION 3: Adding the leaflet map
+      leafletOutput("wdimap")
+    )
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values from the input
+  # to fetch the data from WDI and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Change `ui` layout using a full screen map
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  fixedPanel(
+    id = "fullscreen",
+    top = 0,
+    left = 0,
+    width = "100%",
+    height = "100%",
+    leafletOutput("wdimap", width = "100%", height = "100%")
+  ),
+  absolutePanel(
+    id = "controls",
+    draggable = FALSE,
+    top = 10,
+    right = 10,
+    width = 500,
+    height = "auto",
+    id = "input_panel",
+    h4("World Development Indicators explorer"),
+    tabsetPanel(
+      tabPanel(
+        "Controls",
+        selectInput(
+          'indicator',
+          'World Development Indicator',
+          lookup_list2,
+          selected = 'AG.LND.AGRI.ZS'
+        ),
+        numericInput(
+          "year",
+          label = "Year",
+          value = 2012,
+          min = 1980,
+          max = 2013
+        ),
+        selectInput(
+          "ctry",
+          label = "Country",
+          lookup_list_countries,
+          selected = "US"
+        )
+      ),
+      tabPanel(
+        "Chart",
+        p("Click a country on the map for an interactive chart"),
+        dygraphOutput("dchart", width = "100%")
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values from the input to fetch the data from WDI
+  # and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Add partially opaque background to control panel using CSS
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+ui <- fluidPage(
+  fixedPanel(
+    id = "fullscreen",
+    top = 0,
+    left = 0,
+    width = "100%",
+    height = "100%",
+    leafletOutput("wdimap", width = "100%", height = "100%")
+  ),
+  absolutePanel(
+    id = "controls",
+    draggable = TRUE,
+    top = 10,
+    right = 10,
+    width = 500,
+    height = "auto",
+    id = "input_panel",
+    # ADDITION 3: Add opaque background
+    style = "background-color:rgba(0, 0, 0, 0.5); padding:10px;",
+    h4("World Development Indicators Visualization"),
+    tabsetPanel(
+      tabPanel(
+        "Controls",
+        selectInput(
+          'indicator',
+          'World Development Indicator',
+          lookup_list2,
+          selected = 'AG.LND.AGRI.ZS'
+        ),
+        numericInput(
+          "year",
+          label = "Year",
+          value = 2012,
+          min = 1980,
+          max = 2013
+        ),
+        selectInput(
+          "ctry",
+          label = "Country",
+          lookup_list_countries,
+          selected = "US"
+        )
+      ),
+      tabPanel(
+        "Chart",
+        p("Click a country on the map for an interactive chart"),
+        dygraphOutput("dchart", width = "100%")
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values from the input to fetch the data from WDI
+  # and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Add colors to pick from RColorBrewer
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+# ADDITION 4: Add choice of color scales
+brewer_df <- brewer.pal.info
+brewer_df$colors <- row.names(brewer_df)
+sub <-
+  dplyr::filter(brewer_df, category == "div" | category == "seq")
+color_picker <- sub$colors
+
+ui <- fluidPage(
+  fixedPanel(
+    id = "fullscreen",
+    top = 0,
+    left = 0,
+    width = "100%",
+    height = "100%",
+    leafletOutput("wdimap", width = "100%", height = "100%")
+  ),
+  absolutePanel(
+    id = "controls",
+    draggable = TRUE,
+    top = 10,
+    right = 10,
+    width = 500,
+    height = "auto",
+    id = "input_panel",
+    # ADDITION 3: Add opaque background
+    style = "background-color:rgba(0, 0, 0, 0.5); padding:10px;",
+    h4("World Development Indicators Visualization"),
+    tabsetPanel(
+      tabPanel(
+        "Controls",
+        selectInput(
+          'indicator',
+          'World Development Indicator',
+          lookup_list2,
+          selected = 'AG.LND.AGRI.ZS'
+        ),
+        numericInput(
+          "year",
+          label = "Year",
+          value = 2012,
+          min = 1980,
+          max = 2013
+        ),
+        selectInput(
+          "ctry",
+          label = "Country",
+          lookup_list_countries,
+          selected = "US"
+        )
+      ),
+      tabPanel(
+        "Chart",
+        p("Click a country on the map for an interactive chart"),
+        dygraphOutput("dchart", width = "100%")
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values from the input to fetch the data from WDI
+  # and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Add data to the map using `observe` event
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+# ADDITION 4: Add choice of color scales
+brewer_df <- brewer.pal.info
+brewer_df$colors <- row.names(brewer_df)
+sub <-
+  dplyr::filter(brewer_df, category == "div" | category == "seq")
+color_picker <- sub$colors
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  fixedPanel(
+    id = "fullscreen",
+    top = 0,
+    left = 0,
+    width = "100%",
+    height = "100%",
+    leafletOutput("wdimap", width = "100%", height = "100%")
+  ),
+  absolutePanel(
+    id = "controls",
+    draggable = TRUE,
+    top = 10,
+    right = 10,
+    width = 500,
+    height = "auto",
+    id = "input_panel",
+    # ADDITION 3: Add opaque background
+    style = "background-color:rgba(0, 0, 0, 0.5); padding:10px;",
+    tabsetPanel(
+      tabPanel(
+        "Controls",
+        selectInput(
+          'indicator',
+          'World Development Indicator',
+          lookup_list2,
+          selected = 'AG.LND.AGRI.ZS'
+        ),
+        numericInput(
+          "year",
+          label = "Year",
+          value = 2012,
+          min = 1980,
+          max = 2013
+        ),
+        selectInput(
+          "ctry",
+          label = "Country",
+          lookup_list_countries,
+          selected = "US"
+        ),
+        # ADDITION 5: Add color input
+        selectInput(
+          "colors",
+          label = "ColorBrewer palette",
+          choices = color_picker,
+          selected = "Blues"
+        )
+      ),
+      tabPanel(
+        "Chart",
+        p("Click a country on the map for an interactive chart"),
+        dygraphOutput("dchart", width = "100%")
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values from the input to fetch the data from WDI
+  # and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  # ADDITION 5: Update the map when a new input is selected
+  # and add choice of color scale as input above
+  observe({
+    classes <- 6
+    indicator_alias <- lookup_list[[input$indicator]][1]
+    pal <- colorQuantile(input$colors, NULL, n = classes)
+    labs <-
+      quantile_labels(countries2()[[input$indicator]], classes)
+    
+    map <- leafletProxy("wdimap") %>%
+      clearShapes() %>%
+      clearControls() %>%
+      addPolygons(
+        data = countries2(),
+        fillColor = ~ pal(countries2()[[input$indicator]]),
+        fillOpacity = 0.8,
+        color = "#BDBDC3",
+        weight = 1,
+        layerId = ~ iso2c
+      )
+  })
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Add popup to leaflet map
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+# ADDITION 4: Add choice of color scales
+brewer_df <- brewer.pal.info
+brewer_df$colors <- row.names(brewer_df)
+sub <-
+  dplyr::filter(brewer_df, category == "div" | category == "seq")
+color_picker <- sub$colors
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  fixedPanel(
+    id = "fullscreen",
+    top = 0,
+    left = 0,
+    width = "100%",
+    height = "100%",
+    leafletOutput("wdimap", width = "100%", height = "100%")
+  ),
+  absolutePanel(
+    id = "controls",
+    draggable = TRUE,
+    top = 10,
+    right = 10,
+    width = 500,
+    height = "auto",
+    id = "input_panel",
+    # ADDITION 3: Add opaque background
+    style = "background-color:rgba(0, 0, 0, 0.5); padding:10px;",
+    tabsetPanel(
+      tabPanel(
+        "Controls",
+        selectInput(
+          'indicator',
+          'World Development Indicator',
+          lookup_list2,
+          selected = 'AG.LND.AGRI.ZS'
+        ),
+        numericInput(
+          "year",
+          label = "Year",
+          value = 2012,
+          min = 1980,
+          max = 2013
+        ),
+        selectInput(
+          "ctry",
+          label = "Country",
+          lookup_list_countries,
+          selected = "US"
+        ),
+        # ADDITION 5: Add color input
+        selectInput(
+          "colors",
+          label = "ColorBrewer palette",
+          choices = color_picker,
+          selected = "Blues"
+        )
+      ),
+      tabPanel(
+        "Chart",
+        p("Click a country on the map for an interactive chart"),
+        dygraphOutput("dchart", width = "100%")
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values from the input to fetch the data from WDI
+  # and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  # ADDITION 5: Update the map when a new input is selected
+  # and add choice of color scale as input above
+  observe({
+    classes <- 6
+    indicator_alias <- lookup_list[[input$indicator]][1]
+    pal <- colorQuantile(input$colors, NULL, n = classes)
+    labs <-
+      quantile_labels(countries2()[[input$indicator]], classes)
+    
+    # ADDITION 6: Add a popup
+    country_popup <- paste0(
+      "<strong>Country: </strong>",
+      countries2()$country,
+      "<br><strong>",
+      indicator_alias,
+      ", ",
+      as.character(input$year),
+      ": </strong>",
+      countries2()[[input$indicator]]
+    )
+    
+    map <- leafletProxy("wdimap") %>%
+      clearShapes() %>%
+      clearControls() %>%
+      addPolygons(
+        data = countries2(),
+        fillColor = ~ pal(countries2()[[input$indicator]]),
+        fillOpacity = 0.8,
+        color = "#BDBDC3",
+        weight = 1,
+        # Addition 6: add popup
+        popup = country_popup,
+        layerId = ~ iso2c
+      )
+  })
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Add legend to the map
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+# ADDITION 4: Add choice of color scales
+brewer_df <- brewer.pal.info
+brewer_df$colors <- row.names(brewer_df)
+sub <-
+  dplyr::filter(brewer_df, category == "div" | category == "seq")
+color_picker <- sub$colors
+
+ui <- fluidPage(
+  titlePanel("Visualizing World Development Indicators"),
+  
+  fixedPanel(
+    id = "fullscreen",
+    top = 0,
+    left = 0,
+    width = "100%",
+    height = "100%",
+    leafletOutput("wdimap", width = "100%", height = "100%")
+  ),
+  absolutePanel(
+    id = "controls",
+    draggable = TRUE,
+    top = 10,
+    right = 10,
+    width = 500,
+    height = "auto",
+    id = "input_panel",
+    # ADDITION 3: Add opaque background
+    style = "background-color:rgba(0, 0, 0, 0.5); padding:10px;",
+    tabsetPanel(
+      tabPanel(
+        "Controls",
+        selectInput(
+          'indicator',
+          'World Development Indicator',
+          lookup_list2,
+          selected = 'AG.LND.AGRI.ZS'
+        ),
+        numericInput(
+          "year",
+          label = "Year",
+          value = 2012,
+          min = 1980,
+          max = 2013
+        ),
+        selectInput(
+          "ctry",
+          label = "Country",
+          lookup_list_countries,
+          selected = "US"
+        ),
+        # ADDITION 5: Add color input
+        selectInput(
+          "colors",
+          label = "ColorBrewer palette",
+          choices = color_picker,
+          selected = "Blues"
+        )
+      ),
+      tabPanel(
+        "Chart",
+        p("Click a country on the map for an interactive chart"),
+        dygraphOutput("dchart", width = "100%")
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values from the input to fetch the data from WDI
+  # and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  # ADDITION 5: Update the map when a new input is selected
+  # and add choice of color scale as input above
+  observe({
+    classes <- 6
+    indicator_alias <- lookup_list[[input$indicator]][1]
+    pal <- colorQuantile(input$colors, NULL, n = classes)
+    labs <-
+      quantile_labels(countries2()[[input$indicator]], classes)
+    
+    # ADDITION 6: Add a popup
+    country_popup <- paste0(
+      "<strong>Country: </strong>",
+      countries2()$country,
+      "<br><strong>",
+      indicator_alias,
+      ", ",
+      as.character(input$year),
+      ": </strong>",
+      countries2()[[input$indicator]]
+    )
+    
+    map <- leafletProxy("wdimap") %>%
+      clearShapes() %>%
+      clearControls() %>%
+      addPolygons(
+        data = countries2(),
+        fillColor = ~ pal(countries2()[[input$indicator]]),
+        fillOpacity = 0.8,
+        color = "#BDBDC3",
+        weight = 1,
+        # Addition 6: add popup
+        popup = country_popup,
+        layerId = ~ iso2c
+      ) %>%
+      # ADDITION 7: Add a legend to the map
+      leaflet::addLegend(
+        colors = c(
+          RColorBrewer::brewer.pal(classes, input$colors),
+          "#808080"
+        ),
+        position = "bottomright",
+        bins = classes,
+        labels = labs,
+        title = paste0(indicator_alias, ', ', as.character(input$year))
+      )
+  })
+  
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+### Add CSS style sheet to HTML head tag
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+# ADDITION 4: Add choice of color scales
+brewer_df <- brewer.pal.info
+brewer_df$colors <- row.names(brewer_df)
+sub <-
+  dplyr::filter(brewer_df, category == "div" | category == "seq")
+color_picker <- sub$colors
+
+ui <- fluidPage(
+  # ADDITION 8: Add css styles
+  tags$head(includeCSS("styles.css")),
+  titlePanel("Visualizing World Development Indicators"),
+  
+  fixedPanel(
+    id = "fullscreen",
+    top = 0,
+    left = 0,
+    width = "100%",
+    height = "100%",
+    leafletOutput("wdimap", width = "100%", height = "100%")
+  ),
+  absolutePanel(
+    id = "controls",
+    draggable = TRUE,
+    top = 10,
+    right = 10,
+    width = 500,
+    height = "auto",
+    id = "input_panel",
+    # ADDITION 3: Add opaque background
+    style = "background-color:rgba(0, 0, 0, 0.9); padding:10px;",
+    tabsetPanel(
+      tabPanel(
+        "Controls",
+        selectInput(
+          'indicator',
+          'World Development Indicator',
+          lookup_list2,
+          selected = 'AG.LND.AGRI.ZS'
+        ),
+        numericInput(
+          "year",
+          label = "Year",
+          value = 2012,
+          min = 1980,
+          max = 2013
+        ),
+        selectInput(
+          "ctry",
+          label = "Country",
+          lookup_list_countries,
+          selected = "US"
+        ),
+        # ADDITION 5: Add color input
+        selectInput(
+          "colors",
+          label = "ColorBrewer palette",
+          choices = color_picker,
+          selected = "Blues"
+        )
+      ),
+      tabPanel(
+        "Chart",
+        p("Click a country on the map for an interactive chart"),
+        dygraphOutput("dchart", width = "100%")
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values from the input to fetch the data from WDI
+  # and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  # ADDITION 5: Update the map when a new input is selected
+  # and add choice of color scale as input above
+  observe({
+    classes <- 6
+    indicator_alias <- lookup_list[[input$indicator]][1]
+    pal <- colorQuantile(input$colors, NULL, n = classes)
+    labs <-
+      quantile_labels(countries2()[[input$indicator]], classes)
+    
+    # ADDITION 6: Add a popup
+    country_popup <- paste0(
+      "<strong>Country: </strong>",
+      countries2()$country,
+      "<br><strong>",
+      indicator_alias,
+      ", ",
+      as.character(input$year),
+      ": </strong>",
+      countries2()[[input$indicator]]
+    )
+    
+    map <- leafletProxy("wdimap") %>%
+      clearShapes() %>%
+      clearControls() %>%
+      addPolygons(
+        data = countries2(),
+        fillColor = ~ pal(countries2()[[input$indicator]]),
+        fillOpacity = 0.8,
+        color = "#BDBDC3",
+        weight = 1,
+        # Addition 6: add popup
+        popup = country_popup,
+        layerId = ~ iso2c
+      ) %>%
+      # ADDITION 7: Add a legend to the map
+      leaflet::addLegend(
+        colors = c(
+          RColorBrewer::brewer.pal(classes, input$colors),
+          "#808080"
+        ),
+        position = "bottomright",
+        bins = classes,
+        labels = labs,
+        title = paste0(indicator_alias, ', ', as.character(input$year))
+      )
+  })
+  
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+### Use shinythemes
+
+In your `ui.R`, use the theme argument to `bootstrapPage`, `fluidPage`, `navbarPage`, or `fixedPage`. The value should be `shinytheme("<theme>")`; for example, `shinytheme("cerulean")`.
+
+
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+source('setup.R')
+
+library(shinythemes)
+
+# ADDITION 4: Add choice of color scales
+brewer_df <- brewer.pal.info
+brewer_df$colors <- row.names(brewer_df)
+sub <-
+  dplyr::filter(brewer_df, category == "div" | category == "seq")
+color_picker <- sub$colors
+
+ui <- fluidPage(
+  # Addition 9: add shinythemes
+  theme = shinytheme("superhero"),
+  
+  titlePanel("Visualizing World Development Indicators"),
+  
+  fixedPanel(
+    id = "fullscreen",
+    top = 0,
+    left = 0,
+    width = "100%",
+    height = "100%",
+    leafletOutput("wdimap", width = "100%", height = "100%")
+  ),
+  absolutePanel(
+    id = "controls",
+    draggable = TRUE,
+    top = 10,
+    right = 10,
+    width = 500,
+    height = "auto",
+    id = "input_panel",
+    # ADDITION 3: Add opaque background
+    style = "background-color:rgba(0, 0, 0, 0.5); padding:10px;",
+    tabsetPanel(
+      tabPanel(
+        "Controls",
+        selectInput(
+          'indicator',
+          'World Development Indicator',
+          lookup_list2,
+          selected = 'AG.LND.AGRI.ZS'
+        ),
+        numericInput(
+          "year",
+          label = "Year",
+          value = 2012,
+          min = 1980,
+          max = 2013
+        ),
+        selectInput(
+          "ctry",
+          label = "Country",
+          lookup_list_countries,
+          selected = "US"
+        ),
+        # ADDITION 5: Add color input
+        selectInput(
+          "colors",
+          label = "ColorBrewer palette",
+          choices = color_picker,
+          selected = "Blues"
+        )
+      ),
+      tabPanel(
+        "Chart",
+        p("Click a country on the map for an interactive chart"),
+        dygraphOutput("dchart", width = "100%")
+      )
+    )
+  )
+)
+
+server <- function(input, output) {
+  # ADDITION 1: Build reactive expression that takes values from the input to fetch the data from WDI
+  # and join to shapefiles
+  countries2 <- reactive({
+    merge_to_wdi(input$indicator, input$year)
+  })
+  
+  # ADDITION 2: Draw the map
+  output$wdimap <- renderLeaflet({
+    map <- leaflet() %>%
+      addTiles(urlTemplate = "http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png") %>%
+      setView(0, 20, 3)
+    map
+  })
+  
+  # ADDITION 5: Update the map when a new input is selected
+  # and add choice of color scale as input above
+  observe({
+    classes <- 6
+    indicator_alias <- lookup_list[[input$indicator]][1]
+    pal <- colorQuantile(input$colors, NULL, n = classes)
+    labs <-
+      quantile_labels(countries2()[[input$indicator]], classes)
+    
+    # ADDITION 6: Add a popup
+    country_popup <- paste0(
+      "<strong>Country: </strong>",
+      countries2()$country,
+      "<br><strong>",
+      indicator_alias,
+      ", ",
+      as.character(input$year),
+      ": </strong>",
+      countries2()[[input$indicator]]
+    )
+    
+    map <- leafletProxy("wdimap") %>%
+      clearShapes() %>%
+      clearControls() %>%
+      addPolygons(
+        data = countries2(),
+        fillColor = ~ pal(countries2()[[input$indicator]]),
+        fillOpacity = 0.8,
+        color = "#BDBDC3",
+        weight = 1,
+        # Addition 6: add popup
+        popup = country_popup,
+        layerId = ~ iso2c
+      ) %>%
+      # ADDITION 7: Add a legend to the map
+      leaflet::addLegend(
+        colors = c(
+          RColorBrewer::brewer.pal(classes, input$colors),
+          "#808080"
+        ),
+        position = "bottomright",
+        bins = classes,
+        labels = labs,
+        title = paste0(indicator_alias, ', ', as.character(input$year))
+      )
+  })
+  
+  
+  output$dchart <- renderDygraph({
+    # Which variable to get?
+    ind <- input$indicator
+    # Get the data
+    df <- WDI(
+      country = input$ctry,
+      indicator = ind,
+      start = 1980,
+      end = 2015,
+      extra = FALSE
+    )
+    # Transform the data
+    df1 <- df %>%
+      dplyr::select("country", "year", ind) %>%
+      tidyr::spread(key = "country", value = ind) %>%
+      dplyr::mutate(date = as.Date(as.character(year), format = "%Y")) %>%
+      dplyr::select(-year)
+    
+    xtdata <- xts(df1, order.by = df1$date)
+    xtdata$date <- NULL
+    
+    # Name of country
+    countryname    <- lookup_list_countryabb[[input$ctry]]
+    ind_desc       <- lookup_list[["AG.LND.ARBL.HA"]]
+    dygraph(xtdata,
+            main = paste(ind_desc, "in", countryname),
+            xlab = "Year") %>%
+      dyOptions(colors = c("black", "black")) %>%
+      dyRangeSelector(height = 20) %>%
+      dyHighlight(
+        highlightCircleSize = 5,
+        highlightSeriesBackgroundAlpha = 0.2,
+        hideOnMouseOut = FALSE
+      )
+  })
+  
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Inputs/Events
+
+Leaflet maps and objects send input values (called "events") to Shiny as the user interacts with them.
+
+**Object event names** generally use this pattern:
+
+`input$MAPID_OBJCATEGORY_EVENTNAME`
+
+So for a `leafletOutput("mymap")` had a circle on it, clicking on that circle would update the Shiny input at `input$mymap_shape_click`. (Note that the layer ID is not part of the name, though it is part of the value.)
+
+If no shape has ever been clicked on this map, then `input$mymap_shape_click` is null.
+
+## Observe Click on Map
+
+So we can use `shiny::observeEvent( input$outputId_shape_click, {foo})` to monitor the leaflet map whenever a click occurs on a polygon. 
+
+What we get back is a `list()` that includes:
+
+ - lat - The latitude of the object, if available; otherwise, the mouse cursor  
+ - lng - The longitude of the object, if available; otherwise, the mouse cursor  
+ - id - The layerId, if any  
+
+Then, we can store the list of clicked polygons as a reactive value to perform actions based on the polygon(s) in that list.
+
+We actually only need the location of the most recent click.
+
+## Create a reactive event that grabs the ID of a clicked country
+
+```{r}
+# In server.R
+ctry <- eventReactive(input$wdimap_shape_click,  {
+  x <- input$wdimap_shape_click
+  y <- x$id
+  y
+})
+```
+
+And then we can replace the dropdown menu for the country with the country selected on the map. Cool!
+
+## Final App
+# Observe the click on map to select country
+
+```{r, echo=FALSE, cache=FALSE, eval=TRUE}
+shinyAppDir(".")
+```
+
+
+
+
+

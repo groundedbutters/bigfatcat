@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <title>week01_lecture.utf8.md</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="week01_lecture_files/reveal.js-3.3.0.1/css/reveal.css"/>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="week01_lecture_files/reveal.js-3.3.0.1/css/theme/white.css" id="theme">
+
+
+  <!-- some tweaks to reveal css -->
+  <style type="text/css">
+    .reveal h1 { font-size: 2.0em; }
+    .reveal h2 { font-size: 1.5em;  }
+    .reveal h3 { font-size: 1.25em;	}
+    .reveal h4 { font-size: 1em;	}
+
+    .reveal .slides>section,
+    .reveal .slides>section>section {
+      padding: 0px 0px;
+    }
+
+
+
+    .reveal table {
+      border-width: 1px;
+      border-spacing: 2px;
+      border-style: dotted;
+      border-color: gray;
+      border-collapse: collapse;
+      font-size: 0.7em;
+    }
+
+    .reveal table th {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      font-weight: bold;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+    .reveal table td {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+
+  </style>
+
+    <style type="text/css">code{white-space: pre;}</style>
+
+    <link rel="stylesheet" href="../custom.css"/>
+
+<!-- Printing and PDF exports -->
+<script id="paper-css" type="application/dynamic-css">
+
+/* Default Print Stylesheet Template
+   by Rob Glazebrook of CSSnewbie.com
+   Last Updated: June 4, 2008
+
+   Feel free (nay, compelled) to edit, append, and
+   manipulate this file as you see fit. */
+
+
+@media print {
+
+	/* SECTION 1: Set default width, margin, float, and
+	   background. This prevents elements from extending
+	   beyond the edge of the printed page, and prevents
+	   unnecessary background images from printing */
+	html {
+		background: #fff;
+		width: auto;
+		height: auto;
+		overflow: visible;
+	}
+	body {
+		background: #fff;
+		font-size: 20pt;
+		width: auto;
+		height: auto;
+		border: 0;
+		margin: 0 5%;
+		padding: 0;
+		overflow: visible;
+		float: none !important;
+	}
+
+	/* SECTION 2: Remove any elements not needed in print.
+	   This would include navigation, ads, sidebars, etc. */
+	.nestedarrow,
+	.controls,
+	.fork-reveal,
+	.share-reveal,
+	.state-background,
+	.reveal .progress,
+	.reveal .backgrounds {
+		display: none !important;
+	}
+
+	/* SECTION 3: Set body font face, size, and color.
+	   Consider using a serif font for readability. */
+	body, p, td, li, div {
+		font-size: 20pt!important;
+		font-family: Georgia, "Times New Roman", Times, serif !important;
+		color: #000;
+	}
+
+	/* SECTION 4: Set heading font face, sizes, and color.
+	   Differentiate your headings from your body text.
+	   Perhaps use a large sans-serif for distinction. */
+	h1,h2,h3,h4,h5,h6 {
+		color: #000!important;
+		height: auto;
+		line-height: normal;
+		font-family: Georgia, "Times New Roman", Times, serif !important;
+		text-shadow: 0 0 0 #000 !important;
+		text-align: left;
+		letter-spacing: normal;
+	}
+	/* Need to reduce the size of the fonts for printing */
+	h1 { font-size: 28pt !important;  }
+	h2 { font-size: 24pt !important; }
+	h3 { font-size: 22pt !important; }
+	h4 { font-size: 22pt !important; font-variant: small-caps; }
+	h5 { font-size: 21pt !important; }
+	h6 { font-size: 20pt !important; font-style: italic; }
+
+	/* SECTION 5: Make hyperlinks more usable.
+	   Ensure links are underlined, and consider appending
+	   the URL to the end of the link for usability. */
+	a:link,
+	a:visited {
+		color: #000 !important;
+		font-weight: bold;
+		text-decoration: underline;
+	}
+	/*
+	.reveal a:link:after,
+	.reveal a:visited:after {
+		content: " (" attr(href) ") ";
+		color: #222 !important;
+		font-size: 90%;
+	}
+	*/
+
+
+	/* SECTION 6: more reveal.js specific additions by @skypanther */
+	ul, ol, div, p {
+		visibility: visible;
+		position: static;
+		width: auto;
+		height: auto;
+		display: block;
+		overflow: visible;
+		margin: 0;
+		text-align: left !important;
+	}
+	.reveal pre,
+	.reveal table {
+		margin-left: 0;
+		margin-right: 0;
+	}
+	.reveal pre code {
+		padding: 20px;
+		border: 1px solid #ddd;
+	}
+	.reveal blockquote {
+		margin: 20px 0;
+	}
+	.reveal .slides {
+		position: static !important;
+		width: auto !important;
+		height: auto !important;
+
+		left: 0 !important;
+		top: 0 !important;
+		margin-left: 0 !important;
+		margin-top: 0 !important;
+		padding: 0 !important;
+		zoom: 1 !important;
+
+		overflow: visible !important;
+		display: block !important;
+
+		text-align: left !important;
+		-webkit-perspective: none;
+		   -moz-perspective: none;
+		    -ms-perspective: none;
+		        perspective: none;
+
+		-webkit-perspective-origin: 50% 50%;
+		   -moz-perspective-origin: 50% 50%;
+		    -ms-perspective-origin: 50% 50%;
+		        perspective-origin: 50% 50%;
+	}
+	.reveal .slides section {
+		visibility: visible !important;
+		position: static !important;
+		width: auto !important;
+		height: auto !important;
+		display: block !important;
+		overflow: visible !important;
+
+		left: 0 !important;
+		top: 0 !important;
+		margin-left: 0 !important;
+		margin-top: 0 !important;
+		padding: 60px 20px !important;
+		z-index: auto !important;
+
+		opacity: 1 !important;
+
+		page-break-after: always !important;
+
+		-webkit-transform-style: flat !important;
+		   -moz-transform-style: flat !important;
+		    -ms-transform-style: flat !important;
+		        transform-style: flat !important;
+
+		-webkit-transform: none !important;
+		   -moz-transform: none !important;
+		    -ms-transform: none !important;
+		        transform: none !important;
+
+		-webkit-transition: none !important;
+		   -moz-transition: none !important;
+		    -ms-transition: none !important;
+		        transition: none !important;
+	}
+	.reveal .slides section.stack {
+		padding: 0 !important;
+	}
+	.reveal section:last-of-type {
+		page-break-after: avoid !important;
+	}
+	.reveal section .fragment {
+		opacity: 1 !important;
+		visibility: visible !important;
+
+		-webkit-transform: none !important;
+		   -moz-transform: none !important;
+		    -ms-transform: none !important;
+		        transform: none !important;
+	}
+	.reveal section img {
+		display: block;
+		margin: 15px 0px;
+		background: rgba(255,255,255,1);
+		border: 1px solid #666;
+		box-shadow: none;
+	}
+
+	.reveal section small {
+		font-size: 0.8em;
+	}
+
+}  
+</script>
+
+
+<script id="pdf-css" type="application/dynamic-css">
+    
+/**
+ * This stylesheet is used to print reveal.js
+ * presentations to PDF.
+ *
+ * https://github.com/hakimel/reveal.js#pdf-export
+ */
+
+* {
+	-webkit-print-color-adjust: exact;
+}
+
+body {
+	margin: 0 auto !important;
+	border: 0;
+	padding: 0;
+	float: none !important;
+	overflow: visible;
+}
+
+html {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+/* Remove any elements not needed in print. */
+.nestedarrow,
+.reveal .controls,
+.reveal .progress,
+.reveal .playback,
+.reveal.overview,
+.fork-reveal,
+.share-reveal,
+.state-background {
+	display: none !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	text-shadow: 0 0 0 #000 !important;
+}
+
+.reveal pre code {
+	overflow: hidden !important;
+	font-family: Courier, 'Courier New', monospace !important;
+}
+
+ul, ol, div, p {
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: auto;
+	display: block;
+	overflow: visible;
+	margin: auto;
+}
+.reveal {
+	width: auto !important;
+	height: auto !important;
+	overflow: hidden !important;
+}
+.reveal .slides {
+	position: static;
+	width: 100%;
+	height: auto;
+
+	left: auto;
+	top: auto;
+	margin: 0 !important;
+	padding: 0 !important;
+
+	overflow: visible;
+	display: block;
+
+	-webkit-perspective: none;
+	   -moz-perspective: none;
+	    -ms-perspective: none;
+	        perspective: none;
+
+	-webkit-perspective-origin: 50% 50%; /* there isn't a none/auto value but 50-50 is the default */
+	   -moz-perspective-origin: 50% 50%;
+	    -ms-perspective-origin: 50% 50%;
+	        perspective-origin: 50% 50%;
+}
+
+.reveal .slides section {
+	page-break-after: always !important;
+
+	visibility: visible !important;
+	position: relative !important;
+	display: block !important;
+	position: relative !important;
+
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+	min-height: 1px;
+
+	opacity: 1 !important;
+
+	-webkit-transform-style: flat !important;
+	   -moz-transform-style: flat !important;
+	    -ms-transform-style: flat !important;
+	        transform-style: flat !important;
+
+	-webkit-transform: none !important;
+	   -moz-transform: none !important;
+	    -ms-transform: none !important;
+	        transform: none !important;
+}
+
+.reveal section.stack {
+	margin: 0 !important;
+	padding: 0 !important;
+	page-break-after: avoid !important;
+	height: auto !important;
+	min-height: auto !important;
+}
+
+.reveal img {
+	box-shadow: none;
+}
+
+.reveal .roll {
+	overflow: visible;
+	line-height: 1em;
+}
+
+/* Slide backgrounds are placed inside of their slide when exporting to PDF */
+.reveal section .slide-background {
+	display: block !important;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: -1;
+}
+
+/* All elements should be above the slide-background */
+.reveal section>* {
+	position: relative;
+	z-index: 1;
+}
+
+/* Display slide speaker notes when 'showNotes' is enabled */
+.reveal .speaker-notes-pdf {
+	display: block;
+	width: 100%;
+	max-height: none;
+	left: auto;
+	top: auto;
+	z-index: 100;
+}
+
+/* Display slide numbers when 'slideNumber' is enabled */
+.reveal .slide-number-pdf {
+	display: block;
+	position: absolute;
+	font-size: 14px;
+}
+
+</script>
+
+
+<script>
+var style = document.createElement( 'style' );
+style.type = 'text/css';
+var style_script_id = window.location.search.match( /print-pdf/gi ) ? 'pdf-css' : 'paper-css';
+var style_script = document.getElementById(style_script_id).text;
+style.innerHTML = style_script;
+document.getElementsByTagName('head')[0].appendChild(style);
+</script>
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+
+<section id="section" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><span style="color:red; font-weight:bold; font-size:110px">D</span><span style="color:white; font-weight:bold; font-size:110px">ata </span> <span style="color:red; font-weight:bold; font-size:110px">V</span> <span style="color:white; font-weight:bold; font-size:110px">isualization</span></p>
+<p><br> Columbia University<br> Spring 2020<br> Thomas Brambor<br />
+<br></p>
+<p><span style="color:white; font-weight:bold; font-size:60px">1 - Getting Started with ggplot2</span></p>
+</section>
+<section><section id="visualization-why-what-how" class="title-slide slide level1"><h1>Visualization: Why, what, how?</h1></section><section id="data-growth" class="slide level2">
+<h2>Data Growth</h2>
+<p><img src="images/data_growth.png" width="100%" /></p>
+<p><small> * In 1984, the planet had roughly 20 million gigabytes (GB) of data stored digitally.<br />
+* A zettabyte is 1 trillion gigabytes, or equal to the storage capacity of almost 4 billion iPhones (256GB model).<br />
+See: <a href="https://medium.com/microsoft-design/big-data-have-you-afraid-youre-not-alone-1a26b65742fe" class="uri">https://medium.com/microsoft-design/big-data-have-you-afraid-youre-not-alone-1a26b65742fe</a> </small></p>
+</section><section id="section-1" class="slide level2 centered">
+<h2></h2>
+<blockquote>
+<p>If we take all the data generated in the world between the beginning of time and 2008, the same amount of data will soon be generated <strong>every minute</strong>. (Bernard Marr)</p>
+</blockquote>
+</section><section id="section-2" class="slide level2" data-background="#000000">
+<h2></h2>
+<p><img src="images/fb_connections_world.jpg" width="100%" /></p>
+</section><section id="section-3" class="slide level2" data-background="#000000">
+<h2></h2>
+<p><img src="images/separate-trips-uberpool-trips.gif" width="100%" /></p>
+</section><section id="section-4" class="slide level2" data-background="#000000">
+<h2></h2>
+<p><img src="images/apple_health_app.jpg" width="100%" /></p>
+</section><section id="section-5" class="slide level2" data-background="#000000">
+<h2></h2>
+<iframe title="Twitter Pulse" width="800" height="800" src="http://twistori.com/#i_wish" frameborder="0" allowfullscreen align="right">
+</iframe>
+</section><section id="section-6" class="slide level2">
+<h2></h2>
+<blockquote>
+<p>“What information consumes is rather obvious: it consumes the attention of its recipients. Hence a wealth of information creates a poverty of attention, and a need to allocate that attention efficiently among the overabundance of information sources that might consume it.”</p>
+</blockquote>
+<p><img src="images/herb_simon.jpg" width="18%" /></p>
+<p><small> Herb Simon (as quoted by Hal Varian, Scientific American, September 1995) </small></p>
+</section></section>
+<section><section id="what-is-visualization" class="title-slide slide level1"><h1>What is visualization?</h1></section><section id="section-7" class="slide level2">
+<h2></h2>
+<p><span style="color:red; font-weight:bold; font-size:110px">visualization, <em>n.</em></span></p>
+<ol type="1">
+<li><p>The action or fact of visualizing; the power or process of forming a mental picture or vision of something not actually present to the sight; a picture thus formed.</p></li>
+<li><p>The action or process of rendering visible.</p></li>
+</ol>
+<p><small>Source: <a href="oed.com">oed.com</a></small></p>
+</section><section id="section-8" class="slide level2">
+<h2></h2>
+<blockquote>
+<p>Transformation of the symbolic into the geometric</p>
+</blockquote>
+<p>[McCormick et al. 1987]</p>
+<blockquote>
+<p>… finding the artificial memory that best supports our natural means of perception.</p>
+</blockquote>
+<p>[Bertin 1967]</p>
+<blockquote>
+<p>The use of computer-generated, interactive, visual representations of data to amplify cognition.</p>
+</blockquote>
+<p>[Card, Mackinlay, &amp; Shneiderman 1999]</p>
+</section><section id="visualization-to-record-information" class="slide level2">
+<h2>Visualization to Record Information</h2>
+<p><img src="images/blueprint.jpg" width="100%" /></p>
+</section><section id="visualization-to-analyze" class="slide level2">
+<h2>Visualization to Analyze</h2>
+<p><img src="images/german_train_visualization.png" width="100%" /></p>
+<p><small>Source: <a href="https://truth-and-beauty.net/projects/peakspotting" class="uri">https://truth-and-beauty.net/projects/peakspotting</a> by Moritz Stefaner </small></p>
+</section><section id="visualization-to-present" class="slide level2">
+<h2>Visualization to Present</h2>
+<p><img src="images/vaccinations_measles.png" width="90%" /></p>
+<p><small>Source: Tynan DeBold and Dov Friedman of the <a href="http://graphics.wsj.com/infectious-diseases-and-vaccines/">Wall Street Journal</a></small></p>
+</section><section id="section-9" class="slide level2">
+<h2></h2>
+<blockquote>
+<p>Data, Data, Everywhere, and Not a Drop to Drink?</p>
+</blockquote>
+<p><img src="images/fire_hydrant_drink.jpg" width="100%" /></p>
+</section><section id="section-10" class="slide level2">
+<h2></h2>
+<blockquote>
+<p>The ability to take data—to be able to <strong>understand</strong> it, to <strong>process</strong> it, to <strong>extract value</strong> from it, to <strong>visualize</strong> it, to <strong>communicate</strong> it — that’s going to be a hugely important skill in the next decades, … because now we really do have <strong>essentially free and ubiquitous data</strong>. So the complimentary scarce factor is the ability to understand that data and extract value from it.</p>
+</blockquote>
+<p><small>Hal Varian, Google’s Chief Economist The McKinsey Quarterly, Jan 2009 </small></p>
+</section></section>
+<section><section id="intro-to-the-course" class="title-slide slide level1"><h1>Intro to the Course</h1></section><section id="course-outline" class="slide level2">
+<h2>Course Outline</h2>
+<ul>
+<li>Part 1: Introduction and Plotting with ggplot2</li>
+<li>Part 2: Working with Spatial Data. Visualizing Maps</li>
+<li>Part 3: Text Analysis and Visualization</li>
+<li>Part 4: Networks</li>
+<li>Part 5: More Dynamic and Interactive Visuals</li>
+</ul>
+</section><section id="part-1-introduction-and-plotting-with-ggplot2" class="slide level2">
+<h2>Part 1: Introduction and Plotting with ggplot2</h2>
+<p><img src="images/ggplot2_overview.png" width="100%" /></p>
+</section><section id="part-1-intro-to-ggplot2" class="slide level2">
+<h2>Part 1: Intro to ggplot2</h2>
+<ul>
+<li>Week 1
+<ul>
+<li>Intro. Setting up RStudio and ggplot2.</li>
+<li>Some basics of data visualizations.</li>
+<li>Starting with ggplot2: concepts, data, aesthetics, geometries.</li>
+</ul></li>
+<li>Week 2
+<ul>
+<li>Statistics, coordinates, facets, themes</li>
+<li>Best practices. Case study.</li>
+</ul></li>
+<li>Week 3
+<ul>
+<li>Refining plots, themes, publication-ready.</li>
+<li>Advanced plots and ggplot2 internals.</li>
+</ul></li>
+<li>Week 4:
+<ul>
+<li>Making ggplot interative.</li>
+<li>Using plot.ly</li>
+</ul></li>
+</ul>
+</section><section id="part-2-working-with-spatial-data" class="slide level2">
+<h2>Part 2: Working with Spatial Data</h2>
+<p><img src="images/map_election2016.png" width="100%" /></p>
+</section><section id="part-2-working-with-spatial-data-1" class="slide level2">
+<h2>Part 2: Working with Spatial Data</h2>
+<p><img src="images/map_crime_in_NYC.png" width="70%" /></p>
+</section><section id="part-3-text-as-data" class="slide level2">
+<h2>Part 3: Text as Data</h2>
+<p><img src="images/text_sotu.png" width="100%" /></p>
+</section><section id="part-3-text-as-data-1" class="slide level2">
+<h2>Part 3: Text as Data</h2>
+<p><img src="images/text_dictionary.png" width="100%" /></p>
+</section><section id="part-4-networks" class="slide level2">
+<h2>Part 4: Networks</h2>
+<p><img src="images/game_of_thrones_network.png" width="100%" /></p>
+</section><section id="part-5-more-interactivity" class="slide level2">
+<h2>Part 5: More Interactivity</h2>
+<p><img src="images/shiny_movie_explorer.png" width="100%" /></p>
+</section><section id="part-5-more-interactivity-1" class="slide level2">
+<h2>Part 5: More Interactivity</h2>
+<p><img src="images/interactive_d3js.png" width="100%" /></p>
+</section><section id="the-teaching-team" class="slide level2">
+<h2>The teaching team</h2>
+<p><strong>Instructor: Thomas Brambor</strong><br />
+<strong><a href="thomas.brambor@columbia.edu">thomas.brambor@columbia.edu</a></strong><br />
+<strong>IAB 509E Mon 4.50 - 5.50pm</strong></p>
+<p>TA1: Yue (Eugene) Ji <a href="yue.ji@columbia.edu">yue.ji@columbia.edu</a><br />
+Office Hours TBA IAB 270J</p>
+<p>TA1: Binqian Wang <a href="bw2649@columbia.edu">bw2649@columbia.edu</a><br />
+Office Hours TBA IAB 270J</p>
+<p>TA2: Jiaxi Yang <a href="jy2710@tc.columbia.edu">jy2710@tc.columbia.edu</a><br />
+Office Hours TBA IAB 270J</p>
+</section><section id="section-11" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><img data-src="images/email_hold_on.jpg" style="width:100.0%" /></p>
+</section><section id="communication" class="slide level2">
+<h2>Communication</h2>
+<p>We are using a campuswire class forum to communicate.</p>
+<p><img data-src="images/campuswire_logo.png" style="width:40.0%" /></p>
+<p>Please refrain from email. For questions that seem only pertinent to you, just use a private question.</p>
+</section><section id="who-are-you" class="slide level2">
+<h2>Who are you?</h2>
+<ul>
+<li class="fragment">Background / Discipline: Economics, History, Political Science, Psychology, Sociology, CS, Statistics, Other?</li>
+<li class="fragment">in QMSS / other program?</li>
+<li class="fragment">Just off the boat, or here second year?</li>
+<li class="fragment">used R before this course? Before QMSS?</li>
+<li class="fragment">used other programming language(s) before, e.g. Python, C++, SAS, MATLAB, SQL, Java etc.?</li>
+<li class="fragment">used R Markdown?</li>
+<li class="fragment">used GitHub?</li>
+<li class="fragment">familiarity with data visualization? ggplot2?</li>
+</ul>
+</section><section id="data-viz-as-a-skill" class="slide level2">
+<h2>Data Viz as a Skill</h2>
+<p><img data-src="images/vizstars.png" style="width:100.0%" /> <!---Survey conducted in “Introduction to Data Science” at Columbia, taught by Rachel Schutt--></p>
+</section><section id="lectures" class="slide level2">
+<h2>Lectures</h2>
+<p>Mondays. 6.10 - 8pm</p>
+<p>Don’t be late (it disrupts class and concentration).</p>
+<p>Bring a laptop if available. (*but check your facebook at home).</p>
+<p><img data-src="images/desktop_computer_at_starbucks.jpg" style="width:60.0%" /></p>
+</section><section id="books-readings" class="slide level2">
+<h2>Books &amp; Readings</h2>
+<ul>
+<li>No required text book. Yay!</li>
+<li>Several recommended books (available in the bookstore this week). All of the books are also on <a href="https://www1.columbia.edu/sec-cgi-bin/cul/respac/respac?CRSE=20181qmss5063g001">reserve</a> in the library.</li>
+</ul>
+<p><img data-src="images/recommended_books.jpg" style="width:80.0%" /></p>
+</section><section id="taking-notes" class="slide level2" data-background-color="black">
+<h2><span style="color:white;">Taking Notes</span></h2>
+<p><img data-src="images/rmarkdown_logo.png" style="width:50.0%" /></p>
+</section><section id="taking-notes-1" class="slide level2">
+<h2>Taking Notes</h2>
+<ul>
+<li><p>In class there will be a lot of back and forth between general explanatory material, bits of code, comments to ourselves, and other stuff</p></li>
+<li><p>My suggestion: take notes in <a href="www.rstudio.com">RStudio</a> using R Markdown notebooks or a simple R Markdown file</p></li>
+<li><p>I suggest the same for assignments (more on that later).</p></li>
+<li><p>More info here: <a href="http://rmarkdown.rstudio.com/" class="uri">http://rmarkdown.rstudio.com/</a></p></li>
+</ul>
+</section><section id="why-r-markdown" class="slide level2">
+<h2>Why R Markdown?</h2>
+<p>PRO:</p>
+<ul>
+<li><p>Reproducible. For others and your later (forgetful) self.</p></li>
+<li><p>Live document. Combining code and output. Changes to your data or code will immediately update.</p></li>
+<li><p>supports numerous static and dynamic output formats including HTML, PDF, MS Word, Beamer, slides, shiny applications</p></li>
+<li><p>able to run different languages in one document</p></li>
+</ul>
+<p>CON:</p>
+<ul>
+<li>Typesetting not as detailed as Latex [R Markdown is designed for HTML, Latex for PDFs]</li>
+</ul>
+</section><section id="section-12" class="slide level2" data-background-iframe="http://rmarkdown.rstudio.com/gallery.html">
+<h2></h2>
+</section><section id="r-studio---lets-do-a-quick-intro" class="slide level2">
+<h2>R Studio - Let’s do a quick intro</h2>
+<ul>
+<li>Create a new project.</li>
+<li>Create a new notebook file.</li>
+</ul>
+<p><br><br></p>
+<ul>
+<li>For later: make some folders (Lectures / Exercises / Final Project etc.) to keep order.<br />
+</li>
+<li>If unfamiliar with R Markdown, work through <a href="http://rmarkdown.rstudio.com/" class="uri">http://rmarkdown.rstudio.com/</a> or similar tutorials to get going.</li>
+</ul>
+</section><section id="course-website" class="slide level2">
+<h2>Course Website</h2>
+<ul>
+<li><p>Piazza for discussion forum, announcements. Make sure to set your notification settings right.</p></li>
+<li><p>All lectures slides, in-class exercises, homework, code etc. will be made available here: <a href="https://github.com/QMSS-G5063-2020/course_materials" class="uri">https://github.com/QMSS-G5063-2020/course_materials</a></p></li>
+<li><p>Brief introduction to GitHub next week.</p></li>
+</ul>
+</section><section id="assignments" class="slide level2">
+<h2>Assignments</h2>
+<ul>
+<li><p>Final report (30%): A final group project in the form of a website and (if time allows) an in-class presentation.</p></li>
+<li><p>Assignments (60%): 4 individual assignments.</p></li>
+<li><p>Class participation (off line and online) &amp; commentary on other student project (10%)</p></li>
+</ul>
+</section><section id="student-groups" class="slide level2">
+<h2>Student Groups</h2>
+<ul>
+<li>Final report is a group project with 3-4 students in each group.</li>
+<li>Try to find a group as soon as you can. Join groups set up on campuswire site.</li>
+<li>Will need to agree on a dataset to analyze (eiter choose from my suggestions or one of your own).</li>
+<li>These groups will also be one of your resources to master the course material.</li>
+</ul>
+</section><section id="to-do-for-you" class="slide level2">
+<h2>To Do for you</h2>
+<ul>
+<li><p>Get R. Get R Studio. Bring laptop to class if you can.</p></li>
+<li><p>Install packages: ggplot2 / data.table / tidyverse &amp; any others that are used in exercises</p></li>
+<li><p>Get to know your fellow students to form a group.</p></li>
+</ul>
+</section></section>
+<section><section id="what-makes-for-good-data-visualization" class="title-slide slide level1"><h1>What makes for good data visualization?</h1></section><section id="types-of-visualizations" class="slide level2">
+<h2>Types of Visualizations</h2>
+<p><img data-src="images/exploratory_explanatory.png" style="width:100.0%" /></p>
+</section><section id="lets-look-at-some-graphs-to-warm-up" class="slide level2">
+<h2>Let’s look at some graphs to warm up…</h2>
+<p>Which values are presented here?</p>
+<p><img data-src="images/3D_chart.png" style="width:70.0%" /></p>
+</section><section id="did-you-guess-right" class="slide level2">
+<h2>Did you guess right?</h2>
+<p><img data-src="images/3D_chart_values.png" style="width:100.0%" /></p>
+</section><section id="mmhh-pie" class="slide level2">
+<h2>Mmhh! Pie</h2>
+<p><img data-src="images/pie_chart.png" style="width:50.0%" /></p>
+</section><section id="got-it-right-this-time" class="slide level2">
+<h2>Got it right this time?</h2>
+<p><img data-src="images/pie_chart_values.png" style="width:80.0%" /></p>
+</section><section id="what-makes-these-graphs-or-other-figures-not-work-very-well" class="slide level2">
+<h2>What makes these graphs (or other figures) not work very well?</h2>
+<ul>
+<li><strong>Misleading</strong> – The information provided is difficult to obtain or even misleading. Why?</li>
+<li><strong>Wrong form</strong> – To allow comparison, the viewer needs to be able to make comparison quickly and accurately.</li>
+<li><strong>Too much, or too little</strong> Not all information is provided to make an assessment, or too much information that clouds the important stuff.</li>
+<li><strong>Poor design</strong> – Information may be provided, but the figure is ugly.</li>
+</ul>
+</section><section id="circles-are-rarely-good-choices-for-comparison" class="slide level2">
+<h2>Circles are rarely good choices for comparison</h2>
+<p><img data-src="images/banks_market_cap.png" style="width:80.0%" /></p>
+</section><section id="same-information-much-more-readable" class="slide level2">
+<h2>Same information – much more readable</h2>
+<p><img data-src="images/banks_market_cap_barchart.png" style="width:65.0%" /> <a href="#/fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+</section><section id="a-good-visualization" class="slide level2">
+<h2>A good visualization</h2>
+<ol type="1">
+<li>It is <strong>truthful</strong>: reliable information from honest research</li>
+<li>It is <strong>functional</strong>: organized in a way that enables at least some exploration, when it’s appropriate</li>
+<li>It is <strong>beautiful</strong>: attractive, intriguing, and even aesthetically pleasing</li>
+<li>It is <strong>insightful</strong>: reveals evidence that we would have a hard time seeing otherwise</li>
+</ol>
+
+</section><section id="section-13" class="slide level2">
+<h2></h2>
+<p><br> <br> “The greatest value of a picture is when it forces us to notice what we never expected to see.</p>
+<p><strong>— John W. Tukey, Exploratory Data Analysis</strong></p>
+</section><section id="focus-on-the-message-you-want-to-convey" class="slide level2">
+<h2>Focus on the message you want to convey</h2>
+<p><img data-src="images/hockey_stick_chart_ipcc.png" style="width:70.0%" /><a href="#/fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+</section><section id="other-principles-of-data-visualization" class="slide level2">
+<h2>Other principles of data visualization</h2>
+<ul>
+<li>each week, we will add a few guidelines or principles of data visualization</li>
+<li>with examples from others or our own, we will learn what works and what does not</li>
+<li><strong>Lessons from today</strong>: 3D and circular displays of information are rarely good ideas (and we will learn exactly why in the next data viz principles section)</li>
+<li>for now, let’s get to practice actually making graphs a bit</li>
+</ul>
+</section></section>
+<section><section id="lets-get-started-with-ggplot2" class="title-slide slide level1"><h1>Let’s get started with ggplot2</h1></section><section id="an-example-gdp-and-life-expectancy" class="slide level2">
+<h2>An example: GDP and Life Expectancy</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(gapminder)  <span class="co"># &#39;gapminder&#39; package contains the data</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">gapminder           <span class="co"># Let&#39;s take a look at the data</span></a></code></pre></div>
+<pre><code>## # A tibble: 1,704 x 6
+##    country     continent  year lifeExp      pop gdpPercap
+##    &lt;fct&gt;       &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;    &lt;int&gt;     &lt;dbl&gt;
+##  1 Afghanistan Asia       1952    28.8  8425333      779.
+##  2 Afghanistan Asia       1957    30.3  9240934      821.
+##  3 Afghanistan Asia       1962    32.0 10267083      853.
+##  4 Afghanistan Asia       1967    34.0 11537966      836.
+##  5 Afghanistan Asia       1972    36.1 13079460      740.
+##  6 Afghanistan Asia       1977    38.4 14880372      786.
+##  7 Afghanistan Asia       1982    39.9 12881816      978.
+##  8 Afghanistan Asia       1987    40.8 13867957      852.
+##  9 Afghanistan Asia       1992    41.7 16317921      649.
+## 10 Afghanistan Asia       1997    41.8 22227415      635.
+## # … with 1,694 more rows</code></pre>
+</section><section id="another-look-at-the-data-frame" class="slide level2">
+<h2>Another look at the data frame</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">str</span>(gapminder)      <span class="co"># str() is a good way to look at the data frame</span></a></code></pre></div>
+<pre><code>## Classes &#39;tbl_df&#39;, &#39;tbl&#39; and &#39;data.frame&#39;:    1704 obs. of  6 variables:
+##  $ country  : Factor w/ 142 levels &quot;Afghanistan&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ continent: Factor w/ 5 levels &quot;Africa&quot;,&quot;Americas&quot;,..: 3 3 3 3 3 3 3 3 3 3 ...
+##  $ year     : int  1952 1957 1962 1967 1972 1977 1982 1987 1992 1997 ...
+##  $ lifeExp  : num  28.8 30.3 32 34 36.1 ...
+##  $ pop      : int  8425333 9240934 10267083 11537966 13079460 14880372 12881816 13867957 16317921 22227415 ...
+##  $ gdpPercap: num  779 821 853 836 740 ...</code></pre>
+</section><section id="simple-scatterplot" class="slide level2">
+<h2>Simple Scatterplot</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp)) <span class="co"># nothing to plot yet!</span></a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-21-1.png" /></p>
+</section><section id="simple-scatterplot-1" class="slide level2">
+<h2>Simple Scatterplot</h2>
+<p>We can make the graph into an object to alter and add stuff later:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">p &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp)) </a></code></pre></div>
+<ul>
+<li>we create an object p, containing the pieces of information that we are interested in plotting with ggplot</li>
+<li>x = gdpPercap and y = lifeExp define what will go in the x and y axes</li>
+<li>they are “aesthetic mappings” connecting pieces of data with the visibles in the plot</li>
+</ul>
+</section><section id="simple-scatterplot-2" class="slide level2">
+<h2>Simple Scatterplot</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>()   <span class="co"># Now we tell ggplot that we want a satter plot</span></a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-23-1.png" /></p>
+</section><section id="simple-scatterplot-3" class="slide level2">
+<h2>Simple Scatterplot</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">ggplot</span>( <span class="dt">data =</span> gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="st">        </span><span class="kw">geom_point</span>()   </a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-24-1.png" /></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">  <span class="co"># Of course, we can write that in one swoop</span></a></code></pre></div>
+</section><section id="log-transformation" class="slide level2">
+<h2>Log Transformation</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">log10</span>(gdpPercap), <span class="dt">y =</span> lifeExp)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="st">  </span><span class="kw">scale_x_log10</span>()</a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-25-1.png" /></p>
+</section><section id="lets-keep-that-scale-setting" class="slide level2">
+<h2>Let’s keep that scale setting</h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">p &lt;-<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>()</a></code></pre></div>
+</section><section id="map-continent-variable-to-aesthetic-color" class="slide level2">
+<h2><strong>Map</strong> continent variable to aesthetic color</h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> continent))</a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-27-1.png" /></p>
+</section><section id="to-recap-full-plot-command-thus-far" class="slide level2">
+<h2>To recap: full plot command thus far</h2>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> continent)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>() </a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-28-1.png" /> <small> Note, we put the aes() in the geom_point() element. We will see in a bit why. </small></p>
+</section><section id="reduce-overplotting" class="slide level2">
+<h2>Reduce overplotting</h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> continent), <span class="dt">alpha =</span> <span class="fl">0.3</span>, <span class="dt">size=</span><span class="dv">3</span>)  </a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-29-1.png" /></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">  <span class="co"># Setting transparency of points</span></a></code></pre></div>
+</section><section id="adding-fitted-curve" class="slide level2">
+<h2>Adding fitted curve</h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> continent)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_smooth</span>()  </a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-30-1.png" /></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">  <span class="co"># by default, adds a loess fit</span></a></code></pre></div>
+</section><section id="adding-fitted-curve-1" class="slide level2">
+<h2>Adding fitted curve</h2>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> continent)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">color=</span><span class="st">&quot;black&quot;</span>, <span class="dt">lwd=</span><span class="dv">2</span>, <span class="dt">se=</span><span class="ot">FALSE</span>)  </a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-31-1.png" /></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">   <span class="co"># removing the confidence intervals</span></a></code></pre></div>
+</section><section id="we-could-exchange-the-order-of-the-layers" class="slide level2">
+<h2>We could exchange the order of the layers</h2>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">p <span class="op">+</span><span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">color=</span><span class="st">&quot;black&quot;</span>, <span class="dt">lwd=</span><span class="dv">2</span>, <span class="dt">se=</span><span class="ot">FALSE</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> continent)) </a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-32-1.png" /></p>
+</section><section id="use-a-linear-fit-instead" class="slide level2">
+<h2>Use a linear fit instead</h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> continent)) <span class="op">+</span><span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">method=</span><span class="st">&quot;lm&quot;</span>)  </a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-33-1.png" /></p>
+</section><section id="smooth-fit-by-continent" class="slide level2">
+<h2>Smooth fit by continent</h2>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">lwd =</span> <span class="dv">2</span>, <span class="dt">se =</span> <span class="ot">FALSE</span>, <span class="kw">aes</span>(<span class="dt">color =</span> continent))</a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-34-1.png" /></p>
+</section><section id="now-all-layers-use-the-continent-grouping" class="slide level2">
+<h2>Now all layers use the continent grouping</h2>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co"># We could add the aes() grouping to the overall graph p</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">p &lt;-<span class="st"> </span>p <span class="op">+</span><span class="st"> </span><span class="kw">aes</span>(<span class="dt">color =</span> continent)</a>
+<a class="sourceLine" id="cb23-3" data-line-number="3">p <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb23-4" data-line-number="4"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">lwd =</span> <span class="dv">2</span>, <span class="dt">se =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-35-1.png" /></p>
+</section><section id="why-another-colorcontinent" class="slide level2">
+<h2>Why another color=continent?</h2>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="co"># Our original plot command:</span></a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>() </a>
+<a class="sourceLine" id="cb24-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="co"># A single smoothed line through all points:</span></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_smooth</span>()</a>
+<a class="sourceLine" id="cb24-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb24-9" data-line-number="9"><span class="co"># Using the color aesthetic for the smoothing as well as the scatter points</span></a>
+<a class="sourceLine" id="cb24-10" data-line-number="10"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color =</span> continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-11" data-line-number="11"><span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">lwd=</span><span class="dv">2</span>, <span class="dt">se=</span><span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb24-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb24-13" data-line-number="13"><span class="co"># Still single smoothed line but now points are colored by continent:</span></a>
+<a class="sourceLine" id="cb24-14" data-line-number="14"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color =</span> continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-15" data-line-number="15"><span class="st">  </span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">color =</span> continent)) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-16" data-line-number="16"><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">color=</span><span class="st">&quot;black&quot;</span>)</a></code></pre></div>
+</section></section>
+<section><section id="grammar-of-graphics" class="title-slide slide level1"><h1>Grammar of Graphics</h1></section><section id="the-grammar-of-graphics" class="slide level2">
+<h2>The Grammar of Graphics</h2>
+<ul>
+<li>ggplot is based on a “grammar” of graphics, an idea originated with Wilkinson (2005)</li>
+</ul>
+<p><img data-src="images/grammar_of_graphics.jpeg" style="width:30.0%" /></p>
+</section><section id="main-principles" class="slide level2">
+<h2>Main principles</h2>
+<ul>
+<li>there are few main principles:
+<ul>
+<li>Graphics = distinct layers of grammatical elements (or grammar rules) that map pieces of data to geometric objects (like lines and points) and attributes (like color and size)</li>
+<li>if necessary some additional rules about scales, projections in a coordinate system, and data transformations are possible</li>
+<li>Plots arise through aesthetic mapping</li>
+</ul></li>
+<li>The grammar produces “sentences” (mappings of data to objects) but they can easily be garbled if you define poor mappings.</li>
+</ul>
+</section><section id="three-key-grammatical-elements" class="slide level2">
+<h2>Three key grammatical elements</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Element</th>
+<th style="text-align: center;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><strong>Data</strong></td>
+<td style="text-align: center;">The dataset being plotted.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Aes</strong>thetics</td>
+<td style="text-align: center;">The scales onto which we map our data.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>Geom</strong>etries</td>
+<td style="text-align: center;">The visual elements used for our data.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>every ggplot2 plot has these three key components</li>
+</ul>
+</section><section id="all-seven-grammatical-elements" class="slide level2">
+<h2>All seven grammatical elements</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Element</th>
+<th style="text-align: center;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><strong>Data</strong></td>
+<td style="text-align: center;">The dataset being plotted.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Aes</strong>thetics</td>
+<td style="text-align: center;">The scales onto which we map our data.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>Geom</strong>etries</td>
+<td style="text-align: center;">The visual elements used for our data.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Facet</strong>s</td>
+<td style="text-align: center;">Plotting subsets of the data.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>Stat</strong>istics</td>
+<td style="text-align: center;">Statistical representations of our data to aid understanding.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Coord</strong>inates</td>
+<td style="text-align: center;">The space on which the data will be plotted.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>Theme</strong>s</td>
+<td style="text-align: center;">All non-data ink.</td>
+</tr>
+</tbody>
+</table>
+</section><section id="a-diagram-of-the-graphical-elements" class="slide level2">
+<h2>A diagram of the graphical elements</h2>
+<p><img data-src="images/layers_diagram.png" style="width:100.0%" /></p>
+</section><section id="ggplot2-layers-data" class="slide level2">
+<h2>ggplot2 layers: data</h2>
+<p><br><br><br><br><br><br><br><br> <img data-src="images/layer_data.png" style="width:50.0%" /></p>
+</section><section id="ggplot2-layers-data-1" class="slide level2">
+<h2>ggplot2 layers: data</h2>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">gapminder</a></code></pre></div>
+<pre><code>## # A tibble: 1,704 x 6
+##    country     continent  year lifeExp      pop gdpPercap
+##    &lt;fct&gt;       &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;    &lt;int&gt;     &lt;dbl&gt;
+##  1 Afghanistan Asia       1952    28.8  8425333      779.
+##  2 Afghanistan Asia       1957    30.3  9240934      821.
+##  3 Afghanistan Asia       1962    32.0 10267083      853.
+##  4 Afghanistan Asia       1967    34.0 11537966      836.
+##  5 Afghanistan Asia       1972    36.1 13079460      740.
+##  6 Afghanistan Asia       1977    38.4 14880372      786.
+##  7 Afghanistan Asia       1982    39.9 12881816      978.
+##  8 Afghanistan Asia       1987    40.8 13867957      852.
+##  9 Afghanistan Asia       1992    41.7 16317921      649.
+## 10 Afghanistan Asia       1997    41.8 22227415      635.
+## # … with 1,694 more rows</code></pre>
+</section><section id="ggplot2-layers-aesthetics" class="slide level2">
+<h2>ggplot2 layers: aesthetics</h2>
+<p><br><br><br><br><br><br><br> <img data-src="images/layer_aesthetics.png" style="width:50.0%" /></p>
+</section><section id="ggplot2-layers-aesthetics-1" class="slide level2">
+<h2>ggplot2 layers: aesthetics</h2>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp))</a></code></pre></div>
+<p><br></p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">country</th>
+<th style="text-align: left;">continent</th>
+<th style="text-align: left;">year</th>
+<th style="text-align: left;">lifeExp</th>
+<th style="text-align: left;">pop</th>
+<th style="text-align: left;">gdpPercap</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">y</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">x</td>
+</tr>
+</tbody>
+</table>
+</section><section id="ggplot2-layers-geometries" class="slide level2">
+<h2>ggplot2 layers: geometries</h2>
+<p><br><br><br><br><br><br> <img data-src="images/layer_geometries.png" style="width:50.0%" /></p>
+</section><section id="ggplot2-layers-geometries-1" class="slide level2">
+<h2>ggplot2 layers: geometries</h2>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color =</span> continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb28-2" data-line-number="2"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.5</span>, <span class="dt">size=</span><span class="dv">3</span>)</a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-39-1.png" /></p>
+</section><section id="ggplot2-layers-facets" class="slide level2">
+<h2>ggplot2 layers: facets</h2>
+<p><br><br><br><br><br> <img data-src="images/layer_facets.png" style="width:50.0%" /></p>
+</section><section id="ggplot2-layers-facets-1" class="slide level2">
+<h2>ggplot2 layers: facets</h2>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color =</span> continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.5</span>, <span class="dt">size=</span><span class="dv">3</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="st">        </span><span class="kw">facet_grid</span>( . <span class="op">~</span><span class="st"> </span>continent)</a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-40-1.png" /></p>
+</section><section id="ggplot2-layers-statistics" class="slide level2">
+<h2>ggplot2 layers: statistics</h2>
+<p><br><br><br><br> <img data-src="images/layer_statistics.png" style="width:50.0%" /></p>
+</section><section id="ggplot2-layers-statistics-1" class="slide level2">
+<h2>ggplot2 layers: statistics</h2>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color =</span> continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb30-2" data-line-number="2"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.5</span>, <span class="dt">size=</span><span class="dv">3</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb30-3" data-line-number="3"><span class="st">        </span><span class="kw">facet_grid</span>( . <span class="op">~</span><span class="st"> </span>continent) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb30-4" data-line-number="4"><span class="st">        </span><span class="kw">geom_smooth</span>(<span class="dt">color=</span><span class="st">&quot;black&quot;</span>, <span class="dt">lwd=</span><span class="dv">1</span>, <span class="dt">se=</span><span class="ot">TRUE</span>)  </a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-41-1.png" /></p>
+</section><section id="ggplot2-layers-coordinates" class="slide level2">
+<h2>ggplot2 layers: coordinates</h2>
+<p><br><br><br> <img data-src="images/layer_coordinates.png" style="width:50.0%" /></p>
+</section><section id="ggplot2-layers-coordinates-1" class="slide level2">
+<h2>ggplot2 layers: coordinates</h2>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color =</span> continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb31-2" data-line-number="2"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.5</span>, <span class="dt">size=</span><span class="dv">3</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb31-3" data-line-number="3"><span class="st">        </span><span class="kw">facet_grid</span>( . <span class="op">~</span><span class="st"> </span>continent) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb31-4" data-line-number="4"><span class="st">        </span><span class="kw">geom_smooth</span>(<span class="dt">color=</span><span class="st">&quot;black&quot;</span>, <span class="dt">lwd=</span><span class="dv">1</span>, <span class="dt">se=</span><span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb31-5" data-line-number="5"><span class="st">        </span><span class="kw">scale_x_log10</span>(<span class="st">&quot;GDP per Capita&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="st">        </span><span class="kw">scale_y_continuous</span>(<span class="st">&quot;Life Expectancy in Years&quot;</span>)</a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-42-1.png" /></p>
+</section><section id="ggplot2-layers-theme" class="slide level2">
+<h2>ggplot2 layers: theme</h2>
+<p><br><br> <img data-src="images/layer_theme.png" style="width:50.0%" /></p>
+</section><section id="ggplot2-layers-theme-1" class="slide level2">
+<h2>ggplot2 layers: theme</h2>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="kw">library</span>(ggthemes)</a>
+<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color =</span> continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.5</span>, <span class="dt">size=</span><span class="dv">3</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="st">        </span><span class="kw">facet_grid</span>( . <span class="op">~</span><span class="st"> </span>continent) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="st">        </span><span class="kw">geom_smooth</span>(<span class="dt">color=</span><span class="st">&quot;black&quot;</span>, <span class="dt">lwd=</span><span class="dv">1</span>, <span class="dt">se=</span><span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb32-6" data-line-number="6"><span class="st">        </span><span class="kw">scale_x_log10</span>(<span class="st">&quot;GDP per Capita&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb32-7" data-line-number="7"><span class="st">        </span><span class="kw">ylab</span>(<span class="st">&quot;Life Expectancy in Years&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb32-8" data-line-number="8"><span class="st">        </span><span class="kw">theme_tufte</span>() <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;none&quot;</span>)</a></code></pre></div>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-43-1.png" /></p>
+</section><section id="ggplot2-layers-theme-2" class="slide level2">
+<h2>ggplot2 layers: theme</h2>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw">library</span>(ggthemes)</a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color =</span> continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb33-3" data-line-number="3"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.5</span>, <span class="dt">size=</span><span class="dv">3</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-4" data-line-number="4"><span class="st">        </span><span class="kw">facet_grid</span>( . <span class="op">~</span><span class="st"> </span>continent) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="st">        </span><span class="kw">geom_smooth</span>(<span class="dt">color=</span><span class="st">&quot;black&quot;</span>, <span class="dt">lwd=</span><span class="dv">1</span>, <span class="dt">se=</span><span class="ot">TRUE</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-6" data-line-number="6"><span class="st">        </span><span class="kw">scale_x_log10</span>(<span class="st">&quot;GDP per Capita&quot;</span>, </a>
+<a class="sourceLine" id="cb33-7" data-line-number="7">                      <span class="dt">labels =</span> scales<span class="op">::</span><span class="kw">trans_format</span>(<span class="st">&quot;log10&quot;</span>, </a>
+<a class="sourceLine" id="cb33-8" data-line-number="8">                      scales<span class="op">::</span><span class="kw">math_format</span>(<span class="dv">10</span><span class="op">^</span>.x))) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-9" data-line-number="9"><span class="st">        </span><span class="kw">ylab</span>(<span class="st">&quot;Life Expectancy in Years&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-10" data-line-number="10"><span class="st">        </span><span class="kw">theme_economist</span>() <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-11" data-line-number="11"><span class="st">        </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;none&quot;</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb33-12" data-line-number="12"><span class="st">        </span><span class="kw">ggtitle</span>(<span class="st">&quot;The relationship between wealth and longevity&quot;</span>)</a></code></pre></div>
+</section><section id="ggplot2-layers-theme-3" class="slide level2">
+<h2>ggplot2 layers: theme</h2>
+<p><img data-src="week01_lecture_files/figure-revealjs/unnamed-chunk-45-1.png" /></p>
+</section></section>
+<section><section id="on-your-own" class="title-slide slide level1"><h1>On your own</h1></section><section id="to-do-at-home" class="slide level2">
+<h2>To Do at Home</h2>
+<ul>
+<li>Get R Studio. Do R markdown tutorial.</li>
+<li>Sign up for Github (if you do not have an account yet.) Clone or fork the course material repository.</li>
+</ul>
+</section><section id="baby-name-exercise" class="slide level2">
+<h2>Baby name exercise</h2>
+<p>Go through lecture notes and the babynames exercise to get started with ggplot2.</p>
+</section></section>
+<section class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>From: <a href="http://www.perceptualedge.com/articles/visual_business_intelligence/our_fascination_with_all_things_circular.pdf" class="uri">http://www.perceptualedge.com/articles/visual_business_intelligence/our_fascination_with_all_things_circular.pdf</a><a href="#/fnref1" class="footnote-back">↩</a></p></li>
+<li id="fn2"><p>For more info, see <a href="https://en.wikipedia.org/wiki/Hockey_stick_graph" class="uri">https://en.wikipedia.org/wiki/Hockey_stick_graph</a><a href="#/fnref2" class="footnote-back">↩</a></p></li>
+</ol>
+</section>
+    </div>
+  </div>
+
+  <script src="week01_lecture_files/reveal.js-3.3.0.1/lib/js/head.min.js"></script>
+  <script src="week01_lecture_files/reveal.js-3.3.0.1/js/reveal.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        // Display controls in the bottom right corner
+        controls: false,
+        // Display a presentation progress bar
+        progress: false,
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+        // Push each slide change to the browser history
+        history: true,
+        // Vertical centering of slides
+        center: false,
+        // Transition style
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        // Transition style for full page slide backgrounds
+        backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+
+
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'week01_lecture_files/reveal.js-3.3.0.1/plugin/notes/notes.js', async: true },
+        ]
+      });
+    </script>
+  <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+<script>
+  (function() {
+    if (window.jQuery) {
+      Reveal.addEventListener( 'slidechanged', function(event) {  
+        window.jQuery(event.previousSlide).trigger('hidden');
+        window.jQuery(event.currentSlide).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+
+  </body>
+</html>

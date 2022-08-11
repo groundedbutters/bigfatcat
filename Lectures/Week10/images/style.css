@@ -1,0 +1,8 @@
+slides > slide.title-slide {
+    background-image: url(title.png);
+    background-size:100% 100%;
+}
+
+.title-slide hgroup h1 {
+  color: white
+}

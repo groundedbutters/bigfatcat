@@ -1,0 +1,235 @@
+pres_name,year,date,party
+George Washington,1790,"January 8, 1790",Independent
+George Washington,1790,"December 8, 1790",Independent
+George Washington,1791,"October 25, 1791",Independent
+George Washington,1792,"November 6, 1792",Independent
+George Washington,1793,"December 3, 1793",Independent
+George Washington,1794,"November 19, 1794",Independent
+George Washington,1795,"December 8, 1795",Independent
+George Washington,1796,"December 7, 1796",Independent
+John Adams,1797,"November 22, 1797",Federalist
+John Adams,1798,"December 8, 1798",Federalist
+John Adams,1799,"December 3, 1799",Federalist
+John Adams,1800,"November 11, 1800",Federalist
+Thomas Jefferson,1801,"December 8, 1801",Democratic-Republican
+Thomas Jefferson,1802,"December 15, 1802",Democratic-Republican
+Thomas Jefferson,1803,"October 17, 1803",Democratic-Republican
+Thomas Jefferson,1804,"November 8, 1804",Democratic-Republican
+Thomas Jefferson,1805,"December 3, 1805",Democratic-Republican
+Thomas Jefferson,1806,"December 2, 1806",Democratic-Republican
+Thomas Jefferson,1807,"October 27, 1807",Democratic-Republican
+Thomas Jefferson,1808,"November 8, 1808",Democratic-Republican
+James Madison,1809,"November 29, 1809",Democratic-Republican
+James Madison,1810,"December 5, 1810",Democratic-Republican
+James Madison,1811,"November 5, 1811",Democratic-Republican
+James Madison,1812,"November 4, 1812",Democratic-Republican
+James Madison,1813,"December 7, 1813",Democratic-Republican
+James Madison,1814,"September 20, 1814",Democratic-Republican
+James Madison,1815,"December 5, 1815",Democratic-Republican
+James Madison,1816,"December 3, 1816",Democratic-Republican
+James Monroe,1817,"December 12, 1817",Democratic-Republican
+James Monroe,1818,"November 16, 1818",Democratic-Republican
+James Monroe,1819,"December 7, 1819",Democratic-Republican
+James Monroe,1820,"November 14, 1820",Democratic-Republican
+James Monroe,1821,"December 3, 1821",Democratic-Republican
+James Monroe,1822,"December 3, 1822",Democratic-Republican
+James Monroe,1823,"December 2, 1823",Democratic-Republican
+James Monroe,1824,"December 7, 1824",Democratic-Republican
+John Quincy Adams,1825,"December 6, 1825",Democratic-Republican/National Republican
+John Quincy Adams,1826,"December 5, 1826",Democratic-Republican/National Republican
+John Quincy Adams,1827,"December 4, 1827",Democratic-Republican/National Republican
+John Quincy Adams,1828,"December 2, 1828",Democratic-Republican/National Republican
+Andrew Jackson,1829,"December 8, 1829",Democratic
+Andrew Jackson,1830,"December 6, 1830",Democratic
+Andrew Jackson,1831,"December 6, 1831",Democratic
+Andrew Jackson,1832,"December 4, 1832",Democratic
+Andrew Jackson,1833,"December 3, 1833",Democratic
+Andrew Jackson,1834,"December 1, 1834",Democratic
+Andrew Jackson,1835,"December 7, 1835",Democratic
+Andrew Jackson,1836,"December 5, 1836",Democratic
+Martin van Buren,1837,"December 5, 1837",Democratic
+Martin van Buren,1838,"December 3, 1838",Democratic
+Martin van Buren,1839,"December 2, 1839",Democratic
+Martin van Buren,1840,"December 5, 1840",Democratic
+John Tyler,1841,"December 7, 1841",Whig
+John Tyler,1842,"December 6, 1842",Whig
+John Tyler,1843,"December 6, 1843",Whig
+John Tyler,1844,"December 3, 1844",Whig
+James Polk,1845,"December 2, 1845",Democratic
+James Polk,1846,"December 8, 1846",Democratic
+James Polk,1847,"December 7, 1847",Democratic
+James Polk,1848,"December 5, 1848",Democratic
+Zachary Taylor,1849,"December 4, 1849",Whig
+Millard Fillmore,1850,"December 2, 1850",Whig
+Millard Fillmore,1851,"December 2, 1851",Whig
+Millard Fillmore,1852,"December 6, 1852",Whig
+Franklin Pierce,1853,"December 5, 1853",Democratic
+Franklin Pierce,1854,"December 4, 1854",Democratic
+Franklin Pierce,1855,"December 31, 1855",Democratic
+Franklin Pierce,1856,"December 2, 1856",Democratic
+James Buchanan,1857,"December 8, 1857",Democratic
+James Buchanan,1858,"December 6, 1858",Democratic
+James Buchanan,1859,"December 19, 1859",Democratic
+James Buchanan,1860,"December 3, 1860",Democratic
+Abraham Lincoln,1861,"December 3, 1861",Republican/National Union
+Abraham Lincoln,1862,"December 1, 1862",Republican/National Union
+Abraham Lincoln,1863,"December 8, 1863",Republican/National Union
+Abraham Lincoln,1864,"December 6, 1864",Republican/National Union
+Andrew Johnson,1865,"December 4, 1865",Democratic/National Union
+Andrew Johnson,1866,"December 3, 1866",Democratic/National Union
+Andrew Johnson,1867,"December 3, 1867",Democratic/National Union
+Andrew Johnson,1868,"December 9, 1868",Democratic/National Union
+Ulysses S. Grant,1869,"December 6, 1869",Republican
+Ulysses S. Grant,1870,"December 5, 1870",Republican
+Ulysses S. Grant,1871,"December 4, 1871",Republican
+Ulysses S. Grant,1872,"December 2, 1872",Republican
+Ulysses S. Grant,1873,"December 1, 1873",Republican
+Ulysses S. Grant,1874,"December 7, 1874",Republican
+Ulysses S. Grant,1875,"December 7, 1875",Republican
+Ulysses S. Grant,1876,"December 5, 1876",Republican
+Rutherford B. Hayes,1877,"December 3, 1877",Republican
+Rutherford B. Hayes,1878,"December 2, 1878",Republican
+Rutherford B. Hayes,1879,"December 1, 1879",Republican
+Rutherford B. Hayes,1880,"December 6, 1880",Republican
+Chester A. Arthur,1881,"December 6, 1881",Republican
+Chester A. Arthur,1882,"December 4, 1882",Republican
+Chester A. Arthur,1883,"December 4, 1883",Republican
+Chester A. Arthur,1884,"December 1, 1884",Republican
+Grover Cleveland,1885,"December 8, 1885",Democratic
+Grover Cleveland,1886,"December 6, 1886",Democratic
+Grover Cleveland,1887,"December 6, 1887",Democratic
+Grover Cleveland,1888,"December 3, 1888",Democratic
+Benjamin Harrison,1889,"December 3, 1889",Republican
+Benjamin Harrison,1890,"December 1, 1890",Republican
+Benjamin Harrison,1891,"December 9, 1891",Republican
+Benjamin Harrison,1892,"December 6, 1892",Republican
+Grover Cleveland,1893,"December 3, 1893",Democratic
+Grover Cleveland,1894,"December 2, 1894",Democratic
+Grover Cleveland,1895,"December 7, 1895",Democratic
+Grover Cleveland,1896,"December 4, 1896",Democratic
+William McKinley,1897,"December 6, 1897",Republican
+William McKinley,1898,"December 5, 1898",Republican
+William McKinley,1899,"December 5, 1899",Republican
+William McKinley,1900,"December 3, 1900",Republican
+Theodore Roosevelt,1901,"December 3, 1901",Republican
+Theodore Roosevelt,1902,"December 2, 1902",Republican
+Theodore Roosevelt,1903,"December 7, 1903",Republican
+Theodore Roosevelt,1904,"December 6, 1904",Republican
+Theodore Roosevelt,1905,"December 5, 1905",Republican
+Theodore Roosevelt,1906,"December 3, 1906",Republican
+Theodore Roosevelt,1907,"December 3, 1907",Republican
+Theodore Roosevelt,1908,"December 8, 1908",Republican
+William H. Taft,1909,"December 7, 1909",Republican
+William H. Taft,1910,"December 6, 1910",Republican
+William H. Taft,1911,"December 5, 1911",Republican
+William H. Taft,1912,"December 3, 1912",Republican
+Woodrow Wilson,1913,"December 2, 1913",Democratic
+Woodrow Wilson,1914,"December 8, 1914",Democratic
+Woodrow Wilson,1915,"December 7, 1915",Democratic
+Woodrow Wilson,1916,"December 5, 1916",Democratic
+Woodrow Wilson,1917,"December 4, 1917",Democratic
+Woodrow Wilson,1918,"December 2, 1918",Democratic
+Woodrow Wilson,1919,"December 2, 1919",Democratic
+Woodrow Wilson,1920,"December 7, 1920",Democratic
+Warren Harding,1921,"December 6, 1921",Republican
+Warren Harding,1922,"December 8, 1922",Republican
+Calvin Coolidge,1923,"December 6, 1923",Republican
+Calvin Coolidge,1924,"December 3, 1924",Republican
+Calvin Coolidge,1925,"December 8, 1925",Republican
+Calvin Coolidge,1926,"December 7, 1926",Republican
+Calvin Coolidge,1927,"December 6, 1927",Republican
+Calvin Coolidge,1928,"December 4, 1928",Republican
+Herbert Hoover,1929,"December 3, 1929",Republican
+Herbert Hoover,1930,"December 2, 1930",Republican
+Herbert Hoover,1931,"December 8, 1931",Republican
+Herbert Hoover,1932,"December 6, 1932",Republican
+Franklin D. Roosevelt,1934,"January 3, 1934",Democratic
+Franklin D. Roosevelt,1935,"January 4, 1935",Democratic
+Franklin D. Roosevelt,1936,"January 3, 1936",Democratic
+Franklin D. Roosevelt,1937,"January 6, 1937",Democratic
+Franklin D. Roosevelt,1938,"January 3, 1938",Democratic
+Franklin D. Roosevelt,1939,"January 4, 1939",Democratic
+Franklin D. Roosevelt,1940,"January 3, 1940",Democratic
+Franklin D. Roosevelt,1941,"January 6, 1941",Democratic
+Franklin D. Roosevelt,1942,"January 6, 1942",Democratic
+Franklin D. Roosevelt,1943,"January 7, 1943",Democratic
+Franklin D. Roosevelt,1944,"January 11, 1944",Democratic
+Franklin D. Roosevelt,1945,"January 6, 1945",Democratic
+Harry S. Truman,1946,"January 21, 1946",Democratic
+Harry S. Truman,1947,"January 6, 1947",Democratic
+Harry S. Truman,1948,"January 7, 1948",Democratic
+Harry S. Truman,1949,"January 5, 1949",Democratic
+Harry S. Truman,1950,"January 4, 1950",Democratic
+Harry S. Truman,1951,"January 8, 1951",Democratic
+Harry S. Truman,1952,"January 9, 1952",Democratic
+Harry S. Truman,1953,"January 7, 1953",Democratic
+Dwight D. Eisenhower,1953,"February 2, 1953",Republican
+Dwight D. Eisenhower,1954,"January 7, 1954",Republican
+Dwight D. Eisenhower,1955,"January 6, 1955",Republican
+Dwight D. Eisenhower,1956,"January 5, 1956",Republican
+Dwight D. Eisenhower,1957,"January 10, 1957",Republican
+Dwight D. Eisenhower,1958,"January 9, 1958",Republican
+Dwight D. Eisenhower,1959,"January 9, 1959",Republican
+Dwight D. Eisenhower,1960,"January 7, 1960",Republican
+Dwight D. Eisenhower,1961,"January 12, 1961",Republican
+John F. Kennedy,1961,"January 30, 1961",Democratic
+John F. Kennedy,1962,"January 11, 1962",Democratic
+John F. Kennedy,1963,"January 14, 1963",Democratic
+Lyndon B. Johnson,1964,"January 8, 1964",Democratic
+Lyndon B. Johnson,1965,"January 4, 1965",Democratic
+Lyndon B. Johnson,1966,"January 12, 1966",Democratic
+Lyndon B. Johnson,1967,"January 10, 1967",Democratic
+Lyndon B. Johnson,1968,"January 17, 1968",Democratic
+Lyndon B. Johnson,1969,"January 14, 1969",Democratic
+Richard Nixon,1970,"January 22, 1970",Republican
+Richard Nixon,1971,"January 22, 1971",Republican
+Richard Nixon,1972,"January 20, 1972",Republican
+Richard Nixon,1973,"February 2, 1973",Republican
+Richard Nixon,1974,"January 30, 1974",Republican
+Gerald R. Ford,1975,"January 15, 1975",Republican
+Gerald R. Ford,1976,"January 19, 1976",Republican
+Gerald R. Ford,1977,"January 12, 1977",Republican
+Jimmy Carter,1978,"January 19, 1978",Democratic
+Jimmy Carter,1979,"January 25, 1979",Democratic
+Jimmy Carter,1980,"January 21, 1980",Democratic
+Jimmy Carter,1981,"January 16, 1981",Democratic
+Ronald Reagan,1982,"January 26, 1982",Republican
+Ronald Reagan,1983,"January 25, 1983",Republican
+Ronald Reagan,1984,"January 25, 1984",Republican
+Ronald Reagan,1985,"February 6, 1985",Republican
+Ronald Reagan,1986,"February 4, 1986",Republican
+Ronald Reagan,1987,"January 27, 1987",Republican
+Ronald Reagan,1988,"January 25, 1988",Republican
+George H.W. Bush,1989,"February 9, 1989",Republican
+George H.W. Bush,1990,"January 31, 1990",Republican
+George H.W. Bush,1991,"January 29, 1991",Republican
+George H.W. Bush,1992,"January 28, 1992",Republican
+William J. Clinton,1993,"February 17, 1993",Democratic
+William J. Clinton,1994,"January 25, 1994",Democratic
+William J. Clinton,1995,"January 24, 1995",Democratic
+William J. Clinton,1996,"January 23, 1996",Democratic
+William J. Clinton,1997,"February 4, 1997",Democratic
+William J. Clinton,1998,"January 27, 1998",Democratic
+William J. Clinton,1999,"January 19, 1999",Democratic
+William J. Clinton,2000,"January 27, 2000",Democratic
+George W. Bush,2001,"February 27, 2001",Republican
+George W. Bush,2001,"September 20, 2001",Republican
+George W. Bush,2002,"January 29, 2002",Republican
+George W. Bush,2003,"January 28, 2003",Republican
+George W. Bush,2004,"January 20, 2004",Republican
+George W. Bush,2005,"February 2, 2005",Republican
+George W. Bush,2006,"January 31, 2006",Republican
+George W. Bush,2007,"January 23, 2007",Republican
+George W. Bush,2008,"January 28, 2008",Republican
+Barack Obama,2009,"February 24, 2009",Democratic
+Barack Obama,2010,"January 27, 2010",Democratic
+Barack Obama,2011,"January 25, 2011",Democratic
+Barack Obama,2012,"January 24, 2012",Democratic
+Barack Obama,2013,"February 12, 2013",Democratic
+Barack Obama,2014,"January 28, 2014",Democratic
+Barack Obama,2015,"January 20, 2015",Democratic
+Barack Obama,2016,"January 12, 2016",Democratic
+Donald J. Trump,2017,"February 28, 2017",Republican
+Donald J. Trump,2018,"January 30, 2018",Republican
+Donald J. Trump,2019,"February 5, 2019",Republican
+Donald J. Trump,2020,"February 4, 2020",Republican

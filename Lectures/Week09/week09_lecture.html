@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Text Mining II</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Thomas Brambor" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets/htmlwidgets.js"></script>
+    <script src="libs/jquery/jquery.min.js"></script>
+    <link href="libs/datatables-css/datatables-crosstalk.css" rel="stylesheet" />
+    <script src="libs/datatables-binding/datatables.js"></script>
+    <link href="libs/dt-core/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="libs/dt-core/css/jquery.dataTables.extra.css" rel="stylesheet" />
+    <script src="libs/dt-core/js/jquery.dataTables.min.js"></script>
+    <link href="libs/dt-ext-fixedcolumns/css/fixedColumns.dataTables.min.css" rel="stylesheet" />
+    <script src="libs/dt-ext-fixedcolumns/js/dataTables.fixedColumns.min.js"></script>
+    <link href="libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+    <script src="libs/crosstalk/js/crosstalk.min.js"></script>
+    <link rel="stylesheet" href="custom_Xaringan.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Text Mining II
+### Thomas Brambor
+### 2020/04/96
+
+---
+
+
+
+
+
+
+background-image: url(images/wenjun_student_loans.png)
+background-size: 50%
+background-position: 50% 90% 
+
+# Sandbox
+
+Anything to share? Need feedback from your colleagues? 
+
+Take a look at Wenjun's contributions on the [student loan assignment](https://medium.com/@wenjun.sarah.sun/visualize-student-loans-with-ggplot2-c44ea0cfd911) and some [Fortune 500 HQ maps](https://medium.com/@wenjun.sarah.sun/maps-of-where-the-fortune-500-companies-in-r-6ee6e98c64f8) (Don't forget to 👏).
+
+
+---
+
+
+background-image: url(images/kickstarter.jpg)
+background-size: 100%
+background-position: 100% 140% 
+
+
+# Assignment 3: Text Analysis
+
+- Next assignment out tomorrow.
+- Due a week later.
+
+---
+
+background-image: url(images/countdown.jpg)
+background-size: 30%
+background-position: 50% 80%
+
+# Final Project - Due Date on May 6 [May 11 hand in]
+
+---
+
+background-image: url(images/reticulated_python.png)
+background-size: 20%
+background-position: 95% 5%
+ 
+# Using Python in R
+
+The [`reticulate` package](https://rstudio.github.io/reticulate/) allows tight integration of R and Python, including:
+
+- **Calling Python from R** in a variety of ways including R Markdown, sourcing Python scripts, importing Python modules, and using Python interactively within an R session.
+
+- **Translation between R and Python objects** (for example, between R and Pandas data frames, or between R matrices and NumPy arrays).
+
+---
+
+background-image: url(images/reticulated_python.png)
+background-size: 20%
+background-position: 100% 10%
+
+# Using Python in R
+
+&lt;br&gt;
+&lt;br&gt; 
+
+![Python in R](images/rmarkdown_engine_zoomed.png)
+
+---
+
+# Finding Data
+
+The website https://opendatainception.io/ presents links to 2,600 open data portals in the world.
+
+![Open Data Portals in the World](images/opendata_worldmap.png)
+
+---
+
+# Cleaning Text - Does it matter?
+
+The [package `preText`](https://github.com/matthewjdenny/preText) makes it east to assess the **consequences of text preprocessing decisions**.
+install.packages("preText")
+
+&gt; We can also see the **conditional effects of each preprocessing step** on the **mean preText score** for each specification that included that step. 
+
+&gt; Here again, a **negative coefficient** indicates that a step tends to **reduce the unusualness of the results**, while a **positive coefficient** indicates that applying the step is likely to produce **more unusual results for that corpus**.
+
+Computing intensive but useful for a check whether your results depend on the preprocessing options.
+
+---
+
+# Cleaning Text - Does it matter?
+
+![](images/pretext_inaug_effects_graph.png)
+
+
+---
+
+# Where were we?
+
+.pull-left[
+
+Our fundamental unit of text analysis is the **document term matrix** (DTM).
+
+The DTM is a set of stacked vectors, with each entry in each vector representing the ‘amount’ of a particular term. This can be (re-)weighted in several ways (e.g. tfidf).
+
+We can start visualizing texts, as well as their similarities and differences using **word clouds**.
+
+To relate texts, we can use **hierarchical clustering** and display the results using **dendrograms**.
+
+]
+
+.pull-right[
+
+&lt;img src="images/most_important_words_presidents.png" width="80%" /&gt;
+
+&lt;img src="images/wordcloud_Trump_Sotu_2018.png" width="80%" /&gt;
+
+&lt;img src="images/dendrogram_sotu.png" width="80%" /&gt;
+
+]
+
+---
+
+background-image: url(images/roadsign_dragon.jpg)
+background-size: 30%
+background-position: 100% 0%
+
+# Roadmap
+
+**Going Beyond Single Words**  
+  Different tokenizations
+
+
+**Summarizing documents**   
+**and measuring**  
+**their complexity**
+
+
+**Using own and custom dictionaries**  
+**to assess and evaluate documents**  
+  Sentiment analysis (think Amazon reviews)  
+  Measuring psychological features  
+  Political communication  
+
+**Getting and analyzing Tweets**   
+  Topic Analysis
+
+
+---
+
+class: center
+background-image: url(images/ngram_matrix.jpg)
+background-size: 110%
+background-position: 50% 100%
+
+# Getting past single words
+
+---
+
+background-image: url(images/collocations_wordcloud.png)
+background-size: 100%
+background-position: 50% 100%
+
+# Collocations, phrasemes and co-occurrence
+
+So far, we’ve treated the features in a ‘**bag of words**’ style. 
+
+In some cases, may also want to think seriously about **collocations**: words that co-occur in a document, adjacent (or close to adjacent) to one another.
+
+---
+
+# Collocations, phrasemes and co-occurrence
+
+
+**Collocation** is a group of two or more adjacent words that are seen together more often than we would ‘expect’ were words placed in document independent of the others. Mean something specific. 
+- Describe as _strong collocation_ if the link between the words is fixed and restrictive.
+
+- **Example**: ‘do business’ (not ‘make business’), ‘save money’ (not ‘preserve money’). [Note that, one of the terms is chosen freely (e.g. money), but the other is constrained by language.]
+
+---
+
+# Getting past single words
+
+So far, we have only made TDMs and DTMs using **single words**. 
+
+The default is to make them with _unigrams_, but you can also focus on tokens containing two or more words, called **ngrams**. 
+
+This can help extract useful phrases which lead to some additional insights or provide improved predictive attributes for a machine learning algorithm.
+
+Uses the `RWeka` package to create digram (two word) tokens: min and max are both set to 2.
+
+
+
+---
+
+# Unigram - single words 
+
+
+```r
+# Continue with files from last lecture
+load("data/sotu_previous_lecture.RData")
+```
+
+
+```r
+require(RWeka)
+# Make tokenizer function 
+tokenizer &lt;- function(x) 
+  NGramTokenizer(x, Weka_control(min = 2, max = 2))
+
+# Create unigram_dtm
+unigram_dtm &lt;- DocumentTermMatrix(sotu_comp_all)
+
+# Examine unigram_dtm
+unigram_dtm
+```
+
+```
+## &lt;&lt;DocumentTermMatrix (documents: 234, terms: 13906)&gt;&gt;
+## Non-/sparse entries: 274327/2979677
+## Sparsity           : 92%
+## Maximal term length: 29
+## Weighting          : term frequency (tf)
+```
+
+---
+
+# Bigram - two words in each term
+
+
+```r
+# Create bigram_dtm
+bigram_dtm &lt;- DocumentTermMatrix(
+  sotu_comp_all, 
+  control = list(tokenize = tokenizer,
+  options(mc.cores=1))
+)
+
+# Examine bigram_dtm
+bigram_dtm  # Note, we have 110m entries already!
+```
+
+```
+## &lt;&lt;DocumentTermMatrix (documents: 234, terms: 481236)&gt;&gt;
+## Non-/sparse entries: 803362/111805862
+## Sparsity           : 99%
+## Maximal term length: 38
+## Weighting          : term frequency (tf)
+```
+
+---
+
+# Bigrams
+
+
+```r
+# Create bigram_dtm_m
+bigram_dtm_m &lt;- as.matrix(bigram_dtm)
+
+# Create freq
+freq &lt;- colSums(bigram_dtm_m)
+
+# Create bi_words
+bi_words &lt;- names(freq)
+
+# Examine part of bi_words
+bi_words[2577:2587]
+```
+
+```
+##  [1] "accommodate convenience" "accommodate crowd"      
+##  [3] "accommodate currencies"  "accommodate deep"       
+##  [5] "accommodate depart"      "accommodate differ"     
+##  [7] "accommodate discuss"     "accommodate dutiable"   
+##  [9] "accommodate evil"        "accommodate exchange"   
+## [11] "accommodate exist"
+```
+
+---
+
+# Bigrams
+
+
+
+![](week09_lecture_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+
+class: inverse, center, bottom
+background-image: url(images/abstract_maze.jpg)
+background-size: 100%
+background-position: 100% 30%
+
+# Measurement of Linguistic Complexity
+
+---
+
+# Measurement of Linguistic Complexity
+
+&gt; Restoration of national income, which shows continuing gains for the third successive year, supports the normal and logical policies under which agriculture and industry are returning to full activity. Under these policies we approach a balance of the national budget. National income increases; tax receipts, based on that income, increase without the levying of new taxes.
+
+**vs.**
+
+
+&gt; Some say my tax plan is too big. Others say its too small. I respectfully disagree.
+
+---
+
+# Measurement of Linguistic Complexity
+
+Over a hundred years of literature on measurement of _readability_: general issue was assigning school texts to pupils of different ages and abilities.
+
+Flesch (1948) suggests **Flesch Reading Ease** statistic:
+
+.small[
+`$$= 206.835 - 1.015\left(\frac{\mbox{total words}}{\mbox{total sentences}}\right)-84.6\left(\frac{\mbox{total syllables}}{\mbox{total words}}\right)$$` 
+]
+
+.small[
+Based on `\(\hat{\beta}\)`s from linear model where `\(y=\)` average grade level of school children who could correctly answer at least 75\% of multiple choice questions on texts. Scaled such that a document with score of 100 could be understood by fourth grader (9yo).]
+
+Kincaid et al. later translate to US School grade level that would be (on average) required to comprehend text.
+
+---
+
+# Flesch Reading Ease
+
+In practice, estimated FRE can be outside [0, 100]. But, as a guideline:
+
+.small[
+Score	      | School    | Level
+----------- | --------- | ------------------------------
+100-90	| 5th grade |	Very easy to read. Easily understood by an average 11-year-old student.
+90–80	      | 6th grade |	Easy to read. Conversational English for consumers.
+80–70	      | 7th grade	| Fairly easy to read.
+70–60     	| 8th &amp; 9th grade	| Plain English. Easily understood by 13- to 15-year-old students.
+60–50	      | 10th to 12th grade |	Fairly difficult to read. 
+50–30	      | College	           | Difficult to read. 
+30–0	      | College Graduate   |	Very difficult to read. Best understood by university graduates.
+]
+
+---
+
+# Flesch Reading Ease - Examples
+
+.small[
+Score | Text
+----- | --------------------------------
+-800  | Molly Bloom’s (3.6K) Soliloquy in Ulysses (James Joyce)
+33    | mean social science article; judicial opinion
+45    | life insurance requirement (FL)
+48    | New York times
+52    | Time Magazine
+65    | Reader’s Digest
+67    | Al Qaeda press release
+77    | Dickens’ works
+80    | children’s books: e.g. Wind in the Willows
+90    | death row inmate last statements (TX)
+100   | this entry right here.
+]
+
+---
+
+# Flesch Reading Ease - Wikipedia
+
+![Readability of Wikipedia content](images/Readability_of_Wikipedia_content.jpg)
+
+---
+
+# Flesch Reading Ease - MS Word
+
+![Readability Measures in MS Word](images/readability_MSWord.jpg)
+
+---
+
+# Flesch Reading Ease - Examples
+
+But: widespread use does not mean it is a great measure.
+
+**It can be beyond wrong. Joyce's _Ulysses_, according to Amazon's Text Stats, has a Flesch-Kincaid score of 6.8. Show me the seventh grader who can comprehend Ulysses, and I'll pay for her college education.**
+
+--
+
+![Rings on Saturn](images/rings_saturn.jpg)
+
+---
+
+# Flesch Reading Ease - Limitations
+
+Flesch scoring only uses syllable information: no input from rarity or unfamiliarity of word.
+
+e.g. “Indeed, the shoemaker was frightened” would score similarly to “Forsooth, the cordwainer was afeared”
+
+- Widely used because it ‘works’, not because it is justified from first principles
+- Many other indices available: **Gunning-Fog, Dale-Chall, Automated Readability Index, SMOG**. Typically highly correlated (at text level).
+
+---
+
+# Calculating Fresch-Kincaid Reading Ease Score - Example
+
+**Sentence 1:**  
+To think Being itself explicitly requires disregarding Being to the extent that it is only grounded and interpreted in terms of beings and for beings as their ground, as in all metaphysics.
+
+**Sentence 2:**  
+If civilization is to survive, we must cultivate the science of human relationships - the ability of all peoples, of all kinds, to live together, in the same world at peace.
+
+**Sentence 3:**  
+I know the human being and fish can coexist peacefully.
+
+&lt;!-- 1.Heidegger, 2. Franklin D. Roosevelt 3. George W. Bush --&gt; 
+
+
+---
+
+# Calculating Fresch-Kincaid Reading Ease Score
+
+
+
+
+```r
+require(quanteda)
+textstat_readability(c(s1,s2,s3), 
+        measure=c('Flesch','Flesch.Kincaid',
+                  'meanSentenceLength','meanWordSyllables'))
+```
+
+```
+##   document  Flesch Flesch.Kincaid meanSentenceLength meanWordSyllables
+## 1    text1 31.5925        16.8025                 32            1.6875
+## 2    text2 41.0250        14.9900                 30            1.6000
+## 3    text3 61.3250         7.1900                 10            1.6000
+```
+
+---
+
+# Application: FRE in SOTU texts
+
+
+
+
+```r
+require(quanteda)
+require(dplyr)
+sotu_corpus &lt;- corpus(sotu)  # convert to quanteda corpus
+FRE_sotu &lt;- textstat_readability(sotu_corpus,
+              measure=c('Flesch.Kincaid'))
+```
+
+
+```
+## # A tibble: 7 x 4
+##      FK pres               year words
+##   &lt;dbl&gt; &lt;chr&gt;             &lt;dbl&gt; &lt;int&gt;
+## 1 22.3  George Washington  1790  1167
+## 2 17.9  Thomas Jefferson   1801  3493
+## 3 11.7  Calvin Coolidge    1923  7355
+## 4 12.5  Harry S. Truman    1947  6628
+## 5  9.36 Lyndon B. Johnson  1965  4874
+## 6  9.99 Ronald Reagan      1987  4322
+## 7  9.36 Donald J. Trump    2018  5865
+```
+
+---
+
+# Application: FRE in SOTU texts
+
+![](week09_lecture_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+---
+
+# Application: FRE in SOTU texts
+
+- The Fresh-Kincaid reading score of SOTU speeches is declining. 
+- Why might it be difficult to make readability comparisons over time? 
+ &lt;span style="color:white"&gt;(hint: when were the reading ease measures invented? are topics of speeches constant? were addresses always delivered the same way?)&lt;/span&gt;
+- Does the nature of the decline suggest that speeches are becoming simpler for demand (i.e. voter) or supply (i.e. leader) incentive reasons?  &lt;span style="color:white"&gt;(hint: consider the smoothness/jaggedness of the decrease)&lt;/span&gt;
+
+---
+
+# Application: FRE in SOTU texts
+
+- The Fresh-Kincaid reading score of SOTU speeches is declining. 
+- Why might it be difficult to make readability comparisons over time? 
+ &lt;span style="color:blue"&gt;(hint: when were the reading ease measures invented? are topics of speeches constant? were addresses always delivered the same way?)&lt;/span&gt;
+- Does the nature of the decline suggest that speeches are becoming simpler for demand (i.e. voter) or supply (i.e. leader) incentive reasons?  &lt;span style="color:blue"&gt;(hint: consider the smoothness/jaggedness of the decrease)&lt;/span&gt;
+
+
+---
+
+# Application: FRE in SOTU texts
+
+- some addresses were spoken, other submitted in written form
+- over time, the type of publication form also changed. Radio, TV, and since 2002 live publication on the web
+- Let's add that information: http://www.presidency.ucsb.edu/sou_words.php
+
+---
+
+# Application: FRE in SOTU texts
+
+
+```
+## # A tibble: 9 x 5
+##      FK pres                   year Format  Publicity 
+##   &lt;dbl&gt; &lt;chr&gt;                 &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;     
+## 1 22.3  George Washington      1790 spoken  none      
+## 2 21.5  John Adams             1799 spoken  none      
+## 3 15.1  Warren Harding         1921 spoken  none      
+## 4 13.0  Franklin D. Roosevelt  1945 written Radio     
+## 5 14.9  Dwight D. Eisenhower   1961 written TV        
+## 6 15.8  Jimmy Carter           1981 written TV Evening
+## 7 10.1  George W. Bush         2002 spoken  TV and Web
+## 8  9.13 Barack Obama           2010 spoken  TV and Web
+## 9 10.6  Donald J. Trump        2020 spoken  TV and Web
+```
+
+---
+
+# Application: FRE in SOTU texts
+
+
+```r
+# Plot with added information
+ggplot(data=FRE2, aes(x=year,y=FK, size=words)) + 
+  geom_point(alpha = 0.5, 
+             aes(col = Publicity, shape = Format)) + 
+  geom_smooth() + 
+  guides(size=FALSE) + theme_tufte() + 
+  xlab("") + ylab("Flesch-Kincaid Grade Level") 
+```
+
+---
+
+# Application: FRE in SOTU texts
+
+![](week09_lecture_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+
+---
+
+# Application: FRE in SOTU texts
+
+![](week09_lecture_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+---
+
+# Application: FRE in SOTU texts
+
+![](week09_lecture_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+
+---
+
+class: bottom, center, inverse
+background-image: url(images/dictionary_sample_page.jpg)
+background-size: 100%
+background-position: 100% 100%
+
+# Classifying Documents with Dictionaries
+
+---
+
+# Classifying Documents
+
+- can think about documents as members of **categories** or **classes**
+→ simple, fast dictionary based ways to classify/categorize
+- will cover some _‘major’_ dictionaries in social science
+and demonstrate challenges that emerge in constructing and using dictionaries
+
+ &lt;span style="font-size:small"&gt;Note: This part relies on Arthur Spirling's Lectures at EITM Mannheim in July 2016. **Thanks!**
+&lt;/span&gt;
+
+---
+
+# Terminology
+
+.small[
+|   **Unsupervised** techniques 	|   **Supervised** techniques 	|
+| ------------------------- | ----------------------- |	
+| learning (hidden or latent) structure in **unlabeled** data. 	| learning relationship between inputs and a **labeled** set of outputs 	|
+| e.g. PCA of legislators’s votes: want to see how they are organized—by party? by ideology? by race? 	| e.g. opinion mining: what makes a critic like or dislike a movie `$$y \in \{0,1\}$$` |
+![Unsupervised Example](images/unsupervised_ex.png)  ![Supervised Example](images/supervised_ex.png) 
+]
+---
+
+# Overview: Supervised Learning
+
+1. **label** some examples of each category
+    - e.g. some reviews that were positive (y = 1), some that were negative (y = 0); some statements that were liberal, some that were conservative.
+2. **train** a ‘machine’ on these examples (e.g. logistic regression), using the features (DTM, other stuff) as the ‘independent’ variables.
+    - e.g. does the commentator use the word ‘fetus’ or ‘baby’ in discussing abortion law?
+3. **classify** by using the learned relationship to predict the outcomes of documents (y ∈ {0, 1}, review sentiment) not in the training set.
+
+---
+
+# Which labels?
+
+**idea:** use a set of pre-defined words (**dictionaries**) with specific connotations that allow us to classify documents automatically, quickly and accurately.
+
+→ common in opinion mining/sentiment analysis, and in coding events or manifestos.
+
+---
+
+# Classification with Dictionary Methods
+
+.small[
+We have a set of key words, with attendant scores,
+  - e.g. for movie reviews: ‘terrible’ is scored as −1; ‘fantastic’ as +1
+
+The relative rate of occurrence of these terms tells us about the overall tone or category that the document should be placed in.
+
+For document `\(i\)` and words `\(m = 1, \ldots , M\)` in the dictionary, the 
+
+`\(\boxed{\mbox{Tone of document i}= \sum^M_{m=1} \frac{s_m w_{im}}{N_i}}\)`
+
+where 
+- `\(s_m\)` is the score of word `\(m\)`  
+- `\(w_{im}\)` is the number of occurrences of the `\(m\)`th dictionary word in the document `\(i\)` 
+- `\(N_i\)` is the total number of all dictionary words in the document.
+
+`\(\rightarrow\)` just add up the number of times the words appear and multiply by the score (normalizing by doc dictionary presence) 
+]
+---
+
+# Example: Movie Review
+
+![Barnes’ review of The Big Short](images/review1.png)
+
+---
+
+# Example: Movie Review
+
+![Retain words in Hu &amp; Liu Dictionary](images/review2.png)
+
+---
+
+# Example: Movie Review
+
+![Retain words in Hu &amp; Liu Dictionary](images/review3.png)
+
+---
+
+# Example: Movie Review
+
+Negative Words:  &lt;span style="color:Red"&gt;11&lt;/span&gt;
+
+Positive Words:  &lt;span style="color:Blue"&gt;2 &lt;/span&gt;
+
+Total Words: 13
+
+`$$\boxed{\mbox{tone of document}= \frac{2-11}{13} = \frac{-9}{13}}$$`
+
+&lt;img src="images/two-star-rating.png" width="30%" /&gt;
+
+---
+
+# Sentiment Analysis using Hu &amp; Liu Dic
+
+Hu and Liu (“Mining and Summarizing Customer Reviews”) provide 6800 words which are **positive** and **negative** derived from amazon.com and others.
+
+&lt;img src="images/wolf_tshirt_review.png" width="88%" /&gt;
+
+---
+
+# Hard in Practice
+
+You are working for rottentomatoes.com, and want to automatically code (written) movie reviews as being between 1 and 5 stars.
+
+- Would the Hu &amp; Liu approach work better for distinguishing a 1 star review from a 5 star review, or a 4 from a 5 star review? Why? How could you improve upon this?
+    &lt;span style="color:White"&gt;Might want to differentiate ‘good’ from ‘great’ from ‘best’. Hard to come up with rules!&lt;/span&gt;
+    &lt;span style="color:White"&gt;Tone of the document can be presented as a continuous value or we can use cutoffs.&lt;/span&gt;
+- Why does sarcasm cause problems, and what should we do about it?
+    &lt;span style="color:White"&gt;“Great for insomniacs!” Presence of tags and pitch analysis can help.&lt;/span&gt;
+- Why might be generally nervous about Bag of Word approaches?
+    &lt;span style="color:White"&gt;context matters: “was **not** good” gets +1 !&lt;/span&gt;
+    
+
+---
+
+# Hard in Practice
+
+You are working for rottentomatoes.com, and want to automatically code (written) movie reviews as being between 1 and 5 stars.
+
+- Would the Hu &amp; Liu approach work better for distinguishing a 1 star review from a 5 star review, or a 4 from a 5 star review? Why? How could you improve upon this?
+    &lt;span style="color:Lightblue"&gt;Might want to differentiate ‘good’ from ‘great’ from ‘best’. Hard to come up with rules!&lt;/span&gt;
+    &lt;span style="color:Lightblue"&gt;Tone of the document can be presented as a continuous value or we can use cutoffs.&lt;/span&gt;
+- Why does sarcasm cause problems, and what should we do about it?
+    &lt;span style="color:Lightblue"&gt;“Great for insomniacs!” Presence of tags and pitch analysis can help.&lt;/span&gt;
+- Why might be generally nervous about Bag of Word approaches?
+    &lt;span style="color:Lightblue"&gt;context matters: “was **not** good” gets +1 !&lt;/span&gt;
+
+
+---
+
+# Define and apply a dictionary in practice
+
+
+```r
+recentSOTUCorpus &lt;- corpus_subset(sotu_corpus, year &gt; 1995)
+
+# Now we define a demonstration dictionary:
+myDict &lt;- dictionary(list(
+  terror = c("terrorism", "terrorists", "threat"),
+  economy = c("jobs", "business", "grow", "work")))
+
+# We can use the dictionary when making the dfm:
+byPresMat &lt;- dfm(recentSOTUCorpus, dictionary = myDict)
+byPresMat
+```
+
+---
+
+# Define and apply a dictionary in practice
+
+
+```
+## Document-feature matrix of: 21 documents, 2 features (0.0% sparse) and 10 docvars.
+##                           features
+## docs                       terror economy
+##   George W. Bush - 2001         1      15
+##   George W. Bush - 2001 II     21       4
+##   George W. Bush - 2002        12      20
+##   George W. Bush - 2003        19      15
+##   George W. Bush - 2004        13      19
+##   George W. Bush - 2005        14      14
+## [ reached max_ndoc ... 15 more documents ]
+```
+
+---
+
+# Other Dictionaries
+
+There are many available dictionaries that will identify sentiments, emotions, psychological traits, specific topics in an area etc.
+
+.small[Examples of **dictionaries in social science**:
+- **General Inquirer [Stone 1965]** : analyze psychological states of authors  
+- **Customer Reviews [Hu &amp; Liu (2004)]**: positive and negative sentiments
+- **Linguistic Inquiry and Word Count (LIWC) [Pennebaker et al]**: 80 categories, organized hierarchically into 4 larger groups. E.g. all anger words (e.g. hate) ⊂ negative emotion ⊂ affective processes ⊂ psychological processes.
+- **Regressive Imagery Dictionary (RID) [Martindale 1983]**: designed to distinguish between primordial and conceptual thinking
+- **NRC Word-Emotion Association Lexicon (aka EmoLex)**: [Crowdsourced dictionary](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm) of eight basic emotions (anger, fear, anticipation, trust, surprise, sadness, joy, and disgust) and two sentiments (negative and positive).
+- **Lexicoder Sentiment Dictionary**: dictionary created specifically for political communication
+- **Party Manifestos (Laver &amp; Garry 2002)**: create dictionary for party manifestos where basic unit is strings of ∼ 10 words in length. Hierarchical, with topmost level pertaining to five policy domains: economy, political system, social system, external relations, ‘other’.
+]
+
+---
+
+# Getting Hu &amp; Liu Dictionary
+
+
+```r
+pos &lt;- read.table("data/dictionaries/positive-words.txt", as.is=T)
+neg &lt;- read.table("data/dictionaries/negative-words.txt", as.is=T)
+pos[1:15,]
+```
+
+```
+##  [1] "a+"            "abound"        "abounds"       "abundance"    
+##  [5] "abundant"      "accessable"    "accessible"    "acclaim"      
+##  [9] "acclaimed"     "acclamation"   "accolade"      "accolades"    
+## [13] "accommodative" "accomodative"  "accomplish"
+```
+
+```r
+neg[1:15,]
+```
+
+```
+##  [1] "2-faced"     "2-faces"     "abnormal"    "abolish"     "abominable" 
+##  [6] "abominably"  "abominate"   "abomination" "abort"       "aborted"    
+## [11] "aborts"      "abrade"      "abrasive"    "abrupt"      "abruptly"
+```
+
+---
+
+# Sentiment Analysis using Hu &amp; Liu
+
+
+```r
+# function just to do simply arithmetic
+sentiment &lt;- function(words=c("really great good stuff bad")){
+  require(quanteda)
+  tok &lt;- quanteda::tokens(words)
+  pos.count &lt;- sum(tok[[1]]%in%pos[,1])
+  cat("\n positive words:",tok[[1]][which(tok[[1]]%in%pos[,1])],"\n")
+  neg.count &lt;- sum(tok[[1]]%in%neg[,1])
+  cat("\n negative words:",tok[[1]][which(tok[[1]]%in%neg[,1])],"\n")
+  out &lt;- (pos.count - neg.count)/(pos.count+neg.count)
+  cat("\n Tone of Document:",out)
+}
+```
+
+---
+
+# Sentiment Analysis Example 1
+
+
+```
+##  [1] "Director and co-screenwriter Adam McKay (Step Brothers) bungles a great"
+##  [2] "opportunity to savage the architects of the 2008 financial crisis in"   
+##  [3] "The Big Short, wasting an A-list ensemble cast in the process. Steve"   
+##  [4] "Carell, Brad Pitt, Christian Bale and Ryan Gosling play various"        
+##  [5] "tenuously related members of the finance industry, men who made made a" 
+##  [6] "killing by betting against the housing market, which at that point had" 
+##  [7] "superficially swelled to record highs. All of the elements are in place"
+##  [8] "for a lacerating satire, but almost every aesthetic choice in the film" 
+##  [9] "is bad, from the U-Turn-era Oliver Stone visuals to Carell's"           
+## [10] "sketch-comedy performance to the cheeky cutaways where Selena Gomez and"
+## [11] "Anthony Bourdain explain complex financial concepts. After a brutal"    
+## [12] "opening half, it finally settles into a groove, and there's a queasy"   
+## [13] "charge in watching a credit-drunk America walking towards that cliff's" 
+## [14] "edge, but not enough to save the film."
+```
+
+---
+
+# Sentiment Analysis Example 1
+
+
+```r
+sentiment(movie)
+```
+
+```
+## 
+##  positive words: great enough 
+## 
+##  negative words: savage crisis wasting tenuously killing superficially swelled bad complex brutal 
+## 
+##  Tone of Document: -0.6666667
+```
+
+---
+
+# Sentiment Analysis Example 2
+
+
+
+
+```
+## [1] "this guy mat the owner is a scam do not use him you will regret doing"
+## [2] "business with this company I'm going to court he is a scam customers" 
+## [3] "please beware he will destroy your floors he is nothing by a liar he" 
+## [4] "robs customers, and promises you everything if you want s--- then go" 
+## [5] "with him if you like nice work find another he is A SCAM LIAR"        
+## [6] "BULL----ER,"
+```
+
+```
+## 
+##  positive words: promises like nice work 
+## 
+##  negative words: scam regret scam beware destroy liar 
+## 
+##  Tone of Document: -0.2
+```
+
+---
+
+# Sentiment Analysis Example 3
+
+
+
+
+```
+##  [1] "This item has wolves on it which makes it intrinsically sweet and worth"
+##  [2] "5 stars by itself, but once I tried it on, that's when the magic"       
+##  [3] "happened. After checking to ensure that the shirt would properly cover" 
+##  [4] "my girth, I walked from my trailer to Wal-mart with the shirt on and"   
+##  [5] "was immediately approached by women. The women knew from the wolves on" 
+##  [6] "my shirt that I, like a wolf, am a mysterious loner who knows how to"   
+##  [7] "'howl at the moon' from time to time (if you catch my drift!). The"     
+##  [8] "women that approached me wanted to know if I would be their boyfriend"  
+##  [9] "and/or give them money for something they called mehth. I told them no,"
+## [10] "because they didn't have enough teeth, and frankly a man with a"        
+## [11] "wolf-shirt shouldn't settle for the first thing that comes to him."
+```
+
+```
+## 
+##  positive words: sweet worth magic properly like enough 
+## 
+##  negative words: mysterious loner 
+## 
+##  Tone of Document: 0.5
+```
+
+---
+
+# Measuring Emotions - RID Dictionary
+
+- The **Regressive Imagery Dictionary** (Martindale, 1975,1990) is a content analysis coding scheme designed to measure _primordial vs. conceptual_ thinking. 
+- Conceptual thought is abstract, logical, reality oriented, and aimed at problem solving. Primordial thought is associative, concrete, and takes little account of reality.
+
+---
+
+# Measuring Emotions - RID Dictionary
+
+
+```r
+# Regressive Imagery dictionary
+# primordial / conceptual thinking
+RID_dictionary &lt;- dictionary(file="data/dictionaries/RID.cat",
+                             format = "wordstat")
+
+# make a dfm based on the dictionary
+DTM_RIDdict &lt;- dfm(sotu_corpus, dictionary=RID_dictionary)
+```
+
+---
+
+# Measuring Emotions - Categories
+
+
+```r
+# What categories do we have?
+DTM_RIDdict@Dimnames$features[c(8:9,22:23,38:43)]
+```
+
+```
+##  [1] "PRIMARY.SENSATION.SOUND"        "PRIMARY.SENSATION.VISION"      
+##  [3] "PRIMARY.REGR_KNOL.NARCISSISM"   "PRIMARY.REGR_KNOL.CONCRETENESS"
+##  [5] "EMOTIONS.ANXIETY"               "EMOTIONS.SADNESS"              
+##  [7] "EMOTIONS.AFFECTION"             "EMOTIONS.AGGRESSION"           
+##  [9] "EMOTIONS.EXPRESSIVE_BEH"        "EMOTIONS.GLORY"
+```
+
+---
+
+# Measuring Emotions - DFM to Data Frame
+
+
+```r
+# Make DFM into data frame to plot with ggplot
+require(reshape2)
+require(stringr)
+RIDdf &lt;- melt(as.matrix(DTM_RIDdict))
+RIDdf$pres &lt;- str_split_fixed(RIDdf$docs, "-", 2)[,1]
+RIDdf$year &lt;- str_split_fixed(RIDdf$docs, "-", 2)[,2]
+RIDdf$year &lt;- as.numeric(substr(RIDdf$year,1,4))
+RIDdf &lt;- as_data_frame(RIDdf)
+```
+
+---
+
+# Measuring Emotions - Aggression in SOTU
+
+
+```r
+require(ggrepel)
+# Has politics become more aggressive over time?
+ggplot(filter(RIDdf, features=="EMOTIONS.AGGRESSION"), 
+  aes(x=year, y=value)) + geom_point() + 
+  ylab("Aggression") + xlab("") + theme_tufte() +
+  geom_smooth() + geom_text_repel(data=filter(RIDdf,
+  features=="EMOTIONS.AGGRESSION._",value&gt;200), 
+  aes(label=docs), size=2)
+```
+
+---
+
+# Measuring Emotions - Narcissism in SOTU
+
+![](week09_lecture_files/figure-html/unnamed-chunk-38-1.png)&lt;!-- --&gt;
+
+---
+
+# Measuring Emotions - Need Sex in SOTU
+
+![](week09_lecture_files/figure-html/unnamed-chunk-39-1.png)&lt;!-- --&gt;
+
+---
+
+# Party Manifestos
+
+- The [Manifesto Project](https://manifesto-project.wzb.eu/) estimates parties’ policy positions derived from a content analysis of parties’ electoral manifestos. 
+- It covers over 1000 parties from 1945 until today in 60 countries on five continents.
+- 4174 manifestos in 713 elections; 2.1m human-coded sentences.
+
+---
+
+# Laver and Garry Dictionary
+
+- Laver and Garry create dictionary for manifestos where basic unit is strings of ∼ 10 words in length.
+- Hierarchical, with topmost level pertaining to five policy domains: economy, political system, social system, external relations, ‘other’.
+- get good/valid results and high correlation with expert surveys.
+
+&lt;img src="images/laver_garry_dictionary.png" width="80%" /&gt;
+
+---
+
+# Party Manifestos in R
+
+Two options to get party manifests:
+  1. Using the `manifestoR` package and accessing the API of the Manifesto Project.
+  2. Downloading and reading in text files.
+  3. The `ukManifestos` package that comes shipped with `quanteda`
+
+---
+
+# Party Manifestos in R - `manifestoR`
+
+
+```r
+require(manifestoR)
+manifestoR::mp_setapikey(key="d90a4c5e0c251fe01d267e18c7c8d6e6")
+  # This is my key. Use in lecture but otherwise get your own.
+maninfestUS &lt;- mp_corpus(subset(mp_maindataset(), 
+                                countryname == "United States"))
+```
+
+```
+## Connecting to Manifesto Project DB API... 
+## Connecting to Manifesto Project DB API... corpus version: 2019-2 
+## Connecting to Manifesto Project DB API... corpus version: 2019-2 
+## Connecting to Manifesto Project DB API... corpus version: 2019-2
+```
+
+```r
+maninfestUS2016 &lt;- maninfestUS[grep("2016",names(maninfestUS))]
+doc &lt;- maninfestUS[[30]]
+```
+
+---
+
+# Party Manifestos in R - `manifestoR`
+
+
+```
+## [1] "c(\"Preamble\", \"With this platform, we the Republican Party reaffirm the"  
+## [2] "principles that unite us in a common purpose.\", \"We believe in American"   
+## [3] "exceptionalism.\", \"We believe the United States of America is unlike"      
+## [4] "any other nation on earth.\", \"We believe America is exceptional because"   
+## [5] "of our historic role\", \"— first as refuge,\", \"then as defender,\", \"and"
+## [6] "now as exemplar of liberty for the world to see.\", \"We affirm — as did"    
+## [7] "the Declaration of Independence: that all are created equal, endowed by"
+```
+
+---
+
+# Party Manifestos in R - reading in text files
+
+
+```r
+require(quanteda)
+require(readtext)
+
+# UK manifestos for liberals, labor and conservatives
+manifestos &lt;- readtext::readtext("data/UK_manifestos/*.txt",
+              docvarsfrom=c("filenames"))
+
+# Turn the text files into a 'corpus' so that we can do more 
+# interesting things with them
+manifestos_corpus &lt;- corpus(manifestos)
+
+# Make Party / Year variables
+manifestos_corpus$party &lt;- 
+  substr(names(manifestos_corpus),1,3)
+manifestos_corpus$year &lt;-
+  as.numeric(substr(names(manifestos_corpus),4,7))
+```
+
+---
+
+# Party Manifestos in R - Get Laver/Garry Dictionary
+
+
+```r
+require(quanteda)
+LG_dictionary &lt;- dictionary(file="data/dictionaries/LaverGarry.cat", 
+                            format = "wordstat")
+# Categories in the dictionary
+names(LG_dictionary)
+```
+
+```
+## [1] "CULTURE"       "ECONOMY"       "ENVIRONMENT"   "GROUPS"       
+## [5] "INSTITUTIONS"  "LAW_AND_ORDER" "RURAL"         "URBAN"        
+## [9] "VALUES"
+```
+
+---
+
+# Party Manifestos in R - Conservative Values
+
+
+```r
+## Words identifying "conservative values"
+LG_dictionary$VALUES$CONSERVATIVE
+```
+
+```
+##  [1] "defend"          "defended"        "defending"       "discipline"     
+##  [5] "glories"         "glorious"        "grammar"         "heritage"       
+##  [9] "histor*"         "honour*"         "immigra*"        "inherit*"       
+## [13] "integrity"       "jubilee*"        "leader*"         "maintain"       
+## [17] "majesty"         "marriage"        "obscen*"         "past"           
+## [21] "pornograph*"     "preserv*"        "pride"           "principl*"      
+## [25] "probity"         "professionalism" "proud"           "punctual*"      
+## [29] "recapture*"      "reliab*"         "threat*"         "tradition*"
+```
+
+---
+
+# Document Term Matrix
+
+
+```r
+# make a DFM based on the dictionary
+DTM_LGdict &lt;- dfm(manifestos_corpus, dictionary=LG_dictionary,
+                  groups=c("party","year"))
+# Look at the 1983 manifestos specifically (Con, Lab)
+DTM_dict_1983 &lt;- DTM_LGdict[c("Con.1983","Lab.1983"),]
+# who talks more about 'conservative' values?
+DTM_dict_1983[,c("VALUES.CONSERVATIVE","VALUES.LIBERAL")]
+```
+
+```
+## Document-feature matrix of: 2 documents, 2 features (0.0% sparse) and 2 docvars.
+##           features
+## docs       VALUES.CONSERVATIVE VALUES.LIBERAL
+##   Con.1983                  71              9
+##   Lab.1983                  52            128
+```
+
+---
+
+# Plot GL categorization over time
+
+
+```r
+require(tidytext)
+require(tidyr)
+# Make tidy data
+DTM_tidy &lt;- tidy(DTM_LGdict)
+# Separate document name column (e.g. "Lab.1983")
+DTM_tidy &lt;- separate(DTM_tidy, document, c("party","year"), 
+         remove = FALSE, convert = TRUE)
+```
+
+---
+
+# Plot GL categorization over time
+
+
+```r
+ggplot(filter(DTM_tidy, 
+       term %in% c("VALUES.CONSERVATIVE","VALUES.LIBERAL")), 
+       aes(x=year, y=count, color=party, group=party)) + 
+  facet_wrap(~term) +
+  geom_point() +
+  geom_smooth(se=F)
+```
+
+---
+
+# Plot GL categorization over time
+
+![](week09_lecture_files/figure-html/unnamed-chunk-49-1.png)&lt;!-- --&gt;
+
+---
+
+# Plot GL categorization over time
+
+![](week09_lecture_files/figure-html/unnamed-chunk-50-1.png)&lt;!-- --&gt;
+
+---
+
+background-image: url(images/Oauth_logo.png)
+background-size: 50%
+background-position: 50% 50%
+
+# APIs with `oauth`
+
+---
+
+# OAuth
+
+`OAuth` is an authorization framework that provides credentials as proof for access to certain information. 
+
+Previously, we discussed APIs that only require a key or token. Now, we are extending this discussion.
+
+Currently, at least 2041 out of 22,887 APIs on [programmableweb.com](https://www.programmableweb.com/category/all/apis) require OAuth.
+
+
+---
+
+# OAuth Service Providers
+
+&lt;img src="images/oauth_login.jpg" width="100%" /&gt;
+
+---
+
+# OAuth in a nutshell
+
+&lt;img src="images/oauth_nutshell_2.jpg" width="49%" /&gt;
+&lt;img src="images/oauth_nutshell_1.jpg" width="49%" /&gt;
+
+---
+
+# OAuth Flow
+
+&lt;img src="images/oauth2_flow_clever.png" width="100%" /&gt;
+
+&lt;!--
+http://www.springframework.net/social/refdoc/serviceproviders.html
+
+This exchange, commonly known as the "OAuth Dance", follows these steps:
+
+1. The flow starts by the application redirecting the user to the provider's authorization URL. 
+Here the provider displays a web page asking the user if he or she wishes to grant the application access to read and update their data.
+2. The user agrees to grant the application access.
+3. The service provider redirects the user back to the application (via the redirect URI), passing an authorization code as a parameter.
+4. The application exchanges the authorization code for an access grant.
+5. The service provider issues the access grant to the application. 
+  The grant includes an access token and a refresh token. 
+  On receipt of these tokens, the "OAuth dance" is complete.
+6. The application uses the AccessGrant to establish a connection between the local user account and the external provider account. 
+With the connection established, the application can now obtain a reference to the Service API and invoke the provider on behalf of the user.
+
+--&gt;
+
+---
+
+# More about oauth
+
+- [Google Documentation](https://developers.google.com/identity/protocols/OAuth2)
+- [Facebook Documentation](https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow)  
+- [OAuth 2.0 in depth](https://www.slideshare.net/rohitsghatol/oauth-20-in-depth) presentation by Rohit Ghatol
+- [_Getting Started with OAuth 2.0_ (2012), O'Reilly Media book by Ryan Boyd](http://shop.oreilly.com/product/0636920021810.do)
+
+---
+
+# Twitter API
+
+&lt;img src="images/twitter_logo.gif" width="40%" /&gt;
+
+---
+
+# Rate limiting
+
+The Twitter APIs are **rate-limited**, meaning that in every 15 minute window, there is a maximum number of request that you can make with a single command.
+
+The **Search API** can be used to query tweets **that have already happened**; however, the API documentation notes that **relevancy is prioritised over completeness**, and so if one wishes to access every tweet with a certain match, a **Streaming API** may be more appropriate.
+
+---
+
+# Streaming API
+
+**Twitter’s Streaming API** is a push of data as tweets happen in **near real-time**. With Twitter’s Streaming API, users register a set of criteria (keywords, usernames, locations, named places, etc.) and as tweets match the criteria, they are pushed directly to the user. 
+
+The Twitter API platform offers two options for [**streaming realtime Tweets**](https://developer.twitter.com/en/docs/tweets/filter-realtime/overview). You won't be able to get **all** tweets on a topic in the free API version (not even close), but that is what is available. 
+
+The package [`streamR`](https://cran.r-project.org/web/packages/streamR/streamR.pdf) will help you fetch data from the streaming Twitter API.
+
+---
+
+# Twitter Firehose
+
+&lt;img src="images/twitter_firehose.jpg" width="100%" /&gt;
+
+---
+
+# Twitter Authentication 
+
+Every request sent to Twitter's API must be authorized. 
+
+Here is the [Twitter API uses oauth authentication](https://developer.twitter.com/en/docs/basics/authentication/overview/oauth).
+
+To **set up the verification of your credentials**, you will need to:
+
+  - **register a new application** with Twitter  
+  - **obtain a consumer key** (identifies your app) and an **access token** (identifies a user of your app)  
+  - **check** to make sure that you are sending the values correctly
+
+---
+
+# Find OAuth Settings for Twitter
+
+
+```r
+library(httr)
+
+# 1. Find OAuth settings for twitter:
+#    https://dev.twitter.com/docs/auth/oauth
+oauth_endpoints("twitter")
+```
+
+```
+## &lt;oauth_endpoint&gt;
+##  request:   https://api.twitter.com/oauth/request_token
+##  authorize: https://api.twitter.com/oauth/authenticate
+##  access:    https://api.twitter.com/oauth/access_token
+```
+
+---
+
+# Register a New Application
+
+Register an application at https://apps.twitter.com/. Make sure to set callback url to "http://127.0.0.1:1410/". 
+
+&lt;img src="images/twitter_oauth_register.png" width="100%" /&gt;
+
+---
+
+# Obtain the keys
+
+Go to your newly created app and navigate to "Keys and Access Tokens".
+
+&lt;img src="images/twitter_oauth_keys1.png" width="100%" /&gt;
+
+---
+
+# Obtain the keys
+
+Copy the info ...
+
+&lt;img src="images/twitter_oauth_keys2.png" width="100%" /&gt;
+
+
+---
+
+# Obtain the keys
+
+... and place your key and secret into your `.Renviron` file.
+
+    # Twitter API Key
+    TWITTER_KEY = IH9MW...
+    TWITTER_SECRET = hRWUjr...
+    TWITTER_ACCESS_TOKEN=280...
+    TWITTER_ACCESS_TOKEN_SECRET=XuSDF172...
+
+---
+
+# Define the app in R
+
+
+```r
+# Make sure key and secret are in your .Renviron file
+myapp &lt;- oauth_app(
+  appname = Sys.getenv("TWITTER_APP"), # you can name this whatever you want
+  key = Sys.getenv("TWITTER_KEY"),
+  secret = Sys.getenv("TWITTER_SECRET")
+)
+myapp
+```
+
+```
+## &lt;oauth_app&gt; qmss
+##   key:    IH9MWzcbspudT3HMvA7HJn3dH
+##   secret: &lt;hidden&gt;
+```
+
+---
+
+# Add additional credentials
+
+_Note_: This is a hotfix for current `httr`'s inability to accept Twitter Access Tokens and Token Secret.
+
+
+```r
+options(httr_oauth_cache=T)  
+   # Sets caching of the authorization to TRUE
+   # Helpful for use of oauth in functions
+credentials &lt;- list(
+  oauth_token = Sys.getenv("TWITTER_ACCESS_TOKEN"),
+  oauth_token_secret = Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
+)
+params &lt;- list(as_header = TRUE)
+twitter_token &lt;-
+  httr::Token1.0$new(
+    app = myapp,
+    endpoint = httr::oauth_endpoints("twitter"),
+    params = params,
+    credentials = credentials,
+  )
+```
+
+---
+
+# Let's see the token
+
+
+```r
+twitter_token
+```
+
+```
+## &lt;Token&gt;
+## &lt;oauth_endpoint&gt;
+##  request:   https://api.twitter.com/oauth/request_token
+##  authorize: https://api.twitter.com/oauth/authenticate
+##  access:    https://api.twitter.com/oauth/access_token
+## &lt;oauth_app&gt; qmss
+##   key:    IH9MWzcbspudT3HMvA7HJn3dH
+##   secret: &lt;hidden&gt;
+## &lt;credentials&gt; oauth_token, oauth_token_secret
+## ---
+```
+
+
+&lt;!--
+Using rtweet instead of httr:
+
+
+```r
+# devtools::install_github("mkearney/rtweet")
+library(rtweet)
+token &lt;- rtweet::create_token(
+  app = Sys.getenv("TWITTER_APP"),
+  consumer_key = Sys.getenv("TWITTER_KEY"),
+  consumer_secret = Sys.getenv("TWITTER_SECRET"),
+  access_token = Sys.getenv("TWITTER_ACCESS_TOKEN"),
+  access_secret = Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET")
+)
+rstats_tweets &lt;- search_tweets(q = "#rstats", n = 500)
+```
+
+--&gt;
+
+
+---
+
+# Authorize the app when asked
+
+&lt;img src="images/twitter_oauth_authorize.png" width="100%" /&gt;
+
+---
+
+# Check the connection to the API
+
+
+```r
+# 4. Use API
+req &lt;- GET("https://api.twitter.com/1.1/statuses/home_timeline.json",
+  config(token = twitter_token))
+try(stop_for_status(req))
+cont &lt;- content(req)  
+```
+
+---
+
+# Analyzing _Your_ Timeline 
+
+
+```r
+# request Twitter data
+req &lt;- GET("https://api.twitter.com/1.1/statuses/home_timeline.json",
+           config(token = twitter_token))
+
+# convert to R object
+tweets &lt;- content(req)
+
+# available data for first tweet on my timeline
+names(tweets[[1]])
+```
+
+```
+##  [1] "created_at"                    "id"                           
+##  [3] "id_str"                        "text"                         
+##  [5] "truncated"                     "entities"                     
+##  [7] "source"                        "in_reply_to_status_id"        
+##  [9] "in_reply_to_status_id_str"     "in_reply_to_user_id"          
+## [11] "in_reply_to_user_id_str"       "in_reply_to_screen_name"      
+## [13] "user"                          "geo"                          
+## [15] "coordinates"                   "place"                        
+## [17] "contributors"                  "is_quote_status"              
+## [19] "retweet_count"                 "favorite_count"               
+## [21] "favorited"                     "retweeted"                    
+## [23] "possibly_sensitive"            "possibly_sensitive_appealable"
+## [25] "lang"
+```
+
+---
+
+# Analyzing _Your_ Timeline
+
+
+```r
+# Further analysis of first tweet on my timeline
+tweets[[1]]$user$name
+```
+
+```
+## [1] "FiveThirtyEight"
+```
+
+```r
+writeLines(tweets[[1]]$text)
+```
+
+```
+## What are the fault lines splitting Democratic voters? And is the Democratic Party as splintered as we think? https://t.co/CpLkLub55F
+```
+
+```r
+tweets[[1]]$favorite_count
+```
+
+```
+## [1] 0
+```
+
+---
+
+# Examining the content
+
+Content in Twitter comes in the from of JSON (we will cover this in the next topic). For now, just follow me in converting the data we get to a data frame.
+
+
+```r
+library(jsonlite)
+data &lt;- jsonlite::flatten(fromJSON(toJSON(tweets)))
+```
+
+---
+
+# Examining the content 
+
+Let’s take a look at the data. The first 4 columns (of 198) are as follows:
+
+- `created_at` - when the tweet was sent
+- `id` - ID as a numeric value
+- `id_str` - ID as a string
+- `text` - the content of the tweet
+
+
+```r
+dim(data)
+```
+
+```
+## [1] 20 29
+```
+
+
+
+```r
+colnames(data)[1:20]
+```
+
+```
+##  [1] "created_at"                "id"                       
+##  [3] "id_str"                    "text"                     
+##  [5] "truncated"                 "entities"                 
+##  [7] "source"                    "in_reply_to_status_id"    
+##  [9] "in_reply_to_status_id_str" "in_reply_to_user_id"      
+## [11] "in_reply_to_user_id_str"   "in_reply_to_screen_name"  
+## [13] "user"                      "geo"                      
+## [15] "coordinates"               "place"                    
+## [17] "contributors"              "is_quote_status"          
+## [19] "retweet_count"             "favorite_count"
+```
+
+---
+
+# Examining the content 
+
+<div id="htmlwidget-f195e5f7b4fa2d395a9f" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f195e5f7b4fa2d395a9f">{"x":{"filter":"none","extensions":["FixedColumns"],"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],["FiveThirtyEight","rOpenSci","Bill Burr","FiveThirtyEight","dj patil","Esther Schindler","Esther Schindler","DataCamp","Arthur Spirling","Esther Schindler","FiveThirtyEight","Machine Learning Mastery","Atlas Obscura","Esther Schindler","FiveThirtyEight","Alan Smith","DataKind","Kieran Healy","Jon Schwabish","Data Science Fact"],["What are the fault lines splitting Democratic voters? And is the Democratic Party as splintered as we think? https://t.co/CpLkLub55F","RT @RECONEPI: Do you have #rstats skills and a bit of free time? Then you might help with some analytics tasks to repond to #COVID19\nWe sta…",".@theMMPodcast is up!!\n\nI ramble about peak week, long drives, and documentaries. \n\nhttps://t.co/NefEQlDRDh","President Trump has the steadiest approval rating of any president since World War II. https://t.co/rcC9LEeYJE","RT @carrie_byington: Thanks to @atulbutte and his lab for getting this county by county data out for #COVID19. We also look forward to rele…","https://t.co/3GYx99sD6n","As @ResearchBuzz says: Now this right here is a headline. https://t.co/ZqwfKykpiz","Tomorrow at 11 AM EDT: Webinar on moving from in-person training to online learning! We'll discuss the benefits of… https://t.co/kKE0cZ0uWB","“the lady drinking tea”-test is not a t-test. All and any confusion about statistics begins there.","I could imagine buying this.\n\nRT @ShenovaFashion: Hedy Lamarr Wifi Patent Figures Dress Now on Sale -… https://t.co/VzPt3vISR1","What the heck is going on with Wisconsin’s primary? https://t.co/dcYXNTrpJm","How to Perform Face Detection with Deep Learning https://t.co/OyZXQKy7bb","Massive amounts of urine were required, and public urinals were specifically established in Hull for alum productio… https://t.co/DGnhJVm6LR","Depictions of plague doctors in the bird mask and floor-length cloak first developed in France during the early 17t… https://t.co/ayGtZQZyzm","The number of reported COVID-19 *cases* is not a very useful indicator of anything unless you also know something a… https://t.co/lrLNMTIOlG","RT @jburnmurdoch: Okay, a more specific version of this request\n\n(responses so far have been absolutely brill!)\n\nCan anyone point me to *we…","We’ve shared some updates on our response to #covid19 ➡️ https://t.co/kOJLd2xa9V. To our strong community of kind-h… https://t.co/9LnMSs5P1z","Today' weird R mystery is, why is rmarkdown::render() suddenly refusing to compile documents that have fonts loaded… https://t.co/AgEz1A39EI","How's your day been? Productive? Mine was moving ahead until we had to have an all-hands-on-deck 30 minute search f… https://t.co/pWUszPkY53","Instead of 'confidence interval,' let's say 'uncertainty interval' https://t.co/Y8o0RayG9l"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>user.name<\/th>\n      <th>text<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","scrollX":false,"scrollCollapse":false,"order":[],"autoWidth":false,"orderClasses":false,"columnDefs":[{"orderable":false,"targets":0}]}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Examining the info on one tweet 
+
+<div id="htmlwidget-f3bc59907a473adb673c" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f3bc59907a473adb673c">{"x":{"filter":"none","data":[["created_at","id","id_str","text","truncated","source","is_quote_status","retweet_count","favorite_count","favorited","retweeted","possibly_sensitive","possibly_sensitive_appealable","lang","quoted_status_id","quoted_status_id_str","entities.hashtags","entities.symbols","entities.user_mentions","entities.urls","user.id","user.id_str","user.name","user.screen_name","user.location","user.description","user.url","user.protected","user.followers_count","user.friends_count","user.listed_count","user.created_at","user.favourites_count","user.geo_enabled","user.verified","user.statuses_count","user.contributors_enabled","user.is_translator","user.is_translation_enabled","user.profile_background_color","user.profile_background_image_url","user.profile_background_image_url_https","user.profile_background_tile","user.profile_image_url","user.profile_image_url_https","user.profile_banner_url","user.profile_link_color","user.profile_sidebar_border_color","user.profile_sidebar_fill_color","user.profile_text_color","user.profile_use_background_image","user.has_extended_profile","user.default_profile","user.default_profile_image","user.following","user.follow_request_sent","user.notifications","user.translator_type","user.entities.url.urls","user.entities.description.urls","retweeted_status.created_at","retweeted_status.id","retweeted_status.id_str","retweeted_status.text","retweeted_status.truncated","retweeted_status.source","retweeted_status.is_quote_status","retweeted_status.retweet_count","retweeted_status.favorite_count","retweeted_status.favorited","retweeted_status.retweeted","retweeted_status.possibly_sensitive","retweeted_status.possibly_sensitive_appealable","retweeted_status.lang","retweeted_status.quoted_status_id","retweeted_status.quoted_status_id_str","retweeted_status.entities.hashtags","retweeted_status.entities.symbols","retweeted_status.entities.user_mentions","retweeted_status.entities.urls","retweeted_status.user.id","retweeted_status.user.id_str","retweeted_status.user.name","retweeted_status.user.screen_name","retweeted_status.user.location","retweeted_status.user.description","retweeted_status.user.url","retweeted_status.user.protected","retweeted_status.user.followers_count","retweeted_status.user.friends_count","retweeted_status.user.listed_count","retweeted_status.user.created_at","retweeted_status.user.favourites_count","retweeted_status.user.geo_enabled","retweeted_status.user.verified","retweeted_status.user.statuses_count","retweeted_status.user.contributors_enabled","retweeted_status.user.is_translator","retweeted_status.user.is_translation_enabled","retweeted_status.user.profile_background_color","retweeted_status.user.profile_background_image_url","retweeted_status.user.profile_background_image_url_https","retweeted_status.user.profile_background_tile","retweeted_status.user.profile_image_url","retweeted_status.user.profile_image_url_https","retweeted_status.user.profile_banner_url","retweeted_status.user.profile_link_color","retweeted_status.user.profile_sidebar_border_color","retweeted_status.user.profile_sidebar_fill_color","retweeted_status.user.profile_text_color","retweeted_status.user.profile_use_background_image","retweeted_status.user.has_extended_profile","retweeted_status.user.default_profile","retweeted_status.user.default_profile_image","retweeted_status.user.following","retweeted_status.user.follow_request_sent","retweeted_status.user.notifications","retweeted_status.user.translator_type","retweeted_status.user.entities.url.urls","retweeted_status.user.entities.description.urls","retweeted_status.quoted_status.created_at","retweeted_status.quoted_status.id","retweeted_status.quoted_status.id_str","retweeted_status.quoted_status.text","retweeted_status.quoted_status.truncated","retweeted_status.quoted_status.source","retweeted_status.quoted_status.is_quote_status","retweeted_status.quoted_status.retweet_count","retweeted_status.quoted_status.favorite_count","retweeted_status.quoted_status.favorited","retweeted_status.quoted_status.retweeted","retweeted_status.quoted_status.possibly_sensitive","retweeted_status.quoted_status.possibly_sensitive_appealable","retweeted_status.quoted_status.lang","retweeted_status.quoted_status.entities.hashtags","retweeted_status.quoted_status.entities.symbols","retweeted_status.quoted_status.entities.user_mentions","retweeted_status.quoted_status.entities.urls","retweeted_status.quoted_status.user.id","retweeted_status.quoted_status.user.id_str","retweeted_status.quoted_status.user.name","retweeted_status.quoted_status.user.screen_name","retweeted_status.quoted_status.user.location","retweeted_status.quoted_status.user.description","retweeted_status.quoted_status.user.url","retweeted_status.quoted_status.user.protected","retweeted_status.quoted_status.user.followers_count","retweeted_status.quoted_status.user.friends_count","retweeted_status.quoted_status.user.listed_count","retweeted_status.quoted_status.user.created_at","retweeted_status.quoted_status.user.favourites_count","retweeted_status.quoted_status.user.geo_enabled","retweeted_status.quoted_status.user.verified","retweeted_status.quoted_status.user.statuses_count","retweeted_status.quoted_status.user.contributors_enabled","retweeted_status.quoted_status.user.is_translator","retweeted_status.quoted_status.user.is_translation_enabled","retweeted_status.quoted_status.user.profile_background_color","retweeted_status.quoted_status.user.profile_background_image_url","retweeted_status.quoted_status.user.profile_background_image_url_https","retweeted_status.quoted_status.user.profile_background_tile","retweeted_status.quoted_status.user.profile_image_url","retweeted_status.quoted_status.user.profile_image_url_https","retweeted_status.quoted_status.user.profile_link_color","retweeted_status.quoted_status.user.profile_sidebar_border_color","retweeted_status.quoted_status.user.profile_sidebar_fill_color","retweeted_status.quoted_status.user.profile_text_color","retweeted_status.quoted_status.user.profile_use_background_image","retweeted_status.quoted_status.user.has_extended_profile","retweeted_status.quoted_status.user.default_profile","retweeted_status.quoted_status.user.default_profile_image","retweeted_status.quoted_status.user.following","retweeted_status.quoted_status.user.follow_request_sent","retweeted_status.quoted_status.user.notifications","retweeted_status.quoted_status.user.translator_type","retweeted_status.quoted_status.user.profile_banner_url","retweeted_status.quoted_status.user.entities.description.urls","retweeted_status.quoted_status.user.entities.url.urls","quoted_status.created_at","quoted_status.id","quoted_status.id_str","quoted_status.text","quoted_status.truncated","quoted_status.source","quoted_status.is_quote_status","quoted_status.retweet_count","quoted_status.favorite_count","quoted_status.favorited","quoted_status.retweeted","quoted_status.possibly_sensitive","quoted_status.possibly_sensitive_appealable","quoted_status.lang","quoted_status.entities.hashtags","quoted_status.entities.symbols","quoted_status.entities.user_mentions","quoted_status.entities.urls","quoted_status.user.id","quoted_status.user.id_str","quoted_status.user.name","quoted_status.user.screen_name","quoted_status.user.location","quoted_status.user.description","quoted_status.user.url","quoted_status.user.protected","quoted_status.user.followers_count","quoted_status.user.friends_count","quoted_status.user.listed_count","quoted_status.user.created_at","quoted_status.user.favourites_count","quoted_status.user.geo_enabled","quoted_status.user.verified","quoted_status.user.statuses_count","quoted_status.user.contributors_enabled","quoted_status.user.is_translator","quoted_status.user.is_translation_enabled","quoted_status.user.profile_background_color","quoted_status.user.profile_background_image_url","quoted_status.user.profile_background_image_url_https","quoted_status.user.profile_background_tile","quoted_status.user.profile_image_url","quoted_status.user.profile_image_url_https","quoted_status.user.profile_banner_url","quoted_status.user.profile_link_color","quoted_status.user.profile_sidebar_border_color","quoted_status.user.profile_sidebar_fill_color","quoted_status.user.profile_text_color","quoted_status.user.profile_use_background_image","quoted_status.user.has_extended_profile","quoted_status.user.default_profile","quoted_status.user.default_profile_image","quoted_status.user.following","quoted_status.user.follow_request_sent","quoted_status.user.notifications","quoted_status.user.translator_type","quoted_status.user.entities.url.urls","quoted_status.user.entities.description.urls"],["Mon Apr 06 19:30:00 +0000 2020",1.24724518825649e+18,"1247245188256485376","What are the fault lines splitting Democratic voters? And is the Democratic Party as splintered as we think? https://t.co/CpLkLub55F",false,"<a href=\"https://about.twitter.com/products/tweetdeck\" rel=\"nofollow\">TweetDeck<\/a>",false,0,0,false,false,false,false,"en",null,null,{},[],{},{"url":["https://t.co/CpLkLub55F"],"expanded_url":["https://53eig.ht/3aOnKAv"],"display_url":["53eig.ht/3aOnKAv"],"indices":[[[109],[132]]]},2303751216,"2303751216","FiveThirtyEight","FiveThirtyEight","New York, NY","Data-driven news and analysis from Nate Silver's FiveThirtyEight","https://t.co/BDdsHpm7og",false,1121332,290,16318,"Tue Jan 21 21:39:32 +0000 2014",1226,true,true,84793,false,false,false,"131516","http://abs.twimg.com/images/themes/theme14/bg.gif","https://abs.twimg.com/images/themes/theme14/bg.gif",true,"http://pbs.twimg.com/profile_images/875426588061573121/lpQG3W6i_normal.jpg","https://pbs.twimg.com/profile_images/875426588061573121/lpQG3W6i_normal.jpg","https://pbs.twimg.com/profile_banners/2303751216/1481815429","009999","FFFFFF","EFEFEF","333333",true,true,false,false,true,false,false,"none",{"url":["https://t.co/BDdsHpm7og"],"expanded_url":["http://www.fivethirtyeight.com"],"display_url":["fivethirtyeight.com"],"indices":[[[0],[23]]]},{},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>1<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"order":[],"autoWidth":false,"orderClasses":false,"columnDefs":[{"orderable":false,"targets":0}]}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Search tweets about a topic
+
+Your own timeline is a start, but what we really want is to examine **tweets on a topic we 
+choose**.
+
+
+```r
+search_req &lt;- GET("https://api.twitter.com/1.1/search/tweets.json?q=covid", twitter_token)
+content_search &lt;- content(search_req)
+search_tweets &lt;- jsonlite::fromJSON(toJSON(content_search))
+statuses &lt;- search_tweets$statuses
+```
+
+---
+
+# Search tweets about a topic 
+
+<div id="htmlwidget-59fdb7f3ddf9563fe050" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-59fdb7f3ddf9563fe050">{"x":{"filter":"none","extensions":["FixedColumns"],"data":[["RT @Reuters: British Prime Minister Boris Johnson has been taken into the intensive care unit in hospital after his COVID-19 worsened, his…","RT @pascalfagnoux: Certains territoires notamment dans le sud de la France administrent précocement de la chloroquine à leurs patients atte…","RT @colmedchile: Dr. Bernucci: \"Quiero reforzar que el uso de estas mascarillas elaboradas en casa no eviten ni frenen las otras medidas qu…","RT @Ecolophobe: Curieux d'observer que le gouv a autorisé durant la pandémie le Rivotril qui tue vite et sans douleur à tous les coups, don…","RT @bassemvaudais3: Palestine 🇵🇸 200 enfants palestiniens détenus par Israël en prison.\nEt ces enfants ne reçoivent pas de soins de santé.I…","RT @Conflits_FR: 🇫🇷 ALERTE INFO - 833 morts du #coronavirus en 24h en France, dont 605 en 24h en milieu hospitalier. Le bilan s'alourdit à…","RT @Hassan_5k: Elle prépare le COVID-19 Pro Max là \n https://t.co/WODGk7VZl9","#Turqi, pacienti 95-vjeçar shërohet nga #COVID-19 https://t.co/m0Tvy8pJRt","RT @voxnoticias_es: ⭕ Crisis nacional #Covid_19 | @ivanedlm 👉 \"Se ha depositado todo el peso de esta crisis sobre los hombros de los españo…","Added Value: A Gordon Brothers Podcast begins its COVID-19 Series with Adaptations to Valuations. How has COVID-19… https://t.co/hbzLHOFmey"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Tweets about 'Covid'<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+# Using the `twitteR` or `rtweet` package
+
+
+```r
+library(twitteR)
+```
+
+
+```r
+# Add you https://apps.twitter.com application information
+# to use my_setup() to register your session.
+setup_twitter_oauth(Sys.getenv("TWITTER_KEY"), 
+                    Sys.getenv("TWITTER_SECRET"),
+                    Sys.getenv("TWITTER_ACCESS_TOKEN"),
+                    Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET"))
+```
+
+```
+## [1] "Using direct authentication"
+```
+
+---
+
+# Or using `rtweet`
+
+
+```r
+library(rtweet)
+
+twitter_token &lt;- create_token(
+  app = "qmss",
+  consumer_key = Sys.getenv("TWITTER_KEY"),
+  consumer_secret = Sys.getenv("TWITTER_SECRET"),
+  access_token = Sys.getenv("TWITTER_ACCESS_TOKEN"),
+  access_secret = Sys.getenv("TWITTER_ACCESS_TOKEN_SECRET"))
+```
+
+---
+
+# Getting Tweets
+
+
+```r
+## Search for 500 tweets using the #rstats hashtag
+topic_tweets &lt;- search_tweets(q = "#covid_19",
+                               n = 500,
+                               include_rts = FALSE)  # ignoring re-tweets
+
+# view the first 3 rows of the dataframe
+head(topic_tweets, n = 3)
+```
+
+```
+## # A tibble: 3 x 90
+##   user_id status_id created_at          screen_name text  source
+##   &lt;chr&gt;   &lt;chr&gt;     &lt;dttm&gt;              &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt; 
+## 1 455560… 12472456… 2020-04-06 19:31:41 riccardoca… "Dai… Twitt…
+## 2 222347… 12472456… 2020-04-06 19:31:41 Robinsongu… "Por… Twitt…
+## 3 218454… 12472456… 2020-04-06 19:31:41 don_joses   "Mej… Twitt…
+## # … with 84 more variables: display_text_width &lt;dbl&gt;, reply_to_status_id &lt;chr&gt;,
+## #   reply_to_user_id &lt;chr&gt;, reply_to_screen_name &lt;chr&gt;, is_quote &lt;lgl&gt;,
+## #   is_retweet &lt;lgl&gt;, favorite_count &lt;int&gt;, retweet_count &lt;int&gt;,
+## #   quote_count &lt;int&gt;, reply_count &lt;int&gt;, hashtags &lt;list&gt;, symbols &lt;list&gt;,
+## #   urls_url &lt;list&gt;, urls_t.co &lt;list&gt;, urls_expanded_url &lt;list&gt;,
+## #   media_url &lt;list&gt;, media_t.co &lt;list&gt;, media_expanded_url &lt;list&gt;,
+## #   media_type &lt;list&gt;, ext_media_url &lt;list&gt;, ext_media_t.co &lt;list&gt;,
+## #   ext_media_expanded_url &lt;list&gt;, ext_media_type &lt;chr&gt;,
+## #   mentions_user_id &lt;list&gt;, mentions_screen_name &lt;list&gt;, lang &lt;chr&gt;,
+## #   quoted_status_id &lt;chr&gt;, quoted_text &lt;chr&gt;, quoted_created_at &lt;dttm&gt;,
+## #   quoted_source &lt;chr&gt;, quoted_favorite_count &lt;int&gt;,
+## #   quoted_retweet_count &lt;int&gt;, quoted_user_id &lt;chr&gt;, quoted_screen_name &lt;chr&gt;,
+## #   quoted_name &lt;chr&gt;, quoted_followers_count &lt;int&gt;,
+## #   quoted_friends_count &lt;int&gt;, quoted_statuses_count &lt;int&gt;,
+## #   quoted_location &lt;chr&gt;, quoted_description &lt;chr&gt;, quoted_verified &lt;lgl&gt;,
+## #   retweet_status_id &lt;chr&gt;, retweet_text &lt;chr&gt;, retweet_created_at &lt;dttm&gt;,
+## #   retweet_source &lt;chr&gt;, retweet_favorite_count &lt;int&gt;,
+## #   retweet_retweet_count &lt;int&gt;, retweet_user_id &lt;chr&gt;,
+## #   retweet_screen_name &lt;chr&gt;, retweet_name &lt;chr&gt;,
+## #   retweet_followers_count &lt;int&gt;, retweet_friends_count &lt;int&gt;,
+## #   retweet_statuses_count &lt;int&gt;, retweet_location &lt;chr&gt;,
+## #   retweet_description &lt;chr&gt;, retweet_verified &lt;lgl&gt;, place_url &lt;chr&gt;,
+## #   place_name &lt;chr&gt;, place_full_name &lt;chr&gt;, place_type &lt;chr&gt;, country &lt;chr&gt;,
+## #   country_code &lt;chr&gt;, geo_coords &lt;list&gt;, coords_coords &lt;list&gt;,
+## #   bbox_coords &lt;list&gt;, status_url &lt;chr&gt;, name &lt;chr&gt;, location &lt;chr&gt;,
+## #   description &lt;chr&gt;, url &lt;chr&gt;, protected &lt;lgl&gt;, followers_count &lt;int&gt;,
+## #   friends_count &lt;int&gt;, listed_count &lt;int&gt;, statuses_count &lt;int&gt;,
+## #   favourites_count &lt;int&gt;, account_created_at &lt;dttm&gt;, verified &lt;lgl&gt;,
+## #   profile_url &lt;chr&gt;, profile_expanded_url &lt;chr&gt;, account_lang &lt;lgl&gt;,
+## #   profile_banner_url &lt;chr&gt;, profile_background_url &lt;chr&gt;,
+## #   profile_image_url &lt;chr&gt;
+```
+
+---
+
+# Who is tweeting?
+
+
+```r
+unique(topic_tweets$screen_name)
+```
+
+```
+##   [1] "riccardocapone"  "Robinsonguzman_" "don_joses"       "VegasOkalani"   
+##   [5] "one_direcctioon" "ViolaineGuerin"  "oneninesevenone" "Hughr3ds"       
+##   [9] "_OscarRueda_"    "MikeyLennon2"    "StPaulsFinchley" "aljundy100"     
+##  [13] "PaigeForExample" "eric_gf"         "tania_molina_r"  "MariaCunningha1"
+##  [17] "BouzianeU"       "CocoChanel372"   "mahesh_chiti"    "trickytree63"   
+##  [21] "_SSTIE"          "RuppArenaMike"   "chrisbooth1612"  "AndrewTSaks"    
+##  [25] "reyleonidas82"   "KHALIFA43110304" "KureshiAbdul"    "moremorvan"     
+##  [29] "JokesONjacq"     "unit_br"         "Wishnology"      "Romain_Pigenel" 
+##  [33] "whorhey86"       "Vedator5"        "Exclusive_YE"    "xkaterattrayx"  
+##  [37] "b_sertel"        "Kevin_sfc"       "MarsiaButt"      "NorteCtes"      
+##  [41] "Garou_Hidalgo"   "DANUSHKAARAVIND" "goldy_marx"      "divyendumishraa"
+##  [45] "jakepstein97"    "TulayKalyon"     "lorellafr"       "misslobaa"      
+##  [49] "Onyx_travel"     "XTRARADIO"       "Alrwieh"         "meinearenatv"   
+##  [53] "meltemozby"      "ArsalanShahzed"  "Itgbnagar"       "Jacobojeda"     
+##  [57] "rletissier"      "news_gradskayay" "piiinklady"      "FOXSportsMX"    
+##  [61] "seshat_meraki_"  "razziatweet"     "sippyvanakker"   "HesiodoGoes"    
+##  [65] "ridhimb"         "Behcet02191204"  "luisher07"       "bazz83"         
+##  [69] "NickDay73"       "rossetamadrid"   "DiarioElPueblo"  "alhamdolillah91"
+##  [73] "ichbinhier"      "Tangeni_Omuwa"   "wuiwai"          "aicdev"         
+##  [77] "Aliautonomie"    "shahoo207"       "sandippatel77"   "Xrpinvestor2"   
+##  [81] "GaiusJulius4"    "LadyAnnabella17" "SamadhiMD1"      "comparerateske1"
+##  [85] "giannitsarou"    "rajadurai_ravi"  "write2nishant"   "DrhmdSmr"       
+##  [89] "Ogzhnlvl"        "iPADes"          "MahaAljifri"     "Doug_Kent"      
+##  [93] "ryanphippen1993" "151Rsm"          "akinolastepheno" "leahroseFTW"    
+##  [97] "doaneatlarge"    "adoptedben"      "alyssonmatheusz" "Chaser_Sonia"   
+## [101] "volpi_giulio"    "owiedub"         "CommuniVET"      "thecricketmen"  
+## [105] "Wanda_Petra"     "BrucePhurian"    "Samarsaeed"      "RobertTambasco" 
+## [109] "DontUWorryMama"  "SI_Sizart"       "elsolde_mexico"  "1Iwillbehere"   
+## [113] "HazaraWorld"     "Advyasinmalik1"  "BurtChance4"     "jaywrong"       
+## [117] "kamelhawwash"    "SimpleNewsRead1" "Jamesknott03"    "CarlosZuelen"   
+## [121] "senateur61"      "RobertoJZS"      "Daroszewski"     "AddictScrabble" 
+## [125] "andreahayes121"  "miffy66"         "ImtiazTyab"      "aquapk"         
+## [129] "cobieatkin"      "Paul_EastMids"   "NikkiTheGleek"   "GIRarts"        
+## [133] "fuadbashirov_"   "MichalLecomte1"  "AlfredHampp"     "planetkooler"   
+## [137] "TSubmissive"     "vasiliki_agg"    "fleucemiaylinfo" "JohnLebbon"     
+## [141] "z3r0fox"         "MisterRtly"      "sebas_las"       "GuglielmoMello1"
+## [145] "Queenin_M"       "RachelCShreeve"  "BrbaraN28960760" "Msb_Shakeel"    
+## [149] "sami_journalist" "noreste_incam"   "TimContinenza"   "ACrowdedPlanet" 
+## [153] "theitmidwife"    "RVAmag"          "ViPepita"        "el_b96"         
+## [157] "ReggieGotVision" "CowtownCron"     "rhillary60"      "RoroHMostafa"   
+## [161] "fhafeez64"       "nplmEU"          "EypAkkus"        "opendatacat"    
+## [165] "EjeCentral"      "UNCERTAINBREXIT" "marcos_llamas"   "Klnenes1"       
+## [169] "jkmaletic"       "ponddonkey"      "AtheisCarpenter" "ShowerDj"       
+## [173] "221_B_Bkr_St"    "INSTINC26289171" "brazilmulambo"   "ANC_Manlleu"    
+## [177] "call_ed21"       "MarIzuel"        "AForce316"       "MazChoudhary"   
+## [181] "YakupYucedag"    "andsbossi"       "Re_St52"         "bloomooner"     
+## [185] "FaiZz_K"         "HemnaBaloch10"   "alex_cg20"       "AncoraFischia"  
+## [189] "JeffNedelman"    "rabbitzOG"       "GlamGabber"      "JackRya09297692"
+## [193] "jannerpilgrim"   "Juankenstein"    "RoaMarta2"       "blondieflowers" 
+## [197] "sehacecamino"    "Sinestil0"       "cierra_nalani"   "FTKZimula"      
+## [201] "RosieDelacruz82" "S_3li92"         "shahrukh_pervez" "SciTechIntel"   
+## [205] "AnnabelWilliams" "bordelinparis"   "welpthis_sucks"  "freedoom_79"    
+## [209] "Apollon101"      "BLL1060"         "worcsgreenparty" "npinnock"       
+## [213] "Illmadeadream"   "ginge_1"         "peterbridge99"   "KatRaven15"     
+## [217] "IamNOTcrazy__"   "SoniAnshul92"    "DavidAn11336700" "adnanbasgan17"  
+## [221] "Catherine_O17"   "JonnyKerr"       "Pritam07pandey"  "PaoloSegreto"   
+## [225] "samanthaaa0202"  "andreasmoun"     "Simone_deBoer"   "drjeff_tooth"   
+## [229] "CurroTroya"      "_Talona_"        "BeardedIFA"      "AbdullahAlpar19"
+## [233] "WendyObel"       "tashlegrand"     "Dominic02000091" "gilda_f"        
+## [237] "AleLacchio"      "TheUruWay"       "VHeselton"       "FrancinePitois" 
+## [241] "tyatyi"          "sonietamb"       "uguryldrm112"    "BruniiRodrigues"
+## [245] "ManoelServal"    "irabeseguias"    "asprofa"         "bengurionu"     
+## [249] "GuardianNigeria" "Sean6899"        "roverite95"      "tareklebanon1"  
+## [253] "CovZero"         "mneguzz"         "AlertasMundial1" "RanvirShorey"   
+## [257] "giorgiobv"       "bertramdmyd"     "KalanqaPrince"   "angelt12"       
+## [261] "Waitaandsee"     "sjakie1112"      "Bandit21584823"  "chrissiemaff"   
+## [265] "Green85th"       "selcukcimsir"    "TravelAdviceC19" "MuellerSheWrote"
+## [269] "PosDZeidon"      "Carlafamiliac4"  "iluvTaraNicole"  "DrOsaz"         
+## [273] "magmal11"        "paz4u"           "Nervana_1"       "TheBoyWadeson"  
+## [277] "Angi_tech"       "EltugralEyup"    "kevind_evries"   "twohig_harry"   
+## [281] "JerzonRayo"      "ShakilS26963172" "MJameelAlJamri"  "AlfredsMummy"   
+## [285] "_gildasio10"     "xpressriyadh"    "charisma1330"    "kellyapatterson"
+## [289] "dawnkitson"      "DanielBerliner"  "AmirfromPk"      "YCA_Pakistan"   
+## [293] "JosieOM08"       "Bayik_derya47"   "twitte_r1000"    "jay_waterson"   
+## [297] "OllieSylvester7" "Mister_Smart_01" "CMM_noticias"    "martyncann"     
+## [301] "JamesMcGuireJr"  "estherkleuver"   "Murat_Efe_IE"    "CamiloR531"     
+## [305] "apa_gsc"         "AquariusFarmer"  "MauiWowii"       "RyanGodbold1"   
+## [309] "Toddlfc"         "DrewRhiannon"    "nessunligiudica" "Hamburg4Assange"
+## [313] "ECSalud_com"     "chloegouden"     "GatoPorLiebreCL" "important_2021" 
+## [317] "seaneen1985"     "AnnaIsRandomYT"  "jessecordweber"  "NativeSonNow"   
+## [321] "vickimateo1"     "ISM_music"       "tenno_a"         "aniket_poswal"  
+## [325] "IvanPinno"       "DavideRigallo"   "Haven_Data"      "Pete11905"      
+## [329] "MiicheleAlonso"  "alriyadhdaily"   "AmandineBurret"  "brummienathan"  
+## [333] "alexismoncayo"   "MQD_92"          "nocobo"          "jaayjunaid"     
+## [337] "Pure_Chutzpah"   "AardeeKing"      "phil_cit"        "insidewrite1957"
+## [341] "HeroHeartNetwo1" "WangsonAdele"    "billsimos1"      "Vctorcgensollen"
+## [345] "RomainGuyard"    "authorc_carlton" "papel_em_branco" "QRCS"           
+## [349] "HToenne"         "ZirkusElune"     "davut1374"       "PatrickBerg8"   
+## [353] "AlBayanNews"     "aliMMA"          "RKilpatrickMCR"  "AboAbdeLQader"  
+## [357] "alkulthcharlie_" "Simo_Fiore"      "ynnor55"         "LUFC__George"   
+## [361] "shadow_case"     "AngryChicky"     "Four_Minutes_"   "VITAnonprofit"  
+## [365] "JonnerTradley"   "CrazyJediTCK"    "Entsarabujahal"  "Jpointman"      
+## [369] "BethanyAllsop"   "Jeshuuuuu"       "Noomen9"         "Efekto10"       
+## [373] "ElPitazoTV"      "TomCarter009"    "Momo35739403"    "HanaBozorgmaqam"
+## [377] "Hjoikim"         "rockthekasbah88" "mikeduboulay"    "dfinokaliotis"  
+## [381] "MohRouane"       "SozlesmeliV"     "sportstarweb"    "MatthiasInbar"  
+## [385] "conyimbo"        "mmarinhomkt"     "CarlosRibanez"   "DJGameplay_Cuba"
+## [389] "stefycascu"      "avwm_says"       "DiputadaKelly"   "BMTVAfrica"     
+## [393] "9729Anmol"       "AlexxMeinert"    "PaulitaPike"     "GNB_CARABOD412" 
+## [397] "raiksaw"         "masud_bd_"       "amitchougule443" "ReddeMuseosEC"  
+## [401] "LuchoRencoret"   "SLObot60"        "Sarah8917x"      "SpiritHealthca2"
+## [405] "Tanisha1903"     "KevinleachKevin" "parnian2013"     "TheRugbae"      
+## [409] "LightSmugglers"  "el_telegrafo"    "camaracali"      "Tavin_Pamela"   
+## [413] "Arnoldwangs"     "MartaGomezCat"   "AnonSarab"       "MedioAmbienteML"
+## [417] "TPE_connect"     "InfoMdpya"       "Hispantv"        "aletihadae"     
+## [421] "eltiempocuenca"  "elfaradio"       "noroestemx"      "EcuadorTV"      
+## [425] "CUT_Brasil"      "COVID19_WORLD20" "gldavey73"       "MATTBROOM1"     
+## [429] "JeremyJacquin"   "24kundan"        "HistorywithMrV"  "starskii2010"   
+## [433] "SoapsBallum"     "erikjensen123"   "HassaboJr"       "StevenCGann"    
+## [437] "ColeDines"       "thelonevirologi" "riktroiani"      "malagaalmomento"
+## [441] "HaNaDailyNews"   "muffet_king"     "arabeskin1"      "smileygirl__"   
+## [445] "lucasardella"    "Go_Taylor"       "birmazlumm"      "sstevenson10"   
+## [449] "DinalexisM"      "Floramujaasi"    "HusnaynGhumman"  "lovenheim"      
+## [453] "farooqui_aashir" "simasepehri95"   "Aufildubosphore" "ChildrensCtrUT" 
+## [457] "ToriR_H"         "BeataWojna"      "GraceGalindo"    "zippyproctor"   
+## [461] "JO55SS"          "NairnMcD"        "NoumanAliAwaan"  "Tingaling007"   
+## [465] "EmineKucukali"   "__lizzyhillmanx" "frikerry"        "TheRealMrNelms" 
+## [469] "DiketsoMoyo"     "zekrao"          "amoorahsaud"     "boghche"        
+## [473] "CrisRojasB"      "PrevenCardioCA"  "EsenErmisErturk" "DhissaLal"      
+## [477] "indian_domains"  "ISLEOFSKY4"      "macauleyharris"  "greygooseonice" 
+## [481] "AlmudenaBalongo" "LaRadioAsamblea" "viajeiros"       "raffajoker"     
+## [485] "S97037846"       "gustavoemota"    "ElAndenMx"       "MwakeraEmmanuel"
+## [489] "suse1603"        "kolektifktu"     "garethr007"      "leighjoshuaeco" 
+## [493] "ShabJako"        "HafsaHalawa"     "johann60000"     "kiztv7"         
+## [497] "junaidium"
+```
+
+---
+
+# User Locations
+
+
+```r
+users &lt;- search_users("#covid_19",
+                      n = 500)
+# just view the top of the df
+head(users)
+```
+
+```
+## # A tibble: 1 x 90
+##   user_id status_id created_at          screen_name text  source
+##   &lt;chr&gt;   &lt;chr&gt;     &lt;dttm&gt;              &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt; 
+## 1 268161… 12470031… 2020-04-06 03:28:04 COVID_19    "@wo… Twitt…
+## # … with 84 more variables: display_text_width &lt;dbl&gt;, reply_to_status_id &lt;chr&gt;,
+## #   reply_to_user_id &lt;chr&gt;, reply_to_screen_name &lt;chr&gt;, is_quote &lt;lgl&gt;,
+## #   is_retweet &lt;lgl&gt;, favorite_count &lt;int&gt;, retweet_count &lt;int&gt;,
+## #   quote_count &lt;int&gt;, reply_count &lt;int&gt;, hashtags &lt;list&gt;, symbols &lt;list&gt;,
+## #   urls_url &lt;list&gt;, urls_t.co &lt;list&gt;, urls_expanded_url &lt;list&gt;,
+## #   media_url &lt;list&gt;, media_t.co &lt;list&gt;, media_expanded_url &lt;list&gt;,
+## #   media_type &lt;list&gt;, ext_media_url &lt;list&gt;, ext_media_t.co &lt;list&gt;,
+## #   ext_media_expanded_url &lt;list&gt;, ext_media_type &lt;chr&gt;,
+## #   mentions_user_id &lt;list&gt;, mentions_screen_name &lt;list&gt;, lang &lt;chr&gt;,
+## #   quoted_status_id &lt;chr&gt;, quoted_text &lt;chr&gt;, quoted_created_at &lt;dttm&gt;,
+## #   quoted_source &lt;chr&gt;, quoted_favorite_count &lt;int&gt;,
+## #   quoted_retweet_count &lt;int&gt;, quoted_user_id &lt;chr&gt;, quoted_screen_name &lt;chr&gt;,
+## #   quoted_name &lt;chr&gt;, quoted_followers_count &lt;int&gt;,
+## #   quoted_friends_count &lt;int&gt;, quoted_statuses_count &lt;int&gt;,
+## #   quoted_location &lt;chr&gt;, quoted_description &lt;chr&gt;, quoted_verified &lt;lgl&gt;,
+## #   retweet_status_id &lt;chr&gt;, retweet_text &lt;chr&gt;, retweet_created_at &lt;dttm&gt;,
+## #   retweet_source &lt;chr&gt;, retweet_favorite_count &lt;int&gt;,
+## #   retweet_retweet_count &lt;int&gt;, retweet_user_id &lt;chr&gt;,
+## #   retweet_screen_name &lt;chr&gt;, retweet_name &lt;chr&gt;,
+## #   retweet_followers_count &lt;int&gt;, retweet_friends_count &lt;int&gt;,
+## #   retweet_statuses_count &lt;int&gt;, retweet_location &lt;chr&gt;,
+## #   retweet_description &lt;chr&gt;, retweet_verified &lt;lgl&gt;, place_url &lt;chr&gt;,
+## #   place_name &lt;chr&gt;, place_full_name &lt;chr&gt;, place_type &lt;chr&gt;, country &lt;chr&gt;,
+## #   country_code &lt;chr&gt;, geo_coords &lt;list&gt;, coords_coords &lt;list&gt;,
+## #   bbox_coords &lt;list&gt;, status_url &lt;chr&gt;, name &lt;chr&gt;, location &lt;chr&gt;,
+## #   description &lt;chr&gt;, url &lt;chr&gt;, protected &lt;lgl&gt;, followers_count &lt;int&gt;,
+## #   friends_count &lt;int&gt;, listed_count &lt;int&gt;, statuses_count &lt;int&gt;,
+## #   favourites_count &lt;int&gt;, account_created_at &lt;dttm&gt;, verified &lt;lgl&gt;,
+## #   profile_url &lt;chr&gt;, profile_expanded_url &lt;chr&gt;, account_lang &lt;lgl&gt;,
+## #   profile_banner_url &lt;chr&gt;, profile_background_url &lt;chr&gt;,
+## #   profile_image_url &lt;chr&gt;
+```
+
+```r
+# How many locations
+length(unique(users$location))
+```
+
+```
+## [1] 1
+```
+
+---
+
+# Analyzing Tweets on "Covid"
+
+Get some Tweets.
+
+
+```r
+covid_tweets &lt;- search_tweets(q = "covid", n = 10000,
+                                      lang = "en",
+                                      include_rts = FALSE)
+```
+
+---
+
+# Data Cleaning
+
+Removing some URLS.
+
+
+```r
+# Remove URLS
+covid_tweets$stripped_text &lt;- gsub("http.*","",  covid_tweets$text)
+covid_tweets$stripped_text &lt;- gsub("https.*","", covid_tweets$stripped_text)
+```
+
+---
+
+# Data Cleaning
+
+You can use the `tidytext::unnest_tokens()` function in the `tidytext` package to magically clean up your text (lowercase and punctuation removed)!
+
+
+```r
+covid_tweets_clean &lt;- covid_tweets %&gt;%
+  dplyr::select(stripped_text) %&gt;%
+  unnest_tokens(word, stripped_text)
+```
+
+---
+
+# Data Cleaning
+
+
+```r
+# load list of stop words - from the tidytext package
+data("stop_words")
+
+# remove stop words from your list of words
+cleaned_tweet_words &lt;- covid_tweets_clean %&gt;%
+  anti_join(stop_words)
+```
+
+---
+
+# Plot Top 15 Words
+
+![](week09_lecture_files/figure-html/unnamed-chunk-86-1.png)&lt;!-- --&gt;
+
+
+---
+class: inverse, center, bottom
+background-image: url(images/random_grape_berry.jpg)
+background-size: 65%
+background-position: 50% 100%
+
+# Other Random Stuff
+
+---
+
+class: bottom, center
+background-image: url(images/NYTDevLogo.svg)
+background-size: 80%
+background-position: 50% 30%
+
+# The New York Times API
+
+---
+
+# NYTimes API
+
+The [New York Times](https://developer.nytimes.com/) provides an API to access several data sources they have collected as well as their articles. For this example, we will use the `rtimes()` package.
+
+The main limitation is that **access to the full-text of articles is not provided.**
+
+---
+
+# The  `rtimes()` package
+
+You can access the API directly. However, the [`rtimes` package](https://github.com/tbrambor/rtimes) provided by Scott Chamberlain makes this easier from R, so we will use the package to get what we want.
+
+---
+
+# Install `rtimes()` package
+
+First, install the `rtimes` package.
+
+```r
+library(rtimes)
+```
+
+---
+
+# Get a free API key
+
+To use the NYTimes API, you need to obtain a free API key by registering here:  http://developer.nytimes.com/apps/register
+
+They do offer a few different APIs (but it seems you may get the same key for each one). Get the ones for the "Geographic API" and the "Article Search API".
+
+---
+
+# Get a free API key 
+
+&lt;img src="images/nytimes_getkey.png" width="50%" /&gt;
+
+---
+
+# Store the keys in the R startup file
+
+While you can provide the API keys directly in the code, it is more efficient (and safer) to store them in the `.Renviron` file which is loaded during `R`'s startup. It is also safer to keep it secret if you share code (as you may in a assignment/group work).
+
+
+```r
+# Open the .Renviron file
+usethis::edit_r_environ()
+```
+
+Add the NYTimes API keys with the following lines
+
+
+```r
+# NYTIMES Geo API Key
+NYTIMES_GEO_KEY = THE_API_KEY_HERE
+# NYTIMES Article Search API Key
+NYTIMES_AS_KEY = THE_API_KEY_HERE
+```
+
+---
+
+# Play around with the API
+
+To ge to know the API, there is an online GUI which allows you to get to know the parameters: http://developer.nytimes.com/article_search_v2.json
+
+We will return to this a bit later.
+
+&lt;!--- http://jamesboehmer.github.io/nytd2013/#/6/1 --&gt;
+
+---
+
+# Getting a query
+
+Let's run a simple query for articles containing the term "Donald Trump" published since the start of the 2020 in the NYTimes. By default, the fields `body`, `byline`, `date`, `title`, and `url` will be searched for the keyword you provide.
+
+
+```r
+articlesearch &lt;- as_search(q='Donald Trump', 
+                 begin_date='20200101', 
+                 end_date='20200406', 
+                 fq = 'source:"The New York Times"',
+                 facet_field='section_name')
+```
+
+---
+
+# Structure of the Information 
+
+The information we get back is structured as a list of lists. The top three lists are (1) a copyright info, (2) meta info about the search results, (3) the article info.
+
+
+```r
+str(articlesearch, max.level=1)
+```
+
+```
+## List of 4
+##  $ copyright: chr "Copyright (c) 2015 The New York Times Company.  All Rights Reserved."
+##  $ meta     : tibble [1 × 3] (S3: tbl_df/tbl/data.frame)
+##  $ data     : tibble [10 × 28] (S3: tbl_df/tbl/data.frame)
+##  $ facets   : NULL
+```
+
+```r
+articlesearch$meta
+```
+
+```
+## # A tibble: 1 x 3
+##    hits offset  time
+##   &lt;int&gt;  &lt;int&gt; &lt;int&gt;
+## 1  4089      0   543
+```
+
+---
+
+# Get info on one document 
+
+Get the information about the first element, i.e. the first article, from the data list.
+
+
+```r
+library(purrr)
+article &lt;- map(articlesearch$data, 1)
+names(article)
+```
+
+```
+##  [1] "abstract"                "web_url"                
+##  [3] "snippet"                 "lead_paragraph"         
+##  [5] "source"                  "multimedia"             
+##  [7] "keywords"                "pub_date"               
+##  [9] "document_type"           "news_desk"              
+## [11] "section_name"            "type_of_material"       
+## [13] "_id"                     "word_count"             
+## [15] "uri"                     "print_section"          
+## [17] "print_page"              "subsection_name"        
+## [19] "headline.main"           "headline.kicker"        
+## [21] "headline.content_kicker" "headline.print_headline"
+## [23] "headline.name"           "headline.seo"           
+## [25] "headline.sub"            "byline.original"        
+## [27] "byline.person"           "byline.organization"
+```
+
+---
+
+# Get info on one document 
+
+
+```r
+strwrap(article$snippet)
+```
+
+```
+## [1] "The nation craves a plan, not hunches."
+```
+
+**Note**: Again, the `rtimes` package only gives you access to article metadata (url, headline, byline, summary, etc.), and does _not return full article content_.
+
+---
+
+# Other NY Times APIs - Campaign Finance
+
+There are also other interesting NYTimes APIs. 
+
+Formerly maintained by the NYTimes, ProPublica now offers a campaign finance API. We can use it to gain some insight into Trumps compaign income and expenditures. The only special data you need is the [FEC ID](http://www.fec.gov/finance/disclosure/candcmte_info.shtml?tabIndex=2) for the candidate of interest. You will also need to get an API key.
+
+
+```r
+trump &lt;- cf_candidate_details(campaign_cycle = 2020, 
+   fec_id = 'P80001571',
+   key = Sys.getenv("PROPUBLICA_API_KEY"))
+trump
+```
+
+---
+
+# Other NY Times APIs - Congress
+
+
+```r
+out &lt;- cg_rollcallvote(congress_no = 105, 
+                         chamber = 'house', 
+                         session_no = 2, 
+                         rollcall_no = 38)
+out$votes
+```
+
+```
+##      category yes no present not_voting majority_position
+## 1  democratic 194  0       0          9               Yes
+## 2  republican 219  1       0          6               Yes
+## 3 independent   1  0       0          0              &lt;NA&gt;
+## 4       total 414  1       0         15              &lt;NA&gt;
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

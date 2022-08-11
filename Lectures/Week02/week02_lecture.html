@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <title>week02_lecture.utf8.md</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="week02_lecture_files/reveal.js-3.3.0.1/css/reveal.css"/>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="week02_lecture_files/reveal.js-3.3.0.1/css/theme/white.css" id="theme">
+
+
+  <!-- some tweaks to reveal css -->
+  <style type="text/css">
+    .reveal h1 { font-size: 2.0em; }
+    .reveal h2 { font-size: 1.5em;  }
+    .reveal h3 { font-size: 1.25em;	}
+    .reveal h4 { font-size: 1em;	}
+
+    .reveal .slides>section,
+    .reveal .slides>section>section {
+      padding: 0px 0px;
+    }
+
+
+
+    .reveal table {
+      border-width: 1px;
+      border-spacing: 2px;
+      border-style: dotted;
+      border-color: gray;
+      border-collapse: collapse;
+      font-size: 0.7em;
+    }
+
+    .reveal table th {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      font-weight: bold;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+    .reveal table td {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+
+  </style>
+
+    <style type="text/css">code{white-space: pre;}</style>
+
+    <link rel="stylesheet" href="../custom.css"/>
+
+<!-- Printing and PDF exports -->
+<script id="paper-css" type="application/dynamic-css">
+
+/* Default Print Stylesheet Template
+   by Rob Glazebrook of CSSnewbie.com
+   Last Updated: June 4, 2008
+
+   Feel free (nay, compelled) to edit, append, and
+   manipulate this file as you see fit. */
+
+
+@media print {
+
+	/* SECTION 1: Set default width, margin, float, and
+	   background. This prevents elements from extending
+	   beyond the edge of the printed page, and prevents
+	   unnecessary background images from printing */
+	html {
+		background: #fff;
+		width: auto;
+		height: auto;
+		overflow: visible;
+	}
+	body {
+		background: #fff;
+		font-size: 20pt;
+		width: auto;
+		height: auto;
+		border: 0;
+		margin: 0 5%;
+		padding: 0;
+		overflow: visible;
+		float: none !important;
+	}
+
+	/* SECTION 2: Remove any elements not needed in print.
+	   This would include navigation, ads, sidebars, etc. */
+	.nestedarrow,
+	.controls,
+	.fork-reveal,
+	.share-reveal,
+	.state-background,
+	.reveal .progress,
+	.reveal .backgrounds {
+		display: none !important;
+	}
+
+	/* SECTION 3: Set body font face, size, and color.
+	   Consider using a serif font for readability. */
+	body, p, td, li, div {
+		font-size: 20pt!important;
+		font-family: Georgia, "Times New Roman", Times, serif !important;
+		color: #000;
+	}
+
+	/* SECTION 4: Set heading font face, sizes, and color.
+	   Differentiate your headings from your body text.
+	   Perhaps use a large sans-serif for distinction. */
+	h1,h2,h3,h4,h5,h6 {
+		color: #000!important;
+		height: auto;
+		line-height: normal;
+		font-family: Georgia, "Times New Roman", Times, serif !important;
+		text-shadow: 0 0 0 #000 !important;
+		text-align: left;
+		letter-spacing: normal;
+	}
+	/* Need to reduce the size of the fonts for printing */
+	h1 { font-size: 28pt !important;  }
+	h2 { font-size: 24pt !important; }
+	h3 { font-size: 22pt !important; }
+	h4 { font-size: 22pt !important; font-variant: small-caps; }
+	h5 { font-size: 21pt !important; }
+	h6 { font-size: 20pt !important; font-style: italic; }
+
+	/* SECTION 5: Make hyperlinks more usable.
+	   Ensure links are underlined, and consider appending
+	   the URL to the end of the link for usability. */
+	a:link,
+	a:visited {
+		color: #000 !important;
+		font-weight: bold;
+		text-decoration: underline;
+	}
+	/*
+	.reveal a:link:after,
+	.reveal a:visited:after {
+		content: " (" attr(href) ") ";
+		color: #222 !important;
+		font-size: 90%;
+	}
+	*/
+
+
+	/* SECTION 6: more reveal.js specific additions by @skypanther */
+	ul, ol, div, p {
+		visibility: visible;
+		position: static;
+		width: auto;
+		height: auto;
+		display: block;
+		overflow: visible;
+		margin: 0;
+		text-align: left !important;
+	}
+	.reveal pre,
+	.reveal table {
+		margin-left: 0;
+		margin-right: 0;
+	}
+	.reveal pre code {
+		padding: 20px;
+		border: 1px solid #ddd;
+	}
+	.reveal blockquote {
+		margin: 20px 0;
+	}
+	.reveal .slides {
+		position: static !important;
+		width: auto !important;
+		height: auto !important;
+
+		left: 0 !important;
+		top: 0 !important;
+		margin-left: 0 !important;
+		margin-top: 0 !important;
+		padding: 0 !important;
+		zoom: 1 !important;
+
+		overflow: visible !important;
+		display: block !important;
+
+		text-align: left !important;
+		-webkit-perspective: none;
+		   -moz-perspective: none;
+		    -ms-perspective: none;
+		        perspective: none;
+
+		-webkit-perspective-origin: 50% 50%;
+		   -moz-perspective-origin: 50% 50%;
+		    -ms-perspective-origin: 50% 50%;
+		        perspective-origin: 50% 50%;
+	}
+	.reveal .slides section {
+		visibility: visible !important;
+		position: static !important;
+		width: auto !important;
+		height: auto !important;
+		display: block !important;
+		overflow: visible !important;
+
+		left: 0 !important;
+		top: 0 !important;
+		margin-left: 0 !important;
+		margin-top: 0 !important;
+		padding: 60px 20px !important;
+		z-index: auto !important;
+
+		opacity: 1 !important;
+
+		page-break-after: always !important;
+
+		-webkit-transform-style: flat !important;
+		   -moz-transform-style: flat !important;
+		    -ms-transform-style: flat !important;
+		        transform-style: flat !important;
+
+		-webkit-transform: none !important;
+		   -moz-transform: none !important;
+		    -ms-transform: none !important;
+		        transform: none !important;
+
+		-webkit-transition: none !important;
+		   -moz-transition: none !important;
+		    -ms-transition: none !important;
+		        transition: none !important;
+	}
+	.reveal .slides section.stack {
+		padding: 0 !important;
+	}
+	.reveal section:last-of-type {
+		page-break-after: avoid !important;
+	}
+	.reveal section .fragment {
+		opacity: 1 !important;
+		visibility: visible !important;
+
+		-webkit-transform: none !important;
+		   -moz-transform: none !important;
+		    -ms-transform: none !important;
+		        transform: none !important;
+	}
+	.reveal section img {
+		display: block;
+		margin: 15px 0px;
+		background: rgba(255,255,255,1);
+		border: 1px solid #666;
+		box-shadow: none;
+	}
+
+	.reveal section small {
+		font-size: 0.8em;
+	}
+
+}  
+</script>
+
+
+<script id="pdf-css" type="application/dynamic-css">
+    
+/**
+ * This stylesheet is used to print reveal.js
+ * presentations to PDF.
+ *
+ * https://github.com/hakimel/reveal.js#pdf-export
+ */
+
+* {
+	-webkit-print-color-adjust: exact;
+}
+
+body {
+	margin: 0 auto !important;
+	border: 0;
+	padding: 0;
+	float: none !important;
+	overflow: visible;
+}
+
+html {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+/* Remove any elements not needed in print. */
+.nestedarrow,
+.reveal .controls,
+.reveal .progress,
+.reveal .playback,
+.reveal.overview,
+.fork-reveal,
+.share-reveal,
+.state-background {
+	display: none !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	text-shadow: 0 0 0 #000 !important;
+}
+
+.reveal pre code {
+	overflow: hidden !important;
+	font-family: Courier, 'Courier New', monospace !important;
+}
+
+ul, ol, div, p {
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: auto;
+	display: block;
+	overflow: visible;
+	margin: auto;
+}
+.reveal {
+	width: auto !important;
+	height: auto !important;
+	overflow: hidden !important;
+}
+.reveal .slides {
+	position: static;
+	width: 100%;
+	height: auto;
+
+	left: auto;
+	top: auto;
+	margin: 0 !important;
+	padding: 0 !important;
+
+	overflow: visible;
+	display: block;
+
+	-webkit-perspective: none;
+	   -moz-perspective: none;
+	    -ms-perspective: none;
+	        perspective: none;
+
+	-webkit-perspective-origin: 50% 50%; /* there isn't a none/auto value but 50-50 is the default */
+	   -moz-perspective-origin: 50% 50%;
+	    -ms-perspective-origin: 50% 50%;
+	        perspective-origin: 50% 50%;
+}
+
+.reveal .slides section {
+	page-break-after: always !important;
+
+	visibility: visible !important;
+	position: relative !important;
+	display: block !important;
+	position: relative !important;
+
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+	min-height: 1px;
+
+	opacity: 1 !important;
+
+	-webkit-transform-style: flat !important;
+	   -moz-transform-style: flat !important;
+	    -ms-transform-style: flat !important;
+	        transform-style: flat !important;
+
+	-webkit-transform: none !important;
+	   -moz-transform: none !important;
+	    -ms-transform: none !important;
+	        transform: none !important;
+}
+
+.reveal section.stack {
+	margin: 0 !important;
+	padding: 0 !important;
+	page-break-after: avoid !important;
+	height: auto !important;
+	min-height: auto !important;
+}
+
+.reveal img {
+	box-shadow: none;
+}
+
+.reveal .roll {
+	overflow: visible;
+	line-height: 1em;
+}
+
+/* Slide backgrounds are placed inside of their slide when exporting to PDF */
+.reveal section .slide-background {
+	display: block !important;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: -1;
+}
+
+/* All elements should be above the slide-background */
+.reveal section>* {
+	position: relative;
+	z-index: 1;
+}
+
+/* Display slide speaker notes when 'showNotes' is enabled */
+.reveal .speaker-notes-pdf {
+	display: block;
+	width: 100%;
+	max-height: none;
+	left: auto;
+	top: auto;
+	z-index: 100;
+}
+
+/* Display slide numbers when 'slideNumber' is enabled */
+.reveal .slide-number-pdf {
+	display: block;
+	position: absolute;
+	font-size: 14px;
+}
+
+</script>
+
+
+<script>
+var style = document.createElement( 'style' );
+style.type = 'text/css';
+var style_script_id = window.location.search.match( /print-pdf/gi ) ? 'pdf-css' : 'paper-css';
+var style_script = document.getElementById(style_script_id).text;
+style.innerHTML = style_script;
+document.getElementsByTagName('head')[0].appendChild(style);
+</script>
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+
+<section id="section" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><span style="color:red; font-weight:bold; font-size:110px">D</span><span style="color:white; font-weight:bold; font-size:110px">ata </span> <span style="color:red; font-weight:bold; font-size:110px">V</span> <span style="color:white; font-weight:bold; font-size:110px">isualization</span></p>
+<p><br> Columbia University<br> Spring 2020<br> Thomas Brambor<br />
+<br></p>
+<p><span style="color:white; font-weight:bold; font-size:60px">2 - Data Visualization Principles and ggplot2 continued </span></p>
+</section>
+<section id="roadmap-for-today" class="slide level2">
+<h2>Roadmap for Today</h2>
+<ul>
+<li>Data Visualization Principles II</li>
+<li>Continue with learning ggplot2</li>
+<li>On your own: Markdown and GitHub</li>
+</ul>
+<!-- 
+
+# Dataviz in the News
+
+## Be careful where your data goes...
+
+![ ](images/fitness_app_military_bases.png){ width=70% }
+
+<small>Source: https://www.theguardian.com/world/2018/jan/28/fitness-tracking-app-gives-away-location-of-secret-us-army-bases </small>
+
+## `ggplot2` used by the BBC
+
+
+
+<img src="images/bbc_bbplot_example_plots.png" width="100%" />
+
+<small>Source: https://medium.com/bbc-visual-and-data-journalism/how-the-bbc-visual-and-data-journalism-team-works-with-graphics-in-r-ed0b35693535 </small>
+
+-->
+</section>
+<section id="github" class="slide level2">
+<h2>Github</h2>
+<ul>
+<li><p>Signed up? If not: <a href="http://bit.ly/signup_dataviz2020">http://bit.ly/signup_dataviz2020</a></p></li>
+<li><p>You are encouraged to share all non-graded exercises! I added a repository called <strong>sandbox</strong> for which everyone has Git write access rights.</p></li>
+</ul>
+<p><img data-src="images/sandbox_danger.jpg" style="width:50.0%" /></p>
+</section>
+<section id="section-1" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><br> <br> <span style="color:white; font-weight:bold; font-size:110px">Questions ?</span></p>
+</section>
+<section><section id="data-visualization-principles-ii" class="title-slide slide level1"><h1>Data Visualization Principles II</h1></section><section id="section-2" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><img data-src="images/book_cover_kib.png" style="width:50.0%" /></p>
+<p>Beautiful. Knowledge?</p>
+</section><section id="section-3" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><img data-src="images/colors_in_culture.png" style="width:100.0%" /></p>
+</section><section id="section-4" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><span style="color:white; font-weight:bold; font-size:60px"> Test the <strong>functionality</strong> of your visualization. </span></p>
+<p><br></p>
+<p><span style="color:gray; font-weight:bold; font-size:40px"> Find the color for <em><strong>mourning</strong></em> for <em><strong>Native Americans</strong></em></span></p>
+</section><section id="section-5" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><img data-src="images/colors_in_culture.png" style="width:100.0%" /></p>
+</section><section id="function-first" class="slide level2">
+<h2>Function First</h2>
+<p><img data-src="images/colors_in_culture_redone_crop.png" style="width:50.0%" /></p>
+<p><small><small>“Our Irresistible Fascination with All Things Circular” Stephen Few, Perceptual Edge. Visual Business Intelligence Newsletter. March/April/May 2010</small></small></p>
+</section><section id="what-is-missing" class="slide level2">
+<h2>What is missing?</h2>
+<ul>
+<li><p>Visualization should be:</p>
+<p>[1] Truthful, [2] Functional, [3] Beautiful, [4] Insightful</p></li>
+<li><p>Which of the qualities does the original graphic have? Which ones does it lack?</p></li>
+</ul>
+<p><img data-src="images/colors_in_culture.png" style="width:40.0%" /></p>
+</section><section id="contrary-views" class="slide level2">
+<h2>Contrary views</h2>
+<blockquote>
+<p><small> The second example is what I call a temporal visualization. In this, we represent time by spiral. Spirals, I think, are very good ways of representing time-based events because they show you the frequency of data… </small></p>
+</blockquote>
+<p><small><a href="https://esj.com/Articles/2010/04/14/Data-Visualization.aspx">Q&amp;A: Data Visualization Offers Rich Views”, Linda L. Briggs. April 14, 2010</a></small></p>
+<p>What do you think?</p>
+<p><img data-src="images/spiral_graph.jpg" style="width:35.0%" /></p>
+</section><section id="section-6" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><img data-src="images/spiral_graph.jpg" style="width:70.0%" /></p>
+</section><section id="form-follows-function" class="slide level2">
+<h2>Form follows function</h2>
+<blockquote>
+<p>All things in nature have a shape, that is to say, a form, an outward semblance, that tells us what they are, that distinguishes them from ourselves and from each other. [..] they are so characteristic, so recognizable, that we say, simply, it is “natural” it should be so. [..] It is the pervading law of all things [..] that the life is recognizable in its expression, that <strong>form ever follows function</strong>. This is the law.</p>
+</blockquote>
+<p><small><a href="http://www.giarts.org/article/tall-office-building-artistically-considered-excerpt">Louis H. Sullivan, “The Tall Office Building Artistically Considered.” Lippincott’s Magazine 57 (March 1896) pp 403-09</a></small></p>
+</section><section id="legibility" class="slide level2">
+<h2>Legibility</h2>
+<blockquote>
+<p><em>Shall we, then, daily violate this law in our art? Are we so decadent, so imbecile, so utterly weak of eyesight, that we cannot perceive this truth so simple, so very simple?</em></p>
+</blockquote>
+<ul>
+<li><strong>Functional</strong> - We want to have legible, functional graphs that provide the correct information easily to the interested reader and allow exploration.<br />
+</li>
+<li><strong>Insightful</strong> - We want to reveal evidence that was otherwise hard to see.</li>
+</ul>
+<p><span style="color:red; font-weight:bold">We need to understand the basic principles of visual perception.</span></p>
+</section><section id="contrary-views-information-visualization-and-statistical-graphs" class="slide level2">
+<h2>Contrary Views: Information visualization and Statistical Graphs</h2>
+<blockquote>
+<p>Can the <strong>aesthetic elements of a data-visualization be considered as important as the data itself</strong> in getting readers interested about a topic, leading them to shape an understanding of it and triggering their curiosity to explore more?</p>
+</blockquote>
+<p>Giorgia Lupi, Information designer at Accurat, artist, and author</p>
+<p><small> <a href="https://medium.com/accurat-studio/beautiful-reasons-c1c6926ab7d7" class="uri">https://medium.com/accurat-studio/beautiful-reasons-c1c6926ab7d7</a> </small></p>
+</section><section id="section-7" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><img data-src="images/lupi_fashion_detail.jpeg" style="width:100.0%" /></p>
+<p><small> Giorgia Lupi. <a href="http://giorgialupi.com/work#/data-items-a-fashion-landscape-at-the-museum-of-modern-art/">Data ITEMS: A Fashion Landscape 2017.</a> </small></p>
+</section><section id="section-8" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><img data-src="images/lupi_fashion_legend.png" style="width:100.0%" /></p>
+<p><small> Giorgia Lupi. <a href="http://giorgialupi.com/work#/data-items-a-fashion-landscape-at-the-museum-of-modern-art/">Data ITEMS: A Fashion Landscape 2017.</a> </small></p>
+</section><section id="section-9" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><img data-src="images/kaki_king.jpg" style="width:90.0%" /></p>
+<p><small><a href="https://www.youtube.com/watch?v=Rhx83zC0cD4">Giorgia Lupi and Kaki King on the value of beauty in design</a></small></p>
+</section></section>
+<section><section id="some-principles-of-visual-perception" class="title-slide slide level1"><h1>Some principles of visual perception</h1></section><section id="perception" class="slide level2">
+<h2>Perception</h2>
+<ul>
+<li class="fragment">We more easily see <strong>edges, contrasts, and movement</strong>.</li>
+<li class="fragment">We judge <strong>relative differences</strong> rather than absolute values.</li>
+<li class="fragment">We process visual information using <strong>preattentive attributes and patterns</strong>.</li>
+<li class="fragment">We use <strong>gestalt principles</strong> to group individual elements into groups and differentiate between patterns. (<em>next week</em>)</li>
+<li class="fragment">We can estimate information from graphs differently depending on the <strong>elementary perceptual task</strong> involved.</li>
+</ul>
+</section><section id="edges" class="slide level2">
+<h2>Edges</h2>
+<p><img data-src="images/hermann-grid-1.jpg" style="width:60.0%" /></p>
+</section><section id="edges-1" class="slide level2">
+<h2>Edges</h2>
+<p><img data-src="images/hermann-grid-2.png" style="width:40.0%" /></p>
+<p><small><a href="https://www.wikiwand.com/en/Grid_illusion">See more info on the Hermann grid effect</a></small></p>
+</section><section id="cornsweet-effect" class="slide level2">
+<h2>Cornsweet Effect</h2>
+<p><img data-src="images/cornsweet_illusion.png" style="width:30.0%" /></p>
+<p><img data-src="images/cornsweet_illusion2.png" style="width:30.0%" /></p>
+<p><small><a href="https://en.wikipedia.org/wiki/Cornsweet_illusion">Cornsweet Effect</a> </small></p>
+</section><section id="contrast" class="slide level2">
+<h2>Contrast</h2>
+<p><img data-src="images/contrast1.png" style="width:70.0%" /></p>
+<ul>
+<li>relative differences between foreground and background matter</li>
+<li>color of foreground and background interact (see <a href="https://www.wikiwand.com/en/Contrast_effect">Law of Simulatenous Contrast</a>)</li>
+</ul>
+</section><section id="color-adds-complexity" class="slide level2">
+<h2>Color adds complexity</h2>
+<p><img data-src="images/contrast_color.png" style="width:100.0%" /></p>
+<ul>
+<li>We can easily see objects that are different in color and shape, or that are in motion.</li>
+<li>relative rather than absolute differences matter</li>
+</ul>
+</section><section id="tonal-vs.color-contrast" class="slide level2">
+<h2>Tonal vs. color contrast</h2>
+<p><img data-src="images/contrast_color2.jpg" style="width:70.0%" /></p>
+<ul>
+<li>Contrasting colors adds emphasis.</li>
+<li>Color contrast is another tool of emphasis when tonal contrast (light and dark) is hard to achieve.</li>
+</ul>
+</section><section id="fore--and-background-colors" class="slide level2">
+<h2>Fore- and Background Colors</h2>
+<p><img data-src="images/contrast_color3_meirelles2013.png" style="width:35.0%" /></p>
+<ul>
+<li>The surrounding colors affect our perception of area sizes as well as our impression of the colors themselves.</li>
+<li>The inner squares are identical but perceived differently due to background colors.</li>
+</ul>
+<p><small><small>Meirelles, I. (2013). Design for Information: An Introduction to the Histories, Theories, and Best Practices Behind Effective Information Visualizations. Rockport Publishers. </small></small></p>
+</section><section id="section-10" class="slide level2" data-background-color="black">
+<h2></h2>
+<p><img data-src="images/smartmoney_map_of_market.jpg" style="width:100.0%" /></p>
+</section></section>
+<section><section id="preattentive-visual-properties" class="title-slide slide level1"><h1>Preattentive visual properties</h1></section><section id="section-11" class="slide level2">
+<h2></h2>
+<blockquote>
+<p>We can easily see patterns presented in certain ways, but if they are presented in other ways, they become invisible [..] If we can understand how perception works, our knowledge can be translated into rules for displaying information. Following perception-based rules, we can present our data in such a way that the important and informative patterns stand out. If we disobey the rules, our data will be incomprehensible or misleading.</p>
+</blockquote>
+<p>Colin Ware, <em>Information Visualization</em></p>
+<p><small><small>From Ware, C. (2012). Information Visualization, Third Edition: Perception for Design (3 edition). Waltham, MA: Morgan Kaufmann.; Introduction</small></small></p>
+</section><section id="preattentive-visual-proporties" class="slide level2">
+<h2>Preattentive visual proporties</h2>
+<ul>
+<li>A <strong>preattentive visual property</strong> is processed in spatial memory without our conscious action (but we do need to be attentive).<br />
+</li>
+<li>fast: &lt; 500 milliseconds for the eye and the brain to process</li>
+<li>color and contrast between features matters most</li>
+</ul>
+</section><section id="preattentive-visual-properties-1" class="slide level2">
+<h2>Preattentive visual properties</h2>
+<p><strong>Count the 3s!</strong></p>
+<p><img data-src="images/preattentive_numbers.png" style="width:65.0%" /></p>
+<ul>
+<li>Color is a preattentive property and helps to process the information in (b) faster.</li>
+</ul>
+<p><small><small>From Ware, C. (2012). Information Visualization, Third Edition: Perception for Design (3 edition). Waltham, MA: Morgan Kaufmann.; p.152</small></small></p>
+<p><img data-src="images/preattentive_numbers.png" style="width:70.0%" /></p>
+</section><section id="use-preattentive-properties-to-make-better-graphs" class="slide level2">
+<h2>Use preattentive properties to make better graphs</h2>
+<p><img data-src="images/preattentive_job_satisfaction_example_1.jpeg" style="width:100.0%" /></p>
+</section><section id="use-preattentive-properties-to-make-better-graphs-1" class="slide level2">
+<h2>Use preattentive properties to make better graphs</h2>
+<p><img data-src="images/preattentive_job_satisfaction_example_2.jpeg" style="width:100.0%" /></p>
+</section><section id="use-preattentive-properties-to-make-better-graphs-2" class="slide level2">
+<h2>Use preattentive properties to make better graphs</h2>
+<p><img data-src="images/preattentive_job_satisfaction_example_1.jpeg" style="width:40.0%" /> <img data-src="images/preattentive_job_satisfaction_example_2.jpeg" style="width:42.0%" /></p>
+<p><small><small> <a href="http://www.storytellingwithdata.com/blog/2011/10/google-example-preattentive-attributes" class="uri">http://www.storytellingwithdata.com/blog/2011/10/google-example-preattentive-attributes</a> </small></small></p>
+</section><section id="preattentive-examples" class="slide level2">
+<h2>Preattentive examples</h2>
+<p><img data-src="images/preattentive_examples.png" style="width:55.0%" /></p>
+<p><small><small>From Ware, C. (2012). p.154</small></small></p>
+</section><section id="which-side-has-the-outlier" class="slide level2">
+<h2>Which side has the outlier?</h2>
+<p><img data-src="images/outlier_side_1_Healey2012.png" style="width:100.0%" /></p>
+<p><small><small>From Healey, C., &amp; Enns, J. (2012)</small></small></p>
+</section><section id="which-side-has-the-outlier-1" class="slide level2">
+<h2>Which side has the outlier?</h2>
+<p><img data-src="images/outlier_side_2_Healey2012.png" style="width:100.0%" /></p>
+<p><small><small>From Healey, C., &amp; Enns, J. (2012)</small></small></p>
+</section><section id="which-side-has-the-outlier-2" class="slide level2">
+<h2>Which side has the outlier?</h2>
+<p><img data-src="images/outlier_side_3_Healey2012.png" style="width:100.0%" /></p>
+<ul>
+<li>Don’t use two channels in conjunction.</li>
+</ul>
+<p><small><small>From Healey, C., &amp; Enns, J. (2012)</small></small></p>
+</section><section id="using-preattentive-attributes" class="slide level2">
+<h2>Using Preattentive Attributes</h2>
+<ul>
+<li class="fragment">Not all preattentive effects are equally strong: strongest effects are based on color, orientation, size, and contrast.</li>
+<li class="fragment">Do not use multiple preattentive channels for competing information.</li>
+<li class="fragment">For highlighting, use whatever feature dimension is used least in other parts of the design.</li>
+</ul>
+</section><section id="making-things-stand-out" class="slide level2">
+<h2>Making things stand out</h2>
+<ul>
+<li>using these insights we can design plots to emphasize particular pieces of information</li>
+</ul>
+<p><strong>Takeaways</strong></p>
+<ul>
+<li>Use color and shape sparingly to make the important information pop out.</li>
+<li>Maximize the contrast with the background if the outlines of shapes are important.</li>
+</ul>
+</section></section>
+<section><section id="emphasis-in-a-scatter-plot" class="title-slide slide level1"><h1>Emphasis in a scatter plot</h1></section><section id="picking-out-a-data-point" class="slide level2">
+<h2>Picking Out a Data Point</h2>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-4-1.png" /></p>
+</section><section id="pick-it-out-by-shape" class="slide level2">
+<h2>Pick it out by Shape?</h2>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-5-1.png" /></p>
+<ul>
+<li>Highlight by shape</li>
+</ul>
+</section><section id="pick-it-out-by-color" class="slide level2">
+<h2>Pick it out by Color?</h2>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-6-1.png" /></p>
+<ul>
+<li>Highlight by color</li>
+</ul>
+</section><section id="pick-it-out-by-size" class="slide level2">
+<h2>Pick it out by Size?</h2>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-7-1.png" /></p>
+<ul>
+<li>Highlight by size</li>
+</ul>
+</section><section id="how-about-all-three" class="slide level2">
+<h2>How about all three?</h2>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-8-1.png" /></p>
+<ul>
+<li>Highlight by all three</li>
+</ul>
+</section><section id="multiple-channels-of-comparison-become-uninterpretable-very-fast" class="slide level2">
+<h2>Multiple channels of comparison become uninterpretable very fast</h2>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-9-1.png" /></p>
+</section><section id="unless-your-data-has-a-lot-of-structure" class="slide level2">
+<h2>Unless your data has a lot of structure</h2>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-10-1.png" /></p>
+<p><small> The data on the graph are the reason for the existence of the graph. – Cleveland (1994, 25) </small></p>
+</section><section id="takeaway-symbols" class="slide level2">
+<h2>Takeaway: Symbols</h2>
+<ul>
+<li>Make symbols as distinct from each other as possible (and from their backgrounds). Redundant properties (color and shape) can be helpful.</li>
+</ul>
+<p><img data-src="images/symbols_ware2012.png" style="width:60.0%" /></p>
+<p><small><small>From Ware, C. (2012). p.151</small></small></p>
+</section></section>
+<section><section id="elementary-perceptual-tasks" class="title-slide slide level1"><h1>Elementary Perceptual Tasks</h1></section><section id="some-visual-estimations-are-more-easily-carried-out-than-others." class="slide level2">
+<h2>Some visual estimations are more easily carried out than others.</h2>
+<p><img data-src="images/elementary_tasks_cleveland1984.png" style="width:40.0%" /></p>
+<p><small><small>Cleveland, W. S., &amp; McGill, R. (1984). Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods. Journal of the American Statistical Association, 79(387), 531–554. <a href="https://doi.org/10.2307/2288400" class="uri">https://doi.org/10.2307/2288400</a> </small></small></p>
+</section><section id="make-it-easier-for-your-audience" class="slide level2">
+<h2>Make it easier for your audience</h2>
+<p><img data-src="images/visual_tasks1_Wong2010.png" style="width:50.0%" /> <small><small> Wong, B. (2010). </small></small></p>
+<p><small> It is tough to accurately judge the differences between two curves: The disparity is actually constant but our perceptual system is attuned to detecting minimal distances so the divergence appears to decrease. </small></p>
+<p><small> Our ability to accurately judge relative area is poor. The larger circle is 14 times larger than the smaller circle. This is the reason bubble charts are usually bad to provide accurate info! </small></p>
+</section><section id="make-it-easier-for-your-audience-1" class="slide level2">
+<h2>Make it easier for your audience</h2>
+<p><img data-src="images/visual_tasks2_Wong2010.png" style="width:50.0%" /></p>
+<p><small> Most readers will judge angle when extracting information from pie charts, but they could also compare areas and arc length of the slices. Each of these perceptual tasks ranks low in efficiency and accuracy. </small></p>
+<p><small> The same info in a bar chart is more effective and accurate. </small></p>
+</section><section id="make-it-easier-for-your-audience-2" class="slide level2">
+<h2>Make it easier for your audience</h2>
+<p><img data-src="images/visual_tasks3_Wong2010.png" style="width:100.0%" /></p>
+<p><small> Graph plots the same five values using different encodings. Perceptual information processing gets easier from left to right.</small></p>
+</section><section id="takeaways-elementary-perceptual-tasks" class="slide level2">
+<h2>Takeaways: Elementary Perceptual Tasks</h2>
+<p>We want to avoid displays of data that are misleading or difficult to discern.</p>
+<ul>
+<li><strong>Common scales</strong> are better than non-aligned scales.</li>
+<li>Length judgements are easier with a <strong>common baseline</strong>.</li>
+<li>Angles are often misjudged. Angles &gt;90° are often overestimated, angles &lt;90° often underestimated.</li>
+<li>Area judgments are less accurate than length judgments or position judgments.</li>
+<li>Volumes are misjudged even more. This is one reason 3-D charts are usually terrible.</li>
+<li>Slopes and changes in slope are prone to misjudgement.</li>
+<li><strong>Colors</strong> are best reserved for <strong>displaying categories</strong>.</li>
+</ul>
+</section><section id="further-reading" class="slide level2">
+<h2>Further Reading</h2>
+<p><small></p>
+<ul>
+<li><p>Wong, B. (2010a). Points of view: Design of data figures. Nature Methods, 7(9), 665–665. <a href="https://doi.org/10.1038/nmeth0910-665" class="uri">https://doi.org/10.1038/nmeth0910-665</a></p></li>
+<li><p>Wong, B. (2010b). Points of View: Gestalt principles (Part 1). Nature Methods, 7(11), 863–863. <a href="https://doi.org/10.1038/nmeth1110-863" class="uri">https://doi.org/10.1038/nmeth1110-863</a></p></li>
+<li><p>Wong, B. (2010c). Points of View: Gestalt principles (Part 2). Nature Methods, 7(12), 941–941. <a href="https://doi.org/10.1038/nmeth1210-941" class="uri">https://doi.org/10.1038/nmeth1210-941</a></p></li>
+<li><p>Cleveland, W. S., &amp; McGill, R. (1984). Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods. Journal of the American Statistical Association, 79(387), 531–554. <a href="https://doi.org/10.2307/2288400" class="uri">https://doi.org/10.2307/2288400</a></p></li>
+<li><p>Ware, C. (2012). Information Visualization, Third Edition: Perception for Design (3rd edition). Waltham, MA: Morgan Kaufmann.</p></li>
+<li><p>Healey, C., &amp; Enns, J. (2012). Attention and Visual Memory in Visualization and Computer Graphics. IEEE Transactions on Visualization and Computer Graphics, 18(7), 1170–1188. <a href="https://doi.org/10.1109/TVCG.2011.127" class="uri">https://doi.org/10.1109/TVCG.2011.127</a></p></li>
+</ul>
+<p></small></p>
+</section></section>
+<section><section id="the-plot-making-process-in-ggplot" class="title-slide slide level1"><h1>The Plot-Making Process in ggplot</h1></section><section id="understanding-the-layers-of-ggplot2" class="slide level2">
+<h2>Understanding the layers of ggplot2</h2>
+<p>Recall: the three key grammatical elements:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Element</th>
+<th style="text-align: center;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><strong>Data</strong></td>
+<td style="text-align: center;">The dataset being plotted.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Aes</strong>thetics</td>
+<td style="text-align: center;">The scales onto which we map our data.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>Geom</strong>etries</td>
+<td style="text-align: center;">The visual elements used for our data.</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s take a closer look at these now.</p>
+</section><section id="recall-aesthetic-vs.attributes" class="slide level2">
+<h2>Recall: Aesthetic vs. Attributes</h2>
+<ul>
+<li>an attribute is simply a setting of things like color, shape, size etc. independent of what the data looks like</li>
+<li>in contrast, in the aesthetics layer, we <strong>map</strong> features of the data onto visible aesthetics</li>
+</ul>
+</section><section id="recall-setting-attributes" class="slide level2">
+<h2>Recall: Setting Attributes</h2>
+<p>Here we set three attributes of the points: alpha, size, color</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(gapminder)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="st">        </span><span class="kw">scale_x_log10</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.5</span>, <span class="dt">size=</span><span class="dv">3</span>, <span class="dt">color=</span><span class="st">&quot;red&quot;</span>)</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-11-1.png" /></p>
+</section><section id="recall-mapping-onto-color" class="slide level2">
+<h2>Recall: Mapping onto color</h2>
+<p>Now, we <strong>map</strong> color onto continent.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color=</span>continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="st">        </span><span class="kw">geom_point</span>() <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>()</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-12-1.png" /></p>
+</section><section id="recall-mapping-onto-color-1" class="slide level2">
+<h2>Recall: Mapping onto color</h2>
+<p>Here we mistakingly overwrite our mapping with an attribute later.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color=</span>continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">color=</span><span class="st">&quot;red&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>() </a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-13-1.png" /></p>
+</section><section id="recall-mapping-onto-shape" class="slide level2">
+<h2>Recall: Mapping onto shape</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">shape=</span>continent)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">size=</span><span class="dv">3</span>, <span class="dt">alpha=</span><span class="fl">0.3</span>) <span class="op">+</span><span class="st"> </span><span class="kw">scale_x_log10</span>()</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-14-1.png" /></p>
+</section><section id="recall-mapping-onto-size" class="slide level2">
+<h2>Recall: Mapping onto size</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">size=</span>pop)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">        </span><span class="kw">scale_x_log10</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="st">        </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.3</span>)</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-15-1.png" /></p>
+</section><section id="recall-mapping-onto-size-1" class="slide level2">
+<h2>Recall: Mapping onto size</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">ggplot</span>(gapminder, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">size=</span>pop<span class="op">/</span><span class="dv">10</span><span class="op">^</span><span class="dv">6</span>)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="st">        </span><span class="kw">scale_x_log10</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.3</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="st">        </span><span class="kw">scale_size_continuous</span>(<span class="dt">name=</span><span class="st">&quot;pop&quot;</span>, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">10</span>,<span class="dv">100</span>,<span class="dv">250</span>,<span class="dv">1000</span>))</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-16-1.png" /></p>
+</section><section id="recall-combining-mappings" class="slide level2">
+<h2>Recall: Combining mappings</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">ggplot</span>(<span class="kw">subset</span>(gapminder, continent <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Americas&quot;</span>,<span class="st">&quot;Europe&quot;</span>)), </a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">       <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">size=</span>year, </a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">           <span class="dt">color=</span>continent, <span class="dt">shape=</span>continent)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4"><span class="st">       </span><span class="kw">scale_x_log10</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.3</span>)</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-18-1.png" /></p>
+</section><section id="typical-aesthetics" class="slide level2">
+<h2>Typical aesthetics</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Aesthetic</th>
+<th style="text-align: center;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">x</td>
+<td style="text-align: center;">X axis position</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">y</td>
+<td style="text-align: center;">Y axis position</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">colour</td>
+<td style="text-align: center;">Colour of dots, outlines of other shapes</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">fill</td>
+<td style="text-align: center;">Fill colour</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">size</td>
+<td style="text-align: center;">Diameter of points, thickness of lines</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">alpha</td>
+<td style="text-align: center;">Transparency</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">linetype</td>
+<td style="text-align: center;">Line dash pattern</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">labels</td>
+<td style="text-align: center;">Text on a plot or axes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">shape</td>
+<td style="text-align: center;">Shape</td>
+</tr>
+</tbody>
+</table>
+</section><section id="aesthetics-and-geoms" class="slide level2">
+<h2>Aesthetics and Geoms</h2>
+<ul>
+<li>each <code>geom()</code> layer allows you to set the aesthetics that make sense for the particular plot <code>geom()</code></li>
+<li>for example, <code>geom_point</code> understands the following aesthetics: x, y, alpha, color, fill, group, shape, size, stroke. For <code>geom_point()</code> the aesthetics x and y are required.</li>
+<li>some aesthetics are limited to continous variables, others to categorical variables</li>
+</ul>
+</section><section id="aesthetics---continuous-variables" class="slide level2">
+<h2>Aesthetics - Continuous Variables</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Aesthetic</th>
+<th style="text-align: center;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">x</td>
+<td style="text-align: center;">X axis position</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">y</td>
+<td style="text-align: center;">Y axis position</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">colour</td>
+<td style="text-align: center;">Colour of dots, outlines of other shapes</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">fill</td>
+<td style="text-align: center;">Fill colour</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">size</td>
+<td style="text-align: center;">Diameter of points, thickness of lines</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">alpha</td>
+<td style="text-align: center;">Transparency</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><del>linetype</del></td>
+<td style="text-align: center;">Line dash pattern</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><del>labels</del></td>
+<td style="text-align: center;">Text on a plot or axes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><del>shape</del></td>
+<td style="text-align: center;">Shape</td>
+</tr>
+</tbody>
+</table>
+</section><section id="aesthetics---continuous-variables-1" class="slide level2">
+<h2>Aesthetics - Continuous Variables</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">ggplot</span>(<span class="kw">filter</span>(gapminder,year<span class="op">==</span><span class="dv">2007</span>), </a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">  <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">size=</span>pop)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="st">  </span><span class="kw">scale_x_log10</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.3</span>) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="st">  </span><span class="kw">scale_size_continuous</span>(<span class="dt">name=</span><span class="st">&quot;pop&quot;</span>, <span class="dt">range =</span> <span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">20</span>))</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-19-1.png" /></p>
+</section><section id="aesthetics---continuous-variables-2" class="slide level2">
+<h2>Aesthetics - Continuous Variables</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">d &lt;-<span class="st"> </span><span class="kw">filter</span>(gapminder, year <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">1967</span>,<span class="dv">1977</span>,<span class="dv">1987</span>,<span class="dv">1997</span>,<span class="dv">2007</span>))</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="kw">ggplot</span>(d, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">color=</span>pop)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb9-3" data-line-number="3"><span class="st">  </span><span class="kw">scale_x_log10</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.3</span>, <span class="dt">size=</span><span class="dv">3</span>)</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-20-1.png" /></p>
+</section><section id="aesthetics---continuous-variables-3" class="slide level2">
+<h2>Aesthetics - Continuous Variables</h2>
+<ul>
+<li>size works clearly better than color in this case</li>
+<li>there are general guides about which types of aesthetics work better for which kind of variables – these are rooted in our understanding of <strong>visual perception</strong> as we have seen earlier.</li>
+</ul>
+</section><section id="aesthetics---categorical-variables---mapping-onto-shape" class="slide level2">
+<h2>Aesthetics - Categorical Variables - Mapping onto shape</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">ggplot</span>(d, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">shape=</span>continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="st">  </span><span class="kw">scale_x_log10</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.3</span>, <span class="dt">size=</span><span class="dv">4</span>)</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-21-1.png" /></p>
+</section><section id="adding-redundant-channel-to-emphasize" class="slide level2">
+<h2>Adding redundant channel to emphasize</h2>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">ggplot</span>(d, <span class="kw">aes</span>(<span class="dt">x =</span> gdpPercap, <span class="dt">y =</span> lifeExp, <span class="dt">shape=</span>continent)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw">scale_x_log10</span>() <span class="op">+</span><span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">alpha=</span><span class="fl">0.3</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data=</span><span class="kw">filter</span>(d, continent<span class="op">==</span><span class="st">&quot;Americas&quot;</span>), </a>
+<a class="sourceLine" id="cb11-4" data-line-number="4">   <span class="dt">color=</span><span class="st">&quot;red&quot;</span>, <span class="dt">alpha=</span><span class="fl">0.5</span>, <span class="dt">size=</span><span class="dv">4</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;none&quot;</span>)</a></code></pre></div>
+<p><img data-src="week02_lecture_files/figure-revealjs/unnamed-chunk-22-1.png" /></p>
+</section></section>
+<section id="on-your-own" class="title-slide slide level1"><h1>On your own</h1></section>
+<section><section id="r-markdown" class="title-slide slide level1"><h1>R Markdown</h1></section><section id="r-markdown-1" class="slide level2">
+<h2>R Markdown</h2>
+<ul>
+<li>I asked everyone to familiarize themselves with R Markdown.</li>
+<li>Success?</li>
+<li>Use the R Markdown <a href="https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf">cheat sheet</a> for a nice overview on Markdown in RStudio.</li>
+</ul>
+<p><img data-src="images/rmarkdown-cheatsheet-2.0_p1.png" style="width:40.0%" /> <img data-src="images/rmarkdown-cheatsheet-2.0_p2.png" style="width:40.0%" /></p>
+</section><section id="markdown-and-github" class="slide level2">
+<h2>Markdown and GitHub</h2>
+<ul>
+<li>GitHub has a few <a href="https://guides.github.com/features/mastering-markdown/">special Markdown commands</a>
+<ul>
+<li>special syntax highlighting</li>
+<li>task lists – useful for your projects</li>
+<li>Links to issues and pull requests within a repository</li>
+<li>Username <span class="citation" data-cites="mentions">@mentions</span>: Typing an @ symbol, followed by a username, will notify that person to come and view the comment.</li>
+</ul></li>
+</ul>
+</section></section>
+<section><section id="git-and-github" class="title-slide slide level1"><h1>Git and GitHub</h1></section><section id="why-git" class="slide level2">
+<h2>Why Git?</h2>
+<ul>
+<li>Git
+<ul>
+<li>version control is good (for many reasons)</li>
+<li>master-branch workflow</li>
+<li>distributed (rather than centralized) version control</li>
+<li>pull requests to manage/discuss updates</li>
+<li>de facto standard on version control</li>
+</ul></li>
+<li>GitHub
+<ul>
+<li>Github is like facebook for programmers. Everyone’s on there.</li>
+<li>open source</li>
+<li>lowers the barriers to collaboration</li>
+</ul></li>
+</ul>
+</section><section id="resources-to-get-started-with-git-and-github" class="slide level2">
+<h2>Resources to get started with Git and GitHub</h2>
+<ul>
+<li>Git
+<ul>
+<li><a href="https://git-scm.com/">Official git command line and GUI clients, official documentation</a></li>
+</ul></li>
+<li>Clients
+<ul>
+<li><a href="https://desktop.github.com/">Desktop Client for Mac and Windows</a></li>
+<li><a href="https://www.sourcetreeapp.com/">Sourcetree - another free visual Git</a></li>
+</ul></li>
+<li>Tutorials
+<ul>
+<li><a href="https://help.github.com/articles/set-up-git/">Setting up git</a></li>
+<li><a href="https://try.github.io">Try.github</a></li>
+<li><a href="https://guides.github.com/activities/hello-world/">Hello World - GitHub for the non-programming beginner.</a></li>
+<li><a href="https://guides.github.com/">Guides at GitHub</a></li>
+<li><a href="https://git-scm.com/book/en/v2">Pro Git - a full book with lots of details</a></li>
+</ul></li>
+</ul>
+</section><section id="intro-git---version-control" class="slide level2">
+<h2>Intro Git - version control</h2>
+<ul>
+<li><strong>Version control</strong>
+<ul>
+<li>VC is a great way to keep track of changes in code, manuscripts, presentations, and data analysis projects.</li>
+<li>Allows you to save and annotate all changes to your code and files.</li>
+<li>No need to rename files as “analysis_v1.R”, “analysis_with second graph.R”, “analysis_Mike update.R”</li>
+</ul>
+<img data-src="images/version-control.png" style="width:40.0%" /></li>
+</ul>
+</section><section id="intro-git---local-vs.shared-repository" class="slide level2">
+<h2>Intro Git - Local vs. Shared Repository</h2>
+<p><img data-src="images/git_four_stages.png" style="width:30.0%" /></p>
+</section><section id="intro-git---master-branch" class="slide level2">
+<h2>Intro Git - Master-Branch</h2>
+<p><img data-src="images/git_master_branch.png" style="width:50.0%" /></p>
+</section><section id="intro-git---centralized-vs.distributed-version-control" class="slide level2">
+<h2>Intro Git - Centralized vs. Distributed Version Control</h2>
+<p><img data-src="images/git_dvn_cvn.png" style="width:80.0%" /></p>
+</section><section id="intro-git---popularity" class="slide level2">
+<h2>Intro Git - Popularity</h2>
+<p><img data-src="images/git_popularity.png" style="width:100.0%" /> <small><small><a href="https://www.google.com/trends/explore?date=all&amp;q=%2Fm%2F05vqwg,%2Fm%2F012ct9,%2Fm%2F08441_,%2Fm%2F08w6d6,%2Fm%2F09d6g&amp;hl=en-US">Google Trends Comparison</a> </small></small></p>
+</section><section id="intro-github" class="slide level2">
+<h2>Intro GitHub</h2>
+<ul>
+<li>single largest host for Git repositories, and is the central point of collaboration for millions of developers and projects</li>
+<li>Free. Allows easy open source hosting. Private repositories available with your .edu email address.</li>
+<li>While Git is a command line tool, GitHub provides a web-based graphical interface.</li>
+<li>Provides access control and several collaboration features, such as a wikis and basic task management tools for every project.</li>
+</ul>
+</section><section id="why-for-what-should-you-use-github" class="slide level2">
+<h2>Why / For what should you use GitHub?</h2>
+<ul>
+<li>Use GitHub for your <strong>homework</strong> .</li>
+<li>Use GitHub for your <strong>final group project</strong>.</li>
+<li>Get the <strong>class material and resources</strong> on GitHub.</li>
+<li>Find useful repositories, packages, data, code, and tutorials: e.g. <a href="https://github.com/hadley/ggplot2-book">ggplot2 book</a>, <a href="https://github.com/alignedleft/d3-book">Murray book code examples${</a> etc.</li>
+</ul>
+</section><section id="using-github-for-your-group-project" class="slide level2">
+<h2>Using Github for your group project</h2>
+<ul>
+<li>Your group project will involve lots of back and forth.</li>
+<li>Trying out changes to the code, new visualizations etc. becomes hazard free.</li>
+<li>All things are documented.</li>
+<li>Makes it easier to evaluate who did the work and who slacked off (for you and for us, the teaching team).</li>
+</ul>
+</section><section id="github-flow---create-a-branch" class="slide level2">
+<h2>Github Flow - Create a branch</h2>
+<p><img data-src="images/gihub_flow_branch.png" style="width:80.0%" /></p>
+<ul>
+<li>Try out ideas for your project by creating a branch.</li>
+<li>Changes you make on a branch don’t affect the master branch, so you’re free to experiment and commit changes.</li>
+</ul>
+</section><section id="github-flow---add-commits" class="slide level2">
+<h2>Github Flow - Add commits</h2>
+<p><img data-src="images/gihub_flow_commits.png" style="width:80.0%" /></p>
+<ul>
+<li>Whenever you add, edit, or delete a file, you’re making a commit, and adding them to your branch.</li>
+<li>Keeps track of your progress as you work on a branch.</li>
+<li>Transparent history of your work with associated commit message (i.e a description of your change).</li>
+<li>Allows you to roll back if things go awry.</li>
+</ul>
+</section><section id="github-flow---pull-request" class="slide level2">
+<h2>Github Flow - Pull Request</h2>
+<p><img data-src="images/gihub_flow_pullrequest.png" style="width:80.0%" /></p>
+<ul>
+<li>Pull Requests initiate discussion about your commits.</li>
+<li>Anyone can see exactly what changes would be merged if they accept your request.</li>
+<li>Using GitHub’s <span class="citation" data-cites="mention">@mention</span> system in your Pull Request message to ask for feedback from your team.</li>
+</ul>
+</section><section id="github-flow---discuss-and-review" class="slide level2">
+<h2>Github Flow - Discuss and Review</h2>
+<p><img data-src="images/gihub_flow_discuss.png" style="width:80.0%" /></p>
+<ul>
+<li>Discuss and review the changes.</li>
+<li>Continue to fix code and push up the change with new commits.</li>
+<li>GitHub will show your new commits and any additional feedback you may receive in the unified Pull Request view.</li>
+</ul>
+</section><section id="github-flow---deploy" class="slide level2">
+<h2>Github Flow - Deploy</h2>
+<p><img data-src="images/gihub_flow_deploy.png" style="width:80.0%" /></p>
+<ul>
+<li>Check your branch to verify it works.</li>
+<li>If your branch causes issues, you can roll it back by deploying the existing master again.</li>
+</ul>
+</section><section id="github-flow---merge" class="slide level2">
+<h2>Github Flow - Merge</h2>
+<p><img data-src="images/gihub_flow_merge.png" style="width:80.0%" /></p>
+<ul>
+<li>Merge your code into the master branch.</li>
+<li>Pull Requests preserve a record of the historical changes to your code. Because they’re searchable, they let anyone go back in time to understand why and how a decision was made.</li>
+</ul>
+</section><section id="to-do-by-yourself" class="slide level2">
+<h2>To Do By Yourself</h2>
+<ul>
+<li>GitHub
+<ul>
+<li>Sign up to GitHub.</li>
+<li>Provide your github info so I can add you to the class repository.<br />
+</li>
+<li>Familiarize yourself with the setup. Download a client if you don’t like the terminal commands.</li>
+<li>Start a new repository for this week’s class notes or exercise.<br />
+</li>
+</ul></li>
+<li>Markdown
+<ul>
+<li>Keep at it. If you did not try, do some tutorial I linked to.</li>
+</ul></li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="week02_lecture_files/reveal.js-3.3.0.1/lib/js/head.min.js"></script>
+  <script src="week02_lecture_files/reveal.js-3.3.0.1/js/reveal.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        // Display controls in the bottom right corner
+        controls: false,
+        // Display a presentation progress bar
+        progress: false,
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+        // Push each slide change to the browser history
+        history: true,
+        // Vertical centering of slides
+        center: false,
+        // Transition style
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        // Transition style for full page slide backgrounds
+        backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+
+
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'week02_lecture_files/reveal.js-3.3.0.1/plugin/notes/notes.js', async: true },
+        ]
+      });
+    </script>
+  <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+<script>
+  (function() {
+    if (window.jQuery) {
+      Reveal.addEventListener( 'slidechanged', function(event) {  
+        window.jQuery(event.previousSlide).trigger('hidden');
+        window.jQuery(event.currentSlide).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+
+  </body>
+</html>

@@ -1,0 +1,165 @@
+<style type="text/css">
+
+.largequote { 
+  font-size: 2em;
+}
+
+#nextsteps {
+   color: blue;
+}
+
+.emphasized {
+   font-size: 1.2em;
+}
+
+.source {
+  font-size: 0.4em;
+}
+
+.tutorial {
+  color: green;
+  font-size: 1.0em;
+}
+
+pre {
+  width: 125vh !important; 
+}
+
+/* Vertical Scroll Bar for Long Code Chunks 
+Need to add class.source='long' to code chunk options */
+pre.long {
+  white-space: pre !important;
+  overflow-y: scroll !important;
+  overflow-x: scroll !important;
+  height: 80vh !important; 
+  width: 125vh !important; 
+}
+
+/* Large Block Quote (with beginning quotation mark) */
+
+blockquote {
+    font-family: Georgia, serif;
+    font-size: 1.5em;
+    font-style: italic;
+    width: 500px;
+    margin: 0.25em 0;
+    padding: 0.35em 40px;
+    line-height: 1.45;
+    position: relative;
+    color: #383838;
+}
+
+blockquote:before {
+    display: block;
+    padding-left: 10px;
+    content: "\201C";
+    font-size: 100px;
+    position: absolute;
+    left: -20px;
+    top: -20px;
+    color: #7a7a7a;
+}
+
+blockquote cite {
+    color: #999999;
+    font-size: 1.2em;
+    display: block;
+    margin-top: 5px;
+}
+
+blockquote cite:before {
+    content: "\2014 \2009";
+}
+
+/* Full Slide Image 
+
+In the rmarkdown file: 
+## {.fullslide}
+![](image.jpg)
+
+*/
+
+.fullslide img {
+  margin-top: -85px;
+  margin-left: -60px;
+}
+
+/* Two columns 
+
+When you want to use these columns in your R Markdown document, use them like so, with a bit of html:
+
+<div id="left">
+  #content
+</div>
+<div id="right">
+  #content
+</div>
+*/
+
+#left {
+  left:-8.33%;
+  text-align: left;
+  float: left;
+  width:50%;
+  z-index:-10;
+}
+
+#right {
+  left:31.25%;
+  top: 75px;
+  float: left;
+  text-align: left;
+  z-index:-10;
+  width:50%;
+}
+
+/* SQL Output Tables */
+
+table.rmdtable td {
+  padding: 0.4em 0.4em
+}
+ 
+table.rmdtable td {
+  background-color: #dcdcdc;
+  padding: 0.3em 0.3em
+}
+
+/* Slide Number */
+slides > slide:not(.nobackground):after {font-size: 12pt;content: attr(data-slide-num) "/" attr(data-total-slides);position: absolute;bottom: 10px;right: 10px;line-height: 1.9;}
+
+
+/* 
+*****************************
+Reveal.js CSS options 
+*****************************
+*/
+
+.reveal h1 { font-size: 2.5em; } 
+
+.reveal {
+  font-size: 30px;
+}
+
+.reveal section img {
+  margin: 15px 0px;
+  background: none;
+  border: none;
+  box-shadow: none; }
+
+/* 
+*****************************
+remark.js CSS options 
+- for Xaringan Slides
+*****************************
+*/
+
+.tiny { font-size: 20% }
+.scriptsize { font-size: 30% }
+.footnotesize { font-size: 50% }
+.small { font-size: 70% }
+.large { font-size: 130% }
+.Large { font-size: 160% }
+.huge { font-size: 190% }
+.Huge { font-size: 210% }
+
+</style>

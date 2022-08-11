@@ -1,0 +1,12 @@
+name: wdi_map
+title: wdi_map
+username:
+account: qmss
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 883128
+bundleId: 2031013
+url: https://qmss.shinyapps.io/wdi_map/
+when: 1555975454.3918
+asMultiple: FALSE
+asStatic: FALSE

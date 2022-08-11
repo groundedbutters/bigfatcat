@@ -1,0 +1,8 @@
+This is a dataset of daily marijuana prices across the U.S. The data is scraped from priceofweed.com The idea behind the website is to crowdsource the price of marijuana
+
+"We crowdsource the street value of marijuana from the most accurate source possible: you, the consumer. Help by anonymously submitting data on the latest transaction you’ve made."
+
+Variables:
+- variables ending with QN count quantity
+- Q lists the price for an ounce of marijuana
+- There are three classes of marijuana quality listed in the dataset: High, Med and Low.

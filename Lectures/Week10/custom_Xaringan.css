@@ -1,0 +1,44 @@
+/* 
+*****************************
+remark.js
+- Title Slide Options
+*****************************
+*/
+
+.title-slide {
+  background-image: url(images/twitter_census.png);
+  background-size: cover;
+}
+
+.title-slide .remark-slide-number {
+  display: none;
+}
+
+/* 
+*****************************
+remark.js
+- General Options
+*****************************
+*/
+
+.remark-slide-content {
+  font-size: 25px;
+}
+
+
+
+/* 
+*****************************
+remark.js CSS options 
+- for Xaringan Slides
+*****************************
+*/
+
+.tiny { font-size: 20% }
+.scriptsize { font-size: 30% }
+.footnotesize { font-size: 50% }
+.small { font-size: 70% }
+.large { font-size: 130% }
+.Large { font-size: 160% }
+.huge { font-size: 190% }
+.Huge { font-size: 210% }

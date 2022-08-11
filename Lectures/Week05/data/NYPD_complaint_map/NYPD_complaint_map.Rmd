@@ -1,0 +1,233 @@
+---
+title: "Mapping NYC Crime Data"
+output: github_document
+---
+
+```{r packages, message = FALSE, warning = FALSE, echo=FALSE}
+# Load packages.
+packages <- c("ggplot2","readr")
+
+packages <- lapply(packages, FUN = function(x) {
+  if(!require(x, character.only = TRUE)) {
+    install.packages(x)
+    library(x, character.only = TRUE)
+  }
+})
+```
+
+
+```{r Setup, include=FALSE, results='hide', warning=FALSE}
+setwd("/Users/tbrambor/Dropbox (Pflegedienst Brambor)/Courses/Planning/QMSS Data Visualization/Lectures/Week 04 - Spatial Data 1/")
+
+opts_chunk$set(fig.path="images/",
+               cache.path="cache/",
+               dev=c("png","pdf"),
+               fig.width=6,
+               fig.height=5,
+               dpi=300,
+               fig.show="hold",
+               fig.lp="fig:",
+               cache=TRUE,
+               par=TRUE,
+               echo=TRUE,
+               message=FALSE,
+               warning=FALSE)
+
+opts_knit$set(kfigr.prefix=TRUE,
+              kfigr.link=FALSE)
+              
+knit_hooks$set(plot = function(x, options) {
+  paste('<figure><img src="',
+        opts_knit$get('base.url'), paste(x, collapse = '.'),
+        '"><figcaption>', options$fig.cap, '</figcaption></figure>',
+        sep = '')
+})              
+
+```
+
+# Mapping NYPD Complaint Data
+
+## Get the data
+
+We get the data from the NYC Open Data Site here:
+https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Map-Year-to-Date-/2fra-mtpn
+The data was downloaded as a csv file.
+
+> This dataset includes all valid felony, misdemeanor, and violation crimes reported to the New York City Police Department (NYPD) for all complete quarters so far this year (2016). Offenses occurring at intersections are represented at the X Coordinate and Y Coordinate of the intersection. Crimes occurring anywhere other than an intersection are geo-located to the middle of the block. 
+
+```{r}
+library(readr)
+nypd <- read_csv("NYPD_Complaint_Map__Year_to_Date.csv")
+```
+
+## Select a subset, rename the variables
+
+```{r}
+# Convert date
+nypd$compl_year  <- substring(nypd$CMPLNT_FR_DT,7,10)
+nypd$compl_month <- substring(nypd$CMPLNT_FR_DT,4,5)
+nypd$compl_day   <- substring(nypd$CMPLNT_FR_DT,1,2)
+
+# 500,000 obs is a bit much to play. Let's subset
+nypd <- filter(nypd, BORO_NM=="MANHATTAN", compl_year=="2016", compl_month=="12")
+```
+
+## Rename a few variables
+
+```{r}
+library(dplyr)
+nypd <- dplyr::rename(nypd,  complnum = CMPLNT_NUM,
+                          date = RPT_DT,
+                          code1 = KY_CD,
+                          code2 = PD_CD,
+                          offense_desc1 = OFNS_DESC,
+                          offense_desc2 = PD_DESC,
+                          crimesuccess = CRM_ATPT_CPTD_CD,
+                          crimelevel = LAW_CAT_CD,
+                          jurisdic = JURIS_DESC,
+                          loc_desc = LOC_OF_OCCUR_DESC,
+                          premise_type = PREM_TYP_DESC,
+                          park = PARKS_NM)
+
+# Drop other vars
+nypd <- nypd %>% select(-CMPLNT_TO_TM,-CMPLNT_FR_DT,-CMPLNT_FR_TM,-CMPLNT_TO_DT,-BORO_NM,-ADDR_PCT_CD,-HADEVELOPT,-X_COORD_CD,-Y_COORD_CD)
+```
+
+names(nypd)
+ [1] "CMPLNT_NUM"        "CMPLNT_FR_DT"      "CMPLNT_FR_TM"      "CMPLNT_TO_DT"     
+ [5] "CMPLNT_TO_TM"      "RPT_DT"            "KY_CD"             "OFNS_DESC"        
+ [9] "PD_CD"             "PD_DESC"           "CRM_ATPT_CPTD_CD"  "LAW_CAT_CD"       
+[13] "JURIS_DESC"        "BORO_NM"           "ADDR_PCT_CD"       "LOC_OF_OCCUR_DESC"
+[17] "PREM_TYP_DESC"     "PARKS_NM"          "HADEVELOPT"        "X_COORD_CD"       
+[21] "Y_COORD_CD"        "Latitude"          "Longitude"         "Lat_Lon"          
+[25] "compl_date"        "compl_year"        "compl_month"       "compl_day"       
+
+## Get a map
+
+```{r}
+map_Manhattan_st <- get_map("Manhattan", zoom=12, 
+                  source="stamen",maptype="toner-background")
+ggmap(map_Manhattan_st)
+```
+
+## Map the complaint locations
+
+```{r, warnings=FALSE}
+g <- ggmap(map_Manhattan_st) 
+g <- g + geom_point(aes(x=Longitude,y=Latitude),data=nypd, size=0.3, alpha=0.3, color="red") 
+g
+```
+
+# Zooming in 
+
+Crime everywhere? Hard to tell from this map where the hotspots are. 
+
+```{r, warnings=FALSE}
+map_TS_st1 <- get_map("Times Square", zoom=14, 
+                  source="stamen",maptype="toner-background")
+g <- ggmap(map_TS_st1) 
+g <- g + geom_point(aes(x=Longitude,y=Latitude),data=nypd, size=1, alpha=0.9, color="red") 
+g
+```
+
+# Zooming in a bit more
+
+Crimes are coded to intersections and the middle of the block.
+
+```{r, warnings=FALSE}
+map_TS_st2 <- get_map("Times Square", zoom=16, 
+                  source="stamen",maptype="toner-background")
+g <- ggmap(map_TS_st2) 
+g <- g + geom_point(aes(x=Longitude,y=Latitude),data=nypd, size=2, alpha=0.9, color="red") 
+g
+```
+
+# High Density Areas
+
+By using `stat_density2d`, we can shade high crime areas. Times Square looks like trouble.
+
+```{r, warnings=FALSE}
+g <- ggmap(map_TS_st1)
+g <- g + stat_density2d(aes(x=Longitude,y=Latitude, fill=..level..), 
+                        data=nypd,geom="polygon", alpha=0.2)
+g + scale_fill_gradient(low = "yellow", high = "red")
+```
+
+
+# High Density Areas - Annotate
+
+```{r, warnings=FALSE}
+g <- ggmap(map_TS_st1)
+g <- g + stat_density2d(aes(x=Longitude,y=Latitude, fill=..level..), data=nypd,geom="polygon", alpha=0.2)
+g <- g + scale_fill_gradient(low = "yellow", high = "red")
+# As before, we can add annotation to ggplot figures
+g <- g + annotate("text",x=-73.987325, y=40.758899, label="Times Square",
+             color="Dark Blue",fontface=2, size=3) +
+    annotate("text",x=-73.988898, y=40.7493349, label="Herald Square",
+             color="Dark Blue",fontface=2, size=3)
+g
+```
+
+## Themes
+
+```{r}
+theme_set(theme_minimal())
+
+## for theme_map
+## devtools::source_gist("33baa3a79c5cfef0f6df")
+
+theme_map <- function(base_size=9, base_family="") {
+    require(grid)
+    theme_bw(base_size=base_size, base_family=base_family) %+replace%
+    theme(axis.line=element_blank(),
+          axis.text=element_blank(),
+          axis.ticks=element_blank(),
+          axis.title=element_blank(),
+          panel.background=element_blank(),
+          panel.border=element_blank(),
+          panel.grid=element_blank(),
+          panel.margin=unit(0, "lines"),
+          plot.background=element_blank(),
+          legend.justification = c(0,0),
+          legend.position = c(0.85,0)
+          )
+}
+```
+
+## Themes
+
+```{r, warnings=FALSE}
+(g <- g + theme_map())
+```
+
+# Facets
+
+- Just as before, we can facet our map by some data value.
+- Let's select a few common offenses for that.
+
+```{r, warnings=FALSE}
+# Selected offenses
+# sort(table(nypd$offense_desc1))
+off <- nypd$offense_desc1 
+offsel <- NA
+offsel <- ifelse(off=="GRAND LARCENY" | off=="PETIT LARCENY" | off=="THEFT-FRAUD" | off=="THEFT OF SERVICES", "Theft", offsel)
+offsel <- ifelse(off=="HARRASSMENT", "Harrassment", offsel)
+offsel <- ifelse(off=="ASSAULT 3 & RELATED OFFENSES" | off=="FELONY ASSAULT", "Assault", offsel)
+offsel <- ifelse(off=="DANGEROUS DRUGS", "Drugs", offsel)
+offsel <- ifelse(is.na(offsel), "Other Crime", offsel)
+nypd$offsel1 <- offsel
+```
+
+## Facets
+
+```{r}
+ggmap(map_Manhattan_st) +
+  stat_density2d(aes(x=Longitude,y=Latitude, fill=..level.., group=offsel1),
+                 data=nypd,geom="polygon", alpha=0.2) +
+  scale_fill_gradient(low = "yellow", high = "red") +
+  theme_map() + theme(legend.position = "right") +
+  facet_wrap(~offsel1, ncol = 2) 
+```
+
+
+
